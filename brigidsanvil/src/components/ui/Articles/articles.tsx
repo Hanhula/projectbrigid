@@ -40,7 +40,7 @@ const Articles = () => {
         <Button
           className="btn btn-primary"
           onClick={() => {
-            worldAnvilAPI.getArticles(10, 0, 0, 10);
+            worldAnvilAPI.getArticles(50, 0, 0, world.countArticles);
           }}
         >
           Fetch All Articles
@@ -50,14 +50,14 @@ const Articles = () => {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         )}
-        <Button
+        {/* <Button
           className="btn btn-primary"
           onClick={() => {
             worldAnvilAPI.getArticle(articles[0].id);
           }}
         >
           Fetch One
-        </Button>
+        </Button> */}
       </div>
       <Table data={articles} getRowCanExpand={() => true} />
       <div>
