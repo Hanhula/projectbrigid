@@ -1,0 +1,39 @@
+{
+  "name": "brigidsanvil",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.6",
+    "@tanstack/react-table": "^8.10.3",
+    "@types/node": "18.16.3",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.1",
+    "bootstrap": "^5.2.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "eslint-config-next": "^13.3.2",
+    "localforage": "^1.10.0",
+    "lucide-react": "^0.279.0",
+    "next": "^13.3.2",
+    "next-redux-wrapper": "^8.1.0",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.9.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.2",
+    "recharts": "^2.8.0",
+    "redux-persist": "^6.0.0",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^5.59.1",
+    "eslint": "^8.7.0",
+    "prettier": "^2.5.1",
+    "sass": "^1.68.0"
+  }
+}

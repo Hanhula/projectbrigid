@@ -1,0 +1,19 @@
+.button-container {
+  button {
+    margin-right: 1em;
+  }
+}
+
+.button-top {
+  display: none;
+}
+
+.form-control {
+  background: var(--dark-terror);
+  border-color: var(--light-terror);
+  color: var(--lightest-terror);
+}
+
+.widthSmall {
+  max-width: 20em;
+}

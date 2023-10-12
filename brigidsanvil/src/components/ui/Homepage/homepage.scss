@@ -1,0 +1,18 @@
+.homepage {
+    .col {
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+    }
+
+    .card {
+        width: 18rem;
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+    }
+}
