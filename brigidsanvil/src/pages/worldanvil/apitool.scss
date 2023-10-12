@@ -17,3 +17,10 @@
 .widthSmall {
   max-width: 20em;
 }
+
+.pagecount {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}

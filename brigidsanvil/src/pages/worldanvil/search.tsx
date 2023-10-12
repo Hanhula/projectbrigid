@@ -16,8 +16,8 @@ function WorldAnvilSearch() {
     <div className="search-container container">
       <div className="row">
         <div className="col">
-          <h1>WorldAnvil Search</h1>
-          Page under construction!
+          <h1>Istralar Search</h1>
+          {"Sorry folks, this only searches Istralar for the minute!"}
           <hr />
           <div className="gcse-search"></div>
         </div>

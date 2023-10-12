@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectIdentity } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { selectAuthToken, setAuthToken } from "@/components/store/authSlice";
+import "./identity.scss";
 
 const IdentityForm = () => {
   const dispatch = useDispatch();
@@ -38,28 +39,36 @@ const IdentityForm = () => {
   };
 
   return (
-    <Form onSubmit={setupAuthentication}>
-      <Form.Group className="mb-3" controlId="formAuthToken">
-        {
-          "To be able to collect your articles, we need your authentication token. It's good practice to create a new authentication token for every new application, and to delete them when you're done - just in case."
-        }
-        <br />
-        <br />
-        <Form.Label>Authentication Token</Form.Label>
-        <Form.Control
-          type="string"
-          placeholder="Enter WorldAnvil Authentication Token"
-          value={placeholderToken}
-          onChange={(e) => setPlaceholderToken(e.target.value)}
-        />
-        <Form.Text className="text-muted">
-          {"Do not share this with anyone else!"}
-        </Form.Text>
-      </Form.Group>
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
-    </Form>
+    <div className="container identity-container">
+      <div className="row">
+        <div className="col">
+          <h1>{"Brigid's Anvil"}</h1>
+          <h3>{"Authentication"}</h3>
+          <Form onSubmit={setupAuthentication}>
+            <Form.Group className="mb-3" controlId="formAuthToken">
+              {
+                "To be able to collect your articles, we need your authentication token. It's good practice to create a new authentication token for every new application, and to delete them when you're done - just in case."
+              }
+              <br />
+              <br />
+              <Form.Label>Authentication Token</Form.Label>
+              <Form.Control
+                type="string"
+                placeholder="Enter WorldAnvil Authentication Token"
+                value={placeholderToken}
+                onChange={(e) => setPlaceholderToken(e.target.value)}
+              />
+              <Form.Text className="text-muted">
+                {"Do not share this with anyone else!"}
+              </Form.Text>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+        </div>
+      </div>
+    </div>
   );
 };
 

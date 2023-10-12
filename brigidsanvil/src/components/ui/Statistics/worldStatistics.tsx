@@ -7,12 +7,12 @@ import {
 import { useSelector } from "react-redux";
 import { ResponsiveContainer, PieChart, Pie, Legend } from "recharts";
 import "./worldStatistics.scss";
+import { useMediaQuery } from "react-responsive";
 
 export function WorldStatistics() {
   const articles = useSelector(selectArticles);
-  const isLoadingArticles = useSelector(selectIsLoadingArticles);
   const world = useSelector(selectWorld);
-  const worldAnvilAPI = useWorldAnvilAPI();
+  const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const countEntityClasses = () => {
     const entityClassCounts: Record<string, number> = {};
@@ -38,10 +38,8 @@ export function WorldStatistics() {
     value,
   }));
 
-  // total article count
-  // article type graph
-  // number of followers
-  // number of maps
+  let testSize = isMobile ? 100 : 300;
+
   return (
     <div className="world-statistics-container">
       <div className="world-stats">
@@ -73,7 +71,7 @@ export function WorldStatistics() {
       <div className="article-stats">
         <h2>Article Stats</h2>
         <div className="row">
-          <div className="col-2" style={{ height: 900 }}>
+          <div className="col-md-2" style={{ height: 900 }}>
             <h5>Types Breakdown</h5>
             <dl className="article-type-list">
               {Object.entries(entityClassCounts).map(([entityClass, count]) => (
@@ -84,15 +82,15 @@ export function WorldStatistics() {
               ))}
             </dl>
           </div>
-          <div className="col-10">
-            <ResponsiveContainer>
+          <div className="col-md-10">
+            <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 {" "}
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  outerRadius={300}
+                  outerRadius={testSize}
                   fill="#8884d8"
                   dataKey="value"
                   label={({

@@ -1,19 +1,51 @@
 // WorldSelect.tsx
 
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectWorlds, selectWorld } from "@/components/store/apiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectWorlds,
+  selectWorld,
+  selectArticles,
+  setArticles,
+} from "@/components/store/apiSlice";
 import { Form, Button } from "react-bootstrap";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 
 const WorldSelect = () => {
+  const world = useSelector(selectWorld);
   const worlds = useSelector(selectWorlds);
+  const articles = useSelector(selectArticles);
   const [selectedWorld, setSelectedWorld] = useState("");
   const worldAnvilAPI = useWorldAnvilAPI();
+  const dispatch = useDispatch();
 
   const submitWorldSelect = (event: any) => {
     event.preventDefault();
-    console.log(selectedWorld);
+    if (world.id && articles.length > 1) {
+      dispatch(
+        setArticles([
+          {
+            id: "",
+            title: "",
+            slug: "",
+            state: "",
+            isWip: false,
+            isDraft: false,
+            entityClass: "",
+            icon: "",
+            url: "",
+            subscribergroups: [],
+            folderId: "",
+            tags: "",
+            updateDate: {
+              date: "",
+              timezone_type: 0,
+              timezone: "",
+            },
+          },
+        ])
+      );
+    }
     worldAnvilAPI.getWorld(selectedWorld);
   };
 

@@ -1,0 +1,12 @@
+.navigation a.nav-link {
+    color: white;
+}
+
+.world-selector-nav form {
+    display: flex;
+    flex-direction: row;
+
+    button {
+        margin-left: 0.5em;
+    }
+}

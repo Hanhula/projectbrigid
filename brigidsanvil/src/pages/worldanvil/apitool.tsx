@@ -7,7 +7,6 @@ import {
 } from "@/components/store/apiSlice";
 
 import "./apitool.scss";
-import IdentityForm from "@/components/ui/Identity/identity";
 import WorldSelect from "@/components/ui/WorldSelect/worldselect";
 import Articles from "@/components/ui/Articles/articles";
 import { selectAuthToken } from "@/components/store/authSlice";
@@ -20,16 +19,17 @@ const APITool = () => {
 
   return (
     <div className="container">
-      <div className="row">
-        <div className="col">
-          <h1>WorldAnvil Tools</h1>
-          Page under construction!
-          <hr />
-          {(!authToken || !identity.success) && <IdentityForm />}
-          {authToken && worlds.success && !world.success && <WorldSelect />}
-          {authToken && world.success && <Articles />}
+      {authToken && identity.success && (
+        <div className="row">
+          <div className="col">
+            <h1>WorldAnvil Tools</h1>
+            Page under construction!
+            <hr />
+            {worlds.success && !world.success && <WorldSelect />}
+            {world.success && <Articles />}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

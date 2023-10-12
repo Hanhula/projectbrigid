@@ -18,6 +18,15 @@ import {
 import { Fragment } from "react";
 import { Dropdown } from "react-bootstrap";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSort,
+  faSortUp,
+  faSortDown,
+  faChevronRight,
+  faChevronDown,
+} from "@fortawesome/free-solid-svg-icons";
+
 const columns: ColumnDef<Article>[] = [
   {
     id: "expander",
@@ -31,7 +40,11 @@ const columns: ColumnDef<Article>[] = [
             style: { cursor: "pointer" },
           }}
         >
-          {row.getIsExpanded() ? ">" : "v"}
+          {row.getIsExpanded() ? (
+            <FontAwesomeIcon icon={faChevronRight} />
+          ) : (
+            <FontAwesomeIcon icon={faChevronDown} />
+          )}
         </button>
       ) : (
         "🔵"
@@ -158,8 +171,24 @@ export function Table({
                             header.getContext()
                           )}
                           {{
-                            asc: " 🔼",
-                            desc: " 🔽",
+                            asc: (
+                              <span>
+                                {" "}
+                                <FontAwesomeIcon icon={faSortUp} />
+                              </span>
+                            ),
+                            desc: (
+                              <span>
+                                {" "}
+                                <FontAwesomeIcon icon={faSortDown} />
+                              </span>
+                            ),
+                            false: (
+                              <span>
+                                {" "}
+                                <FontAwesomeIcon icon={faSort} />
+                              </span>
+                            ),
                           }[header.column.getIsSorted() as string] ?? null}
                         </div>
                         {header.column.getCanFilter() ? (
@@ -207,7 +236,7 @@ export function Table({
       </table>
       <div className="h-2" />
       <div className="row">
-        <div className="pagination col-3 button-container">
+        <div className="pagination col-md-3 button-container">
           <button
             className="btn btn-primary"
             onClick={() => table.setPageIndex(0)}
@@ -237,12 +266,12 @@ export function Table({
             {">>"}
           </button>
         </div>
-        <div className="pagecount row col">
-          <span className="col-2">
+        <div className="pagecount col-md">
+          <span>
             Page {table.getState().pagination.pageIndex + 1} of{" "}
             {table.getPageCount()}
           </span>
-          <span className="input-group col widthSmall">
+          <span className="input-group widthSmall">
             <span className="input-group-text">Go to page: </span>
             <input
               type="number"
@@ -254,7 +283,7 @@ export function Table({
               className="form-control widthSmall"
             />
           </span>
-          <Dropdown className="col-2">
+          <Dropdown>
             <Dropdown.Toggle variant="success" id="dropdown-basic">
               Show {table.getState().pagination.pageSize}
             </Dropdown.Toggle>
@@ -272,10 +301,7 @@ export function Table({
               ))}
             </Dropdown.Menu>
           </Dropdown>
-
-          <div className="col">
-            {table.getPrePaginationRowModel().rows.length} Rows
-          </div>
+          <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
         </div>
       </div>
     </div>
