@@ -53,7 +53,10 @@ export function useWorldAnvilAPI() {
     try {
       const response = await fetch(`/api${endpoint}`, options);
       if (!response.ok) {
-        throw new Error("API request failed");
+        if (!response.ok) {
+          const errorMessage = `API request failed with status ${response.status} (${response.statusText}) for URL: ${response.url}`;
+          throw new Error(errorMessage);
+        }
       }
 
       const data = await response.json();

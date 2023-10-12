@@ -74,23 +74,6 @@ export default async function handler(
   } catch (error) {
     console.error(error);
 
-    let errorMessage =
-      "API request failed, attempted to url: " + url + " error is " + error;
-
-    if (error instanceof Response) {
-      // Attempt to parse the response body as JSON
-      try {
-        const responseBody = await error.json();
-        errorMessage += "\nResponse JSON: " + JSON.stringify(responseBody);
-      } catch (jsonError) {
-        // Handle the case where the response body is not valid JSON
-        errorMessage +=
-          "\nResponse Body (not valid JSON): " + (await error.text());
-      }
-    }
-
-    res.status(500).json({
-      error: errorMessage,
-    });
+    throw error; // Propagate the error back to the calling code
   }
 }

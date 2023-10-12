@@ -16,19 +16,20 @@ const IdentityForm = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(authToken, " test");
-      if (!identity.success) {
+      if (authToken && !identity.success) {
         try {
           const identityData = await worldAnvilAPI.verifyIdentity();
           await worldAnvilAPI.getWorlds(identityData.id);
         } catch (error) {
+          setPlaceholderToken("");
+          dispatch(setAuthToken(null));
           console.error(error);
         }
       }
     };
 
     fetchData();
-  }, [authToken, identity.success, worldAnvilAPI]);
+  }, [authToken, identity.success, worldAnvilAPI, dispatch]);
 
   const setupAuthentication = async (event: any) => {
     event.preventDefault();
