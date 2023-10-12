@@ -5,7 +5,7 @@ import {
   selectWorld,
 } from "@/components/store/apiSlice";
 import { useSelector } from "react-redux";
-import { ResponsiveContainer, PieChart, Pie, Legend } from "recharts";
+import { ResponsiveContainer, PieChart, Pie, Legend, Cell } from "recharts";
 import "./worldStatistics.scss";
 import { useMediaQuery } from "react-responsive";
 
@@ -38,7 +38,42 @@ export function WorldStatistics() {
     value,
   }));
 
+  const colors = [
+    "#e31a1a",
+    "#c3b465",
+    "#E68618",
+    "#46A2CC",
+    "#F9C80E",
+    "#7effbe",
+    "#DD7B38",
+    "#7887AB",
+    "#B492A2",
+    "#4dfd5c",
+    "#439D62",
+    "#ce6cf5",
+    "#ECEB93",
+    "#8D8741",
+    "#9BC53D",
+    "#FA7A35",
+    "#18A75E",
+    "#acecff",
+    "#C4A35A",
+    "#00A68C",
+    "#999390",
+    "#F5D0C5",
+    "#BB6373",
+    "#bb52a3",
+    "#ff79db",
+    "#E1CDA5",
+    "#94D0CC",
+    "#D90429",
+    "#12EAEA",
+    "#FF9A8B",
+  ];
+
   let testSize = isMobile ? 100 : 300;
+
+  const RADIAN = Math.PI / 180;
 
   return (
     <div className="world-statistics-container">
@@ -74,12 +109,14 @@ export function WorldStatistics() {
           <div className="col-md-2" style={{ height: 900 }}>
             <h5>Types Breakdown</h5>
             <dl className="article-type-list">
-              {Object.entries(entityClassCounts).map(([entityClass, count]) => (
-                <div key={entityClass} className="article-type-list-count">
-                  <dt>{entityClass}:</dt>
-                  <dd>{count}</dd>
-                </div>
-              ))}
+              {Object.entries(entityClassCounts)
+                .sort((a, b) => b[1] - a[1]) // Sort by count in descending order
+                .map(([entityClass, count]) => (
+                  <div key={entityClass} className="article-type-list-count">
+                    <dt>{entityClass}:</dt>
+                    <dd>{count}</dd>
+                  </div>
+                ))}
             </dl>
           </div>
           <div className="col-md-10">
@@ -113,7 +150,7 @@ export function WorldStatistics() {
                       <text
                         x={x}
                         y={y}
-                        fill="#8884d8"
+                        fill={colors[index % colors.length]}
                         textAnchor={x > cx ? "start" : "end"}
                         dominantBaseline="central"
                       >
@@ -121,7 +158,14 @@ export function WorldStatistics() {
                       </text>
                     );
                   }}
-                />
+                >
+                  {data.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colors[index % colors.length]}
+                    />
+                  ))}
+                </Pie>
                 <Legend verticalAlign="top" height={36} />
               </PieChart>
             </ResponsiveContainer>
