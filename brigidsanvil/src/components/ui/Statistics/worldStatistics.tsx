@@ -69,6 +69,7 @@ export function WorldStatistics() {
   ];
 
   let testSize = isMobile ? 100 : 300;
+  let displayArticleWarning = articles.length > 1 ? false : true;
 
   return (
     <div className="world-statistics-container">
@@ -100,72 +101,81 @@ export function WorldStatistics() {
       <hr />
       <div className="article-stats">
         <h2>Article Stats</h2>
-        <div className="row">
-          <div className="col-md-2" style={{ height: 900 }}>
-            <h5>Types Breakdown</h5>
-            <dl className="article-type-list">
-              {Object.entries(entityClassCounts)
-                .sort((a, b) => b[1] - a[1]) // Sort by count in descending order
-                .map(([entityClass, count]) => (
-                  <div key={entityClass} className="article-type-list-count">
-                    <dt>{entityClass}:</dt>
-                    <dd>{count}</dd>
-                  </div>
-                ))}
-            </dl>
+        {displayArticleWarning && (
+          <div className="article-warning">
+            {
+              "If you don't see anything here, be sure to fetch all your articles first from the API tool page!"
+            }
           </div>
-          <div className="col-md-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                {" "}
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={testSize}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({
-                    cx,
-                    cy,
-                    midAngle,
-                    innerRadius,
-                    outerRadius,
-                    value,
-                    index,
-                  }) => {
-                    console.log("handling label?");
-                    const RADIAN = Math.PI / 180;
-                    const radius =
-                      25 + innerRadius + (outerRadius - innerRadius);
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill={colors[index % colors.length]}
-                        textAnchor={x > cx ? "start" : "end"}
-                        dominantBaseline="central"
-                      >
-                        {data[index].name} ({value})
-                      </text>
-                    );
-                  }}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
+        )}
+        {!displayArticleWarning && (
+          <div className="row">
+            <div className="col-md-2" style={{ height: 900 }}>
+              <h5>Types Breakdown</h5>
+              <dl className="article-type-list">
+                {Object.entries(entityClassCounts)
+                  .sort((a, b) => b[1] - a[1]) // Sort by count in descending order
+                  .map(([entityClass, count]) => (
+                    <div key={entityClass} className="article-type-list-count">
+                      <dt>{entityClass}:</dt>
+                      <dd>{count}</dd>
+                    </div>
                   ))}
-                </Pie>
-                <Legend verticalAlign="top" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
+              </dl>
+            </div>
+            <div className="col-md-10">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  {" "}
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={testSize}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({
+                      cx,
+                      cy,
+                      midAngle,
+                      innerRadius,
+                      outerRadius,
+                      value,
+                      index,
+                    }) => {
+                      console.log("handling label?");
+                      const RADIAN = Math.PI / 180;
+                      const radius =
+                        25 + innerRadius + (outerRadius - innerRadius);
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill={colors[index % colors.length]}
+                          textAnchor={x > cx ? "start" : "end"}
+                          dominantBaseline="central"
+                        >
+                          {data[index].name} ({value})
+                        </text>
+                      );
+                    }}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={colors[index % colors.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Legend verticalAlign="top" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
+        )}
         <hr />
       </div>
     </div>
