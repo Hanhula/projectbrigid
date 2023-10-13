@@ -1,19 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
-import { ApiResponse, Article } from "../types/article";
-import { Identity } from "../types/user";
-import { World } from "../types/world";
 
 export type AuthState = {
   authToken: string;
 };
 
-// Initial state
 const initialState = {
   authToken: null,
 };
 
-// Actual Slice
 export const authSlice = createSlice({
   name: "authState",
   initialState,

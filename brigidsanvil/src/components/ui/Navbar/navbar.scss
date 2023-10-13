@@ -10,3 +10,30 @@
         margin-left: 0.5em;
     }
 }
+
+.navbar-dark.bg-dark.nav {
+    padding: 0.5em 1em;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.nav-current-user {
+        margin-left: auto;
+    }
+
+    .current-user, .current-world {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        padding: 0em 1em;
+
+        dd {
+            margin-bottom: 0;
+            padding-right: 0.3em;
+        }
+    }
+}

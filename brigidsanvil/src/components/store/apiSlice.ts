@@ -60,9 +60,6 @@ export const apiSlice = createSlice({
     setWorlds(state, action) {
       state.worlds = action.payload;
     },
-    setArticles(state, action) {
-      state.articles = action.payload;
-    },
     setLoadingArticles(state, action) {
       state.isLoadingArticles = action.payload;
     },
@@ -94,7 +91,6 @@ export const {
   setIdentity,
   setWorld,
   setWorlds,
-  setArticles,
   setLoadingArticles,
   updateArticleById,
 } = apiSlice.actions;
@@ -107,8 +103,6 @@ export const selectWorld = (state: { apiState: AnvilAppState }) =>
   state.apiState.world;
 export const selectWorlds = (state: { apiState: AnvilAppState }) =>
   state.apiState.worlds;
-export const selectArticles = (state: { apiState: AnvilAppState }) =>
-  state.apiState.articles;
 export const selectIsLoadingArticles = (state: { apiState: AnvilAppState }) =>
   state.apiState.isLoadingArticles;
 

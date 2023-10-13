@@ -1,17 +1,18 @@
 import { Button, Spinner } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import {
-  selectArticles,
   selectIsLoadingArticles,
   selectWorld,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { Table } from "../Table/table";
+import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 const Articles = () => {
-  const articles = useSelector(selectArticles);
   const isLoadingArticles = useSelector(selectIsLoadingArticles);
   const world = useSelector(selectWorld);
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
 
   const stubMurder = () => {

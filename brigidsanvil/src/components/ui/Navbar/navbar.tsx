@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import "./navbar.scss";
 import {
-  selectArticles,
   selectIdentity,
   selectWorld,
   selectWorlds,
@@ -13,11 +12,13 @@ import { useSelector } from "react-redux";
 import WorldSelect from "../WorldSelect/worldselect";
 import { selectAuthToken } from "@/components/store/authSlice";
 import IdentityForm from "../Identity/identity";
+import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 const NavBar = () => {
   const world = useSelector(selectWorld);
   const worlds = useSelector(selectWorlds);
-  const articles = useSelector(selectArticles);
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const articles = worldArticles!.articles;
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
 
@@ -61,6 +62,22 @@ const NavBar = () => {
               <Nav.Item>
                 <div className="world-selector-nav">
                   <WorldSelect></WorldSelect>
+                </div>
+              </Nav.Item>
+            )}
+            {world.success && (
+              <Nav.Item className="nav-current-world">
+                <div className="current-world">
+                  <dd>{`Currently selected world: `}</dd>
+                  <dt>{world.title}</dt>
+                </div>
+              </Nav.Item>
+            )}
+            {identity.success && (
+              <Nav.Item className="nav-current-user">
+                <div className="current-user">
+                  <dd>{"Logged in as:"}</dd>
+                  <dt>{identity.username}</dt>
                 </div>
               </Nav.Item>
             )}

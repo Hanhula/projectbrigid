@@ -1,17 +1,14 @@
-import { useWorldAnvilAPI } from "@/components/api/worldanvil";
-import {
-  selectArticles,
-  selectIsLoadingArticles,
-  selectWorld,
-} from "@/components/store/apiSlice";
+import { selectWorld } from "@/components/store/apiSlice";
 import { useSelector } from "react-redux";
 import { ResponsiveContainer, PieChart, Pie, Legend, Cell } from "recharts";
 import "./worldStatistics.scss";
 import { useMediaQuery } from "react-responsive";
+import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 export function WorldStatistics() {
-  const articles = useSelector(selectArticles);
   const world = useSelector(selectWorld);
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const articles = worldArticles!.articles;
   const isMobile = useMediaQuery({ query: `(max-width: 760px)` });
 
   const countEntityClasses = () => {
@@ -72,8 +69,6 @@ export function WorldStatistics() {
   ];
 
   let testSize = isMobile ? 100 : 300;
-
-  const RADIAN = Math.PI / 180;
 
   return (
     <div className="world-statistics-container">
