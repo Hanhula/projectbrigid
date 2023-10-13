@@ -1,8 +1,18 @@
-.article-type-list-count {
+.article-type-list-count, .article-tags-list-count {
     display: flex;
     justify-content: space-between;
 }
 
 h2, h5, .article-warning {
     text-align: center;
+}
+
+.wordcloud-and-tags, .wordcloud, .tag-list {
+    height: 37.5em;
+}
+
+.tag-list .article-tags-list {
+    overflow-y: scroll;
+    padding: 0.5em;
+    height: 35em;
 }
