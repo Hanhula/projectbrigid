@@ -34,7 +34,6 @@ const IdentityForm = () => {
 
   const setupAuthentication = async (event: any) => {
     event.preventDefault();
-    console.log(placeholderToken);
     dispatch(setAuthToken(placeholderToken));
   };
 
@@ -47,8 +46,13 @@ const IdentityForm = () => {
           <Form onSubmit={setupAuthentication}>
             <Form.Group className="mb-3" controlId="formAuthToken">
               {
-                "To be able to collect your articles, we need your authentication token. It's good practice to create a new authentication token for every new application, and to delete them when you're done - just in case."
+                "To be able to collect your articles, we need your authentication token. It's good practice to create a new authentication token for every new application, and to delete them when you're done - just in case. "
               }
+              <span>
+                {"You can get your authentication token "}
+                <a href="https://www.worldanvil.com/api/auth/key">{"here"}</a>
+                {"."}
+              </span>
               <br />
               <br />
               <Form.Label>Authentication Token</Form.Label>
