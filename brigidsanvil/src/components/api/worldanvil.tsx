@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Article } from "../types/article";
+import { Article, WorldArticles } from "../types/article";
 import {
   selectIdentity,
-  setArticles,
   setIdentity,
   setWorld,
   setWorlds,
@@ -11,6 +10,7 @@ import {
   updateArticleById,
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
+import { setWorldArticles } from "../store/articlesSlice";
 
 const CallType = {
   GET: "GET",
@@ -160,11 +160,19 @@ export function useWorldAnvilAPI() {
             articleCount
           );
         } else {
-          dispatch(setArticles(articleFetch as Article[]));
+          let worldArticles: WorldArticles = {
+            world: world,
+            articles: articleFetch,
+          };
+          dispatch(setWorldArticles(worldArticles));
           dispatch(setLoadingArticles(false));
         }
       } else {
-        dispatch(setArticles(articles.entities as Article[]));
+        let worldArticles: WorldArticles = {
+          world: world,
+          articles: articles.entities,
+        };
+        dispatch(setWorldArticles(worldArticles));
         dispatch(setLoadingArticles(false));
       }
     }

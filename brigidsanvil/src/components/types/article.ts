@@ -1,4 +1,15 @@
 import { SubscriberGroup } from "./subscribergroup";
+import { World } from "./world";
+
+export type WorldArticles = {
+  world: World;
+  articles: Article[];
+};
+
+export type WorldArticle = {
+  world: World;
+  article: Article;
+};
 
 export type Article = {
   id: string;
