@@ -13,3 +13,26 @@ Future features will include:
 - Full article statistics
 
 If you want to help out on the project, feel free to reach out to @hanhula on Discord.
+
+## Development Setup
+To get started and run the app locally run install the project, set up the environment and then `npm run dev`.
+
+To install:
+
+```sh
+cd brigidsanvil
+npm install
+```
+
+Add env variable:
+
+- `APP_KEY=<your-wa-appliation-key>`
+
+To run:
+
+```shell
+npm run dev
+```
+
+
+
