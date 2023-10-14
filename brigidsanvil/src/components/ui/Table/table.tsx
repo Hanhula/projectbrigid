@@ -322,14 +322,17 @@ function Filter({
 
   const columnFilterValue = column.getFilterValue();
 
-  // Move React.useMemo outside of the conditional block
-  const sortedUniqueValues = React.useMemo(
-    () =>
-      typeof firstValue === "number"
-        ? []
-        : Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [firstValue, column.getFacetedUniqueValues()]
-  );
+  const getSortedUniqueValues = () => {
+    return typeof firstValue === "number"
+      ? []
+      : Array.from(column.getFacetedUniqueValues().keys()).sort();
+  };
+
+  // Include 'column' in the dependency array for React.useMemo
+  const sortedUniqueValues = React.useMemo(getSortedUniqueValues, [
+    firstValue,
+    column,
+  ]);
 
   if (column.id === "isDraft") {
     return (
@@ -398,6 +401,7 @@ function DebouncedInput({
     }, debounce);
 
     return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (
