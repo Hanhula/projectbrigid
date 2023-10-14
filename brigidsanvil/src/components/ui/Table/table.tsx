@@ -90,11 +90,12 @@ const columns: ColumnDef<Article>[] = [
     accessorFn: (row) => row.tags,
     id: "tags",
     cell: (info) => {
-      const tags = String(info.getValue()).split(",");
+      const tagValue = info.getValue();
+      const tags = (tagValue || "").toString();
 
       return (
         <div>
-          {tags.map((tag, index) => (
+          {tags.split(",").map((tag, index) => (
             <span key={index} className="badge text-bg-secondary">
               {tag}
             </span>
@@ -321,71 +322,57 @@ function Filter({
 
   const columnFilterValue = column.getFilterValue();
 
+  // Move React.useMemo outside of the conditional block
   const sortedUniqueValues = React.useMemo(
     () =>
       typeof firstValue === "number"
         ? []
         : Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [column.getFacetedUniqueValues()]
+    [firstValue, column.getFacetedUniqueValues()]
   );
 
-  return typeof firstValue === "number" ? (
-    <div>
-      <div className="flex space-x-2 input-group">
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[0] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [value, old?.[1]])
-          }
-          placeholder={`Min ${
-            column.getFacetedMinMaxValues()?.[0]
-              ? `(${column.getFacetedMinMaxValues()?.[0]})`
-              : ""
-          }`}
-          className="w-24 border shadow rounded"
-        />
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? "")}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? "")}
-          value={(columnFilterValue as [number, number])?.[1] ?? ""}
-          onChange={(value) =>
-            column.setFilterValue((old: [number, number]) => [old?.[0], value])
-          }
-          placeholder={`Max ${
-            column.getFacetedMinMaxValues()?.[1]
-              ? `(${column.getFacetedMinMaxValues()?.[1]})`
-              : ""
-          }`}
-          className="w-24 border shadow rounded"
-        />
+  if (column.id === "isDraft") {
+    return (
+      <div>
+        <div className="input-group">
+          <DebouncedInput
+            type="text" // Treat it as text input for boolean values
+            value={columnFilterValue ? columnFilterValue.toString() : ""}
+            onChange={(value) => {
+              // Convert the value to a boolean
+              const isDraftFilter = (value as string).toLowerCase() === "true";
+              column.setFilterValue(isDraftFilter);
+            }}
+            placeholder={`Search... (true/false)`}
+            className="form-control"
+          />
+        </div>
+        <div className="h-1" />
       </div>
-      <div className="h-1" />
-    </div>
-  ) : (
-    <>
-      <datalist id={column.id + "list"}>
-        {sortedUniqueValues.slice(0, 5000).map((value: any) => (
-          <option value={value} key={value} />
-        ))}
-      </datalist>
-      <div className="input-group">
-        <DebouncedInput
-          type="text"
-          value={(columnFilterValue ?? "") as string}
-          onChange={(value) => column.setFilterValue(value)}
-          placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
-          className="form-control"
-          list={column.id + "list"}
-          data-bs-theme="dark"
-        />
-      </div>
-      <div className="h-1" />
-    </>
-  );
+    );
+  } else {
+    return (
+      <>
+        <datalist id={column.id + "list"}>
+          {sortedUniqueValues.slice(0, 5000).map((value: any) => (
+            <option value={value} key={value} />
+          ))}
+        </datalist>
+        <div className="input-group">
+          <DebouncedInput
+            type="text"
+            value={(columnFilterValue ?? "") as string}
+            onChange={(value) => column.setFilterValue(value)}
+            placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
+            className="form-control"
+            list={column.id + "list"}
+            data-bs-theme="dark"
+          />
+        </div>
+        <div className="h-1" />
+      </>
+    );
+  }
 }
 
 // A debounced input react component
