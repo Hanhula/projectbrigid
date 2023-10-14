@@ -12,29 +12,6 @@ export function WorldStatistics() {
 
   let displayArticleWarning = articles.length > 1 ? false : true;
 
-  // Create a map to store the count of each tag
-  const tagCountMap: { [key: string]: number } = {};
-
-  // Iterate through the articles and count the tags
-  articles.forEach((article) => {
-    if (article.tags) {
-      // Check if article.tags exists and is not null/undefined
-      const tags = article.tags.split(",");
-
-      tags.forEach((tag) => {
-        const trimmedTag = tag.trim(); // Remove leading/trailing spaces
-        if (tagCountMap[trimmedTag]) {
-          tagCountMap[trimmedTag] += 1;
-        } else {
-          tagCountMap[trimmedTag] = 1;
-        }
-      });
-    }
-  });
-
-  // Sort the tag counts in descending order
-  const sortedTags = Object.entries(tagCountMap).sort((a, b) => b[1] - a[1]);
-
   return (
     <div className="world-statistics-container">
       <div className="world-stats">
@@ -74,7 +51,8 @@ export function WorldStatistics() {
         )}
         {!displayArticleWarning && <ArticlePieChart></ArticlePieChart>}
         <hr />
-        <TagCloud></TagCloud>
+        <h2>Tag Stats</h2>
+        {!displayArticleWarning && <TagCloud></TagCloud>}
       </div>
     </div>
   );

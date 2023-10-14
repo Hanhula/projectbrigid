@@ -12,21 +12,16 @@ export interface WordData {
   value: number;
 }
 
-const colors = ["#BBE7FE", "#D3B5E5", "#FFD4DB", "#EFF1DB"];
-
-function wordFreq(text: string): WordData[] {
-  const words: string[] = text.replace(/\./g, "").split(/\s/);
-  const freqMap: Record<string, number> = {};
-
-  for (const w of words) {
-    if (!freqMap[w]) freqMap[w] = 0;
-    freqMap[w] += 1;
-  }
-  return Object.keys(freqMap).map((word) => ({
-    text: word,
-    value: freqMap[word],
-  }));
-}
+const colors = [
+  "#82caff",
+  "#D3B5E5",
+  "#ffe28c",
+  "#91aaff",
+  "#ff9e9e",
+  "#ff80c5",
+  "#7afbff",
+  "#8aff9c",
+];
 
 function getRotationDegree(): number {
   const rand = Math.random();
@@ -90,24 +85,38 @@ export default function TagCloud() {
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
 
-  // Existing tag list logic
   const tagCountMap: { [key: string]: number } = {};
-  articles.forEach((article) => {
-    if (article.tags) {
-      const tags = article.tags.split(",");
-      tags.forEach((tag) => {
-        const trimmedTag = tag.trim();
-        tagCountMap[trimmedTag] = (tagCountMap[trimmedTag] || 0) + 1;
-      });
-    }
-  });
 
-  const sortedTags = Object.entries(tagCountMap).sort((a, b) => b[1] - a[1]);
-  const tagList = sortedTags;
+  const countTags = () => {
+    const tagCount: Record<string, number> = {};
 
-  const tagListText = tagList
-    .map(([tag, count]) => `${tag}: ${count}`)
-    .join(", ");
+    articles.forEach((article) => {
+      if (article.tags) {
+        const tagsSplit = article.tags.split(",");
+        tagsSplit.forEach((tag) => {
+          const trimmedTag = tag.trim();
+          tagCountMap[trimmedTag] = (tagCountMap[trimmedTag] || 0) + 1;
+
+          if (tagCount[tag]) {
+            tagCount[tag]++;
+          } else {
+            tagCount[tag] = 1;
+          }
+        });
+      }
+    });
+
+    return tagCount;
+  };
+
+  const tagCount = countTags();
+
+  const tagData: WordData[] = Object.entries(tagCount).map(([text, value]) => ({
+    text,
+    value,
+  }));
+
+  const sortedTagData = tagData.sort((a, b) => b.value - a.value);
 
   return (
     <div className="wordcloud-and-tags">
@@ -116,10 +125,10 @@ export default function TagCloud() {
           <div className="tag-list">
             <h5>Tags Breakdown</h5>
             <dl className="article-tags-list">
-              {sortedTags.map(([tag, count]) => (
-                <div key={tag} className="article-tags-list-count">
-                  <dt>{tag}:</dt>
-                  <dd>{count}</dd>
+              {sortedTagData.map(({ text, value }) => (
+                <div key={text} className="article-tags-list-count">
+                  <dt>{text}:</dt>
+                  <dd>{value}</dd>
                 </div>
               ))}
             </dl>
@@ -130,10 +139,9 @@ export default function TagCloud() {
             <h5>Word Cloud</h5>
             <ParentSize>
               {({ width, height }) => {
-                console.log("Width:", width, "Height:", height);
                 return (
                   <WordCloud
-                    words={wordFreq(tagListText)}
+                    words={sortedTagData}
                     width={width}
                     height={height}
                   />
