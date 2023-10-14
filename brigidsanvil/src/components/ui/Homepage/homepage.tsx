@@ -2,7 +2,6 @@ import { Component } from "react";
 import Link from "next/link";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
-import Image from "next/image";
 
 import "./homepage.scss";
 
@@ -11,12 +10,6 @@ export default class Homepage extends Component {
     return (
       <div className="container text-center homepage">
         <h1 className="display-1">{"Brigid's Anvil"}</h1>
-        {/* <Image
-          src={"/assets/TheRingofKraia.png"}
-          width={500}
-          height={500}
-          alt={"Kraia putting on the Ring"}
-        ></Image> */}
         <div className="description">
           {
             "Project Brigid is a community-led effort to develop extra tools for WorldAnvil. Here, you will find utilities to see your world in ways that the site itself does not yet offer."

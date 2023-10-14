@@ -5,7 +5,7 @@ import {
   selectWorld,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
-import { Table } from "../Table/table";
+import { ArticleTable } from "../Table/table";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 const Articles = () => {
@@ -60,7 +60,7 @@ const Articles = () => {
           Fetch One
         </Button> */}
       </div>
-      <Table data={articles} getRowCanExpand={() => true} />
+      <ArticleTable data={articles} getRowCanExpand={() => true} />
       <div>
         {stubs + " stubs DONE"}
         <br />
