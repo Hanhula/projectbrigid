@@ -5,6 +5,7 @@ import thunkMiddleware from "redux-thunk";
 import { combineReducers } from "redux";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import { persistReducer, persistStore } from "redux-persist";
+import defaultStorage from 'redux-persist/lib/storage'
 import { authSlice } from "./authSlice";
 import { articleSlice } from "./articlesSlice";
 import createIdbStorage from '@piotr-cz/redux-persist-idb-storage'
@@ -18,7 +19,7 @@ const reducers = combineReducers({
 
 const persistConfig = {
   key: 'root',
-  storage: createIdbStorage({name: 'brigidsAnvil', storeName: 'brigidStore'}),
+  storage: globalThis.indexedDB ? createIdbStorage({name: 'brigidsAnvil', storeName: 'brigidStore'})  : defaultStorage,
   serialize: false, // Data serialization is not required and disabling it allows you to inspect storage value in DevTools; Available since redux-persist@5.4.0
   deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
   blacklist: ['authState']
