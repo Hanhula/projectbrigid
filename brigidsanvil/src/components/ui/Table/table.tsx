@@ -121,7 +121,7 @@ const renderSubComponent = ({ row }: { row: Row<Article> }) => {
   );
 };
 
-export function Table({
+export function ArticleTable({
   data,
   getRowCanExpand,
 }: TableProps<Article>): JSX.Element {
