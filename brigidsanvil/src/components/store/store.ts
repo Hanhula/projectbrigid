@@ -17,6 +17,7 @@ const reducers = combineReducers({
   [articleSlice.name]: articleSlice.reducer,
 });
 
+// this is a commit to reupdate the branch 
 const persistConfig = {
   key: 'root',
   storage: globalThis.indexedDB ? createIdbStorage({name: 'brigidsAnvil', storeName: 'brigidStore'})  : defaultStorage,
