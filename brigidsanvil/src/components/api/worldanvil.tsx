@@ -7,15 +7,10 @@ import {
   setWorlds,
   selectWorld,
   setLoadingArticles,
+  updateArticleById,
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-  setWorldArticles,
-  updateArticleById,
-} from "../store/articlesSlice";
-import _ from "lodash";
+import { setWorldArticles } from "../store/articlesSlice";
 
 const CallType = {
   GET: "GET",
@@ -29,13 +24,8 @@ export function useWorldAnvilAPI() {
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
-  const currentArticles = worldArticles!.articles;
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
-  );
 
-  let articleFetch: Article[] = [];
+  let articleFetch: any[] = [];
 
   async function callWorldAnvil(
     endpoint: string,
@@ -70,7 +60,7 @@ export function useWorldAnvilAPI() {
       }
 
       const data = await response.json();
-      //console.log(data);
+      console.log(data);
 
       return data;
     } catch (error) {
@@ -125,18 +115,6 @@ export function useWorldAnvilAPI() {
     });
   }
 
-  async function testFinishArticles(articlesFetched: Article[]) {
-    articleFetch = await checkArticleState(articlesFetched);
-
-    let fetchedArticles: WorldArticles = {
-      world: world,
-      articles: articleFetch,
-    };
-
-    dispatch(setWorldArticles(fetchedArticles));
-    dispatch(setLoadingArticles(false));
-  }
-
   async function getArticles(
     limit: number,
     offset: number,
@@ -154,7 +132,7 @@ export function useWorldAnvilAPI() {
       trueLimit = limit;
     }
 
-    const body = JSON.stringify({
+    let body = JSON.stringify({
       limit: trueLimit,
       offset: offset,
     });
@@ -182,110 +160,34 @@ export function useWorldAnvilAPI() {
             articleCount
           );
         } else {
-          testFinishArticles(articleFetch);
+          let worldArticles: WorldArticles = {
+            world: world,
+            articles: articleFetch,
+          };
+          dispatch(setWorldArticles(worldArticles));
+          dispatch(setLoadingArticles(false));
         }
       } else {
-        testFinishArticles(articles.entities);
+        let worldArticles: WorldArticles = {
+          world: world,
+          articles: articles.entities,
+        };
+        dispatch(setWorldArticles(worldArticles));
+        dispatch(setLoadingArticles(false));
       }
     }
   }
 
-  async function checkArticleState(articles: Article[]) {
-    const currentArticleMap = new Map(
-      currentArticles.map((article) => [article.id, article])
-    );
-
-    const articleArray: Article[] = [];
-    const articlesToUpdate: Article[] = [];
-
-    for (const article of articles) {
-      const matchingArticle = currentArticleMap.get(article.id);
-      const shouldUpdate = shouldArticleUpdate(article, matchingArticle);
-
-      if (shouldUpdate) {
-        articlesToUpdate.push(article);
-      } else {
-        articleArray.push(matchingArticle || article);
-      }
-    }
-
-    if (currentDetailState && currentDetailState.isFullDetail) {
-      if (articlesToUpdate.length > 0) {
-        const updatedArticles = await getFullArticles(articlesToUpdate);
-        articleArray.push(...updatedArticles);
-      }
-    }
-
-    return articleArray;
-  }
-
-  function shouldArticleUpdate(
-    newArticle: Article,
-    existingArticle: Article | undefined
-  ) {
-    if (!existingArticle) {
-      return true;
-    }
-
-    if (currentDetailState && currentDetailState.isFullDetail) {
-      return (
-        newArticle.updateDate.date > existingArticle.updateDate.date ||
-        existingArticle.wordcount === undefined ||
-        existingArticle.wordcount === null
-      );
-    }
-
-    return newArticle.updateDate.date > existingArticle.updateDate.date;
-  }
-
-  const throttleDelay = 200;
-
-  async function getFullArticles(articles: Article[]) {
-    const articleIds = articles.map((article) => article.id);
-    let updatedArticles: Article[] = [];
-
-    const articleQueue = articleIds.slice();
-
-    async function processQueue() {
-      while (articleQueue.length > 0) {
-        const articleId = articleQueue.shift();
-        try {
-          let updatedArticle = await getArticle(articleId!, false);
-          updatedArticles.push(updatedArticle);
-        } catch (error) {
-          console.error("Error getting article: ", error);
-        }
-        await new Promise((resolve) => setTimeout(resolve, throttleDelay));
-      }
-    }
-
-    await processQueue();
-
-    return updatedArticles;
-  }
-
-  async function getArticle(
-    articleId: string,
-    shouldDispatch: boolean
-  ): Promise<Article> {
+  async function getArticle(articleId: string) {
     let params = {
       id: articleId,
       granularity: 2,
     };
     const endpoint = `/article?id=${params.id}&granularity=${params.granularity}`;
-
-    try {
-      const data = await callWorldAnvil(endpoint, CallType.GET);
+    await callWorldAnvil(endpoint, CallType.GET).then((data) => {
       console.log("Article to update: ", data);
-      if (shouldDispatch) {
-        dispatch(updateArticleById(data));
-      }
-      return data;
-    } catch (error) {
-      // Handle any errors, e.g., network issues or API errors
-      console.error("Error getting article:", error);
-      throw error;
-    }
+      dispatch(updateArticleById(data));
+    });
   }
 
   return {
@@ -316,8 +218,8 @@ export function useWorldAnvilAPI() {
     ) => {
       return await getArticles(limit, offset, numLoop, articleCount);
     },
-    getArticle: async (id: string, shouldDispatch: boolean) => {
-      return await getArticle(id, shouldDispatch);
+    getArticle: async (id: string) => {
+      return await getArticle(id);
     },
   };
 }

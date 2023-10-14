@@ -19,6 +19,27 @@ const initialState = {
   identity: { success: false },
   world: {},
   worlds: { success: false },
+  articles: [
+    {
+      id: "",
+      title: "",
+      slug: "",
+      state: "",
+      isWip: false,
+      isDraft: false,
+      entityClass: "",
+      icon: "",
+      url: "",
+      subscribergroups: [],
+      folderId: "",
+      tags: "",
+      updateDate: {
+        date: "",
+        timezone_type: 0,
+        timezone: "",
+      },
+    },
+  ],
   isLoadingArticles: false,
 };
 
@@ -42,6 +63,18 @@ export const apiSlice = createSlice({
     setLoadingArticles(state, action) {
       state.isLoadingArticles = action.payload;
     },
+    updateArticleById(state, action) {
+      const updatedArticle = action.payload;
+      const articleIndex = state.articles.findIndex(
+        (article) => article.id === updatedArticle.id
+      );
+
+      if (articleIndex !== -1) {
+        state.articles[articleIndex] = updatedArticle;
+      } else {
+        state.articles.push(updatedArticle);
+      }
+    },
   },
   extraReducers(builder) {
     builder.addCase(HYDRATE, (state, action) => {
@@ -59,6 +92,7 @@ export const {
   setWorld,
   setWorlds,
   setLoadingArticles,
+  updateArticleById,
 } = apiSlice.actions;
 
 export const selectAPIResponse = (state: { apiState: AnvilAppState }) =>

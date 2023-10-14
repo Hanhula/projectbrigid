@@ -1,16 +1,12 @@
-import { Button, Form, Spinner } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { Button, Spinner } from "react-bootstrap";
+import { useSelector } from "react-redux";
 import {
   selectIsLoadingArticles,
   selectWorld,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { ArticleTable } from "../Table/table";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-  setDetailState,
-} from "@/components/store/articlesSlice";
+import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 const Articles = () => {
   const isLoadingArticles = useSelector(selectIsLoadingArticles);
@@ -18,10 +14,6 @@ const Articles = () => {
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
-  const dispatch = useDispatch();
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
-  );
 
   const stubMurder = () => {
     let stubmurder = articles.filter((article) => {
@@ -40,16 +32,8 @@ const Articles = () => {
     return draaaaaaaft.length;
   };
 
-  const setDetailLevel = (checked: boolean) => {
-    dispatch(setDetailState({ world: world, isFullDetail: checked }));
-  };
-
   const stubs = stubMurder();
   const drafts = DRAFTY();
-
-  const articleCount = world.countArticles;
-  const minutes = Math.floor(articleCount / 60);
-  const seconds = articleCount % 60;
 
   return (
     <div className="table-container">
@@ -57,12 +41,7 @@ const Articles = () => {
         <Button
           className="btn btn-primary"
           onClick={() => {
-            worldAnvilAPI.getArticles(
-              Math.min(articleCount, 50),
-              0,
-              0,
-              articleCount
-            );
+            worldAnvilAPI.getArticles(50, 0, 0, world.countArticles);
           }}
         >
           Fetch All Articles
@@ -72,16 +51,14 @@ const Articles = () => {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         )}
-        <Form>
-          <Form.Check
-            type="switch"
-            id="custom-switch"
-            label="Request full detail?"
-            checked={currentDetailState.isFullDetail}
-            onChange={(e) => setDetailLevel(e.target.checked)}
-          />
-          <Form.Text>{`Please note that this tool takes approximately 1 second per article to retrieve your world's articles at full detail. As you have ${articleCount} articles, please expect full detail mode to take ${minutes} minutes and ${seconds} seconds for its first-time load. Subsequent responses will be much faster, as they'll only update if you've changed something on WA! Timer functionality for this has not yet been implemented, sorry!`}</Form.Text>
-        </Form>
+        {/* <Button
+          className="btn btn-primary"
+          onClick={() => {
+            worldAnvilAPI.getArticle(articles[0].id);
+          }}
+        >
+          Fetch One
+        </Button> */}
       </div>
       <ArticleTable data={articles} getRowCanExpand={() => true} />
       <div>

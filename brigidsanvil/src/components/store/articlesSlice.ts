@@ -5,18 +5,11 @@ import { Image } from "../types/image";
 import { User } from "../types/user";
 import { World } from "../types/world";
 
-export type WorldArticleDetailState = {
-  world: World;
-  isFullDetail: boolean;
-}
-
 export type WorldArticlesState = {
   worldArticles: WorldArticles[];
   currentWorldArticles: WorldArticles;
   isLoadingWorldArticles: boolean;
-  detailState: WorldArticleDetailState[];
 };
-
 
 let initialArticle: Article = {
   id: "",
@@ -82,11 +75,6 @@ let initialWorld: World = {
   success: false,
 };
 
-let initialDetail: WorldArticleDetailState = {
-  world: initialWorld,
-  isFullDetail: false
-}
-
 // Initial state
 const initialState = {
   worldArticles: [
@@ -104,7 +92,6 @@ const initialState = {
     articles: [initialArticle],
   },
   isLoadingWorldArticles: false,
-  detailState: [initialDetail]
 };
 
 // Actual Slice
@@ -137,24 +124,6 @@ export const articleSlice = createSlice({
     },
     setLoadingWorldArticles(state, action) {
       state.isLoadingWorldArticles = action.payload;
-    },
-    setDetailState(state, action) {
-      const { world, isFullDetail } = action.payload;
-    
-      const newDetailState: WorldArticleDetailState = {
-        world,
-        isFullDetail,
-      };
-    
-      const existingDetailStateIndex = state.detailState.findIndex(
-        (detailState) => detailState.world.id === newDetailState.world.id
-      );
-    
-      if (existingDetailStateIndex !== -1) {
-        state.detailState[existingDetailStateIndex] = newDetailState;
-      } else {
-        state.detailState.push(newDetailState);
-      }
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
@@ -194,7 +163,6 @@ export const {
   setWorldArticles,
   setCurrentWorldArticles,
   setLoadingWorldArticles,
-  setDetailState,
   updateArticleById,
 } = articleSlice.actions;
 
@@ -218,20 +186,6 @@ export const selectWorldArticlesByWorld =
     };
 
     return worldArticle || placeholderArticle;
-  };
-
-  export const selectCurrentDetailStateByWorld =
-  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const currentDetailState = state.articleState.detailState.find(
-      (detailState) => detailState.world.id === worldId
-    );
-
-    const placeholderState: WorldArticleDetailState = {
-      world: initialWorld,
-      isFullDetail: false
-    }
-
-    return currentDetailState || placeholderState;
   };
 
 export default articleSlice.reducer;
