@@ -34,5 +34,10 @@ To run:
 npm run dev
 ```
 
+## Application Key
+An application key is available to Grandmaster+ subscribers and necessary to access the World Anvil API.
+
+It is possible to request a key [here](https://www.worldanvil.com/api/auth/key).
+
 
 
