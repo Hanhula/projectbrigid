@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { WorldArticles } from "../types/article";
+import { Article, WorldArticles } from "../types/article";
 import {
   selectIdentity,
   setIdentity,
@@ -9,7 +9,11 @@ import {
   setLoadingArticles,
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
-import { setWorldArticles, updateArticleById } from "../store/articlesSlice";
+import {
+  selectWorldArticlesByWorld,
+  setWorldArticles,
+  updateArticleById,
+} from "../store/articlesSlice";
 
 const CallType = {
   GET: "GET",
@@ -23,8 +27,10 @@ export function useWorldAnvilAPI() {
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const currentArticles = worldArticles!.articles;
 
-  let articleFetch: any[] = [];
+  let articleFetch: Article[] = [];
 
   async function callWorldAnvil(
     endpoint: string,
@@ -131,7 +137,7 @@ export function useWorldAnvilAPI() {
       trueLimit = limit;
     }
 
-    let body = JSON.stringify({
+    const body = JSON.stringify({
       limit: trueLimit,
       offset: offset,
     });
@@ -140,41 +146,80 @@ export function useWorldAnvilAPI() {
 
     if (articles.entities) {
       if (articleCount) {
-        let newArticles;
-        if (numLoop === 0) {
-          newArticles = articles.entities;
-          articleFetch = newArticles;
-        } else {
-          newArticles = articles.entities;
-          articleFetch = articleFetch.concat(newArticles);
-        }
-
-        if (articleFetch.length < articleCount && newArticles.length !== 0) {
-          let remainingArticles = articleCount - articleFetch.length;
-          let nextFetchLimit = Math.min(50, remainingArticles);
-          await getArticles(
-            nextFetchLimit,
-            offset + newArticles.length,
-            numLoop + 1,
-            articleCount
-          );
-        } else {
-          let worldArticles: WorldArticles = {
-            world: world,
-            articles: articleFetch,
-          };
-          dispatch(setWorldArticles(worldArticles));
-          dispatch(setLoadingArticles(false));
-        }
+        articleFetch = await handleArticleCount(
+          articles.entities,
+          articleCount,
+          offset,
+          numLoop
+        );
       } else {
-        let worldArticles: WorldArticles = {
-          world: world,
-          articles: articles.entities,
-        };
-        dispatch(setWorldArticles(worldArticles));
-        dispatch(setLoadingArticles(false));
+        articleFetch = articles.entities;
+      }
+
+      articleFetch = await checkArticleState(articleFetch);
+
+      let fetchedArticles: WorldArticles = {
+        world: world,
+        articles: articleFetch,
+      };
+
+      dispatch(setWorldArticles(fetchedArticles));
+      dispatch(setLoadingArticles(false));
+    }
+  }
+
+  async function handleArticleCount(
+    entities: Article[],
+    articleCount: number,
+    offset: number,
+    numLoop: number
+  ) {
+    let newArticles;
+
+    if (numLoop === 0) {
+      newArticles = entities;
+      articleFetch = newArticles;
+    } else {
+      newArticles = entities;
+      articleFetch = articleFetch.concat(newArticles);
+    }
+
+    if (articleFetch.length < articleCount && newArticles.length !== 0) {
+      let remainingArticles = articleCount - articleFetch.length;
+      let nextFetchLimit = Math.min(50, remainingArticles);
+      await getArticles(
+        nextFetchLimit,
+        offset + newArticles.length,
+        numLoop + 1,
+        articleCount
+      );
+    }
+
+    return articleFetch;
+  }
+
+  async function checkArticleState(articles: Article[]) {
+    const currentArticleMap = new Map(
+      currentArticles.map((article) => [article.id, article])
+    );
+    const articleArray: Article[] = [];
+
+    for (const article of articles) {
+      let matchingArticle = currentArticleMap.get(article.id);
+      if (
+        matchingArticle &&
+        matchingArticle.updateDate.date >= article.updateDate.date
+      ) {
+        let matchingArticle = currentArticles.find(
+          (currentArticle) => currentArticle.id === article.id
+        );
+        articleArray.push(matchingArticle!);
+      } else {
+        articleArray.push(article);
       }
     }
+
+    return articleArray;
   }
 
   async function getArticle(articleId: string) {
