@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Article, WorldArticles } from "../types/article";
+import { WorldArticles } from "../types/article";
 import {
   selectIdentity,
   setIdentity,
@@ -7,10 +7,9 @@ import {
   setWorlds,
   selectWorld,
   setLoadingArticles,
-  updateArticleById,
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
-import { setWorldArticles } from "../store/articlesSlice";
+import { setWorldArticles, updateArticleById } from "../store/articlesSlice";
 
 const CallType = {
   GET: "GET",
