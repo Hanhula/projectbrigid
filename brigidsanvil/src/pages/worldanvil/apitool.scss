@@ -43,6 +43,25 @@
     margin: 0.2em;
   }
 
+  .col-tags {
+    display: inline-block;
+    margin-right: 0.3em;
+  }
+
+  .tag-select {
+    display: inline-block;
+
+    .form-switch {
+      display: inline-block;
+    }
+
+    .form-check-label {
+      font-weight: 500;
+      font-size: 0.9em;
+      color: var(--lightest-terror);
+    }
+  }
+
   table th.cursor-pointer span {
     display: inline-block;
     width: 0.5em;
