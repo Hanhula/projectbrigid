@@ -316,44 +316,55 @@ function Filter({
   column: Column<any, unknown>;
   table: Table<any>;
 }) {
-  const firstValue = table
-    .getPreFilteredRowModel()
-    .flatRows[0]?.getValue(column.id);
-
-  const columnFilterValue = column.getFilterValue();
-
-  const getSortedUniqueValues = () => {
-    return typeof firstValue === "number"
-      ? []
-      : Array.from(column.getFacetedUniqueValues().keys()).sort();
-  };
-
-  // Include 'column' in the dependency array for React.useMemo
-  const sortedUniqueValues = React.useMemo(getSortedUniqueValues, [
-    firstValue,
-    column,
-  ]);
-
   if (column.id === "isDraft") {
+    const columnFilterValue = column.getFilterValue();
+
     return (
       <div>
         <div className="input-group">
-          <DebouncedInput
-            type="text" // Treat it as text input for boolean values
-            value={columnFilterValue ? columnFilterValue.toString() : ""}
-            onChange={(value) => {
-              // Convert the value to a boolean
-              const isDraftFilter = (value as string).toLowerCase() === "true";
-              column.setFilterValue(isDraftFilter);
+          <select
+            value={
+              columnFilterValue === true
+                ? "true"
+                : columnFilterValue === false
+                ? "false"
+                : ""
+            }
+            onChange={(e) => {
+              const value = e.target.value;
+              column.setFilterValue(
+                value === "" ? undefined : value === "true"
+              );
             }}
-            placeholder={`Search... (true/false)`}
-            className="form-control"
-          />
+            className="form-select"
+          >
+            <option value="">All</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
         </div>
         <div className="h-1" />
       </div>
     );
   } else {
+    const firstValue = table
+      .getPreFilteredRowModel()
+      .flatRows[0]?.getValue(column.id);
+
+    const columnFilterValue = column.getFilterValue();
+
+    const getSortedUniqueValues = () => {
+      return typeof firstValue === "number"
+        ? []
+        : Array.from(column.getFacetedUniqueValues().keys()).sort();
+    };
+
+    // Include 'column' in the dependency array for React.useMemo
+    const sortedUniqueValues = React.useMemo(getSortedUniqueValues, [
+      firstValue,
+      column,
+    ]);
+
     return (
       <>
         <datalist id={column.id + "list"}>
