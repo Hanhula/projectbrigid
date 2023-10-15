@@ -397,10 +397,12 @@ function Filter({
               ...baseStyles,
               backgroundColor: "var(--primary)",
               borderColor: "var(--primary-dark)",
+              borderRadius: "0.375rem",
             }),
             multiValueLabel: (baseStyles) => ({
               ...baseStyles,
-              color: "var(--off-white)",
+              color: "white",
+              fontWeight: 600,
             }),
             multiValueRemove: (baseStyles) => ({
               ...baseStyles,
