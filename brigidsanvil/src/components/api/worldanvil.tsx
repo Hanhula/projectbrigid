@@ -15,7 +15,7 @@ import {
   setWorldArticles,
   updateArticleById,
 } from "../store/articlesSlice";
-import _ from "lodash";
+import _, { concat } from "lodash";
 
 const CallType = {
   GET: "GET",
@@ -195,7 +195,7 @@ export function useWorldAnvilAPI() {
       currentArticles.map((article) => [article.id, article])
     );
 
-    const articleArray: Article[] = [];
+    let articleArray: Article[] = [];
     const articlesToUpdate: Article[] = [];
 
     for (const article of articles) {
@@ -214,6 +214,8 @@ export function useWorldAnvilAPI() {
         const updatedArticles = await getFullArticles(articlesToUpdate);
         articleArray.push(...updatedArticles);
       }
+    } else {
+      articleArray = articleArray.concat(articlesToUpdate);
     }
 
     return articleArray;
