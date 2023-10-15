@@ -39,6 +39,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^8.1.2",
     "react-responsive": "^9.0.2",
+    "react-select": "^5.7.7",
     "recharts": "^2.8.0",
     "redux-persist": "^6.0.0",
     "typescript": "^5.0.4"

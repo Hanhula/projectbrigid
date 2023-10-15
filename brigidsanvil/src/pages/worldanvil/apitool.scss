@@ -34,13 +34,19 @@
   --bs-btn-padding-y: 0.8em;
 }
 
-table th.cursor-pointer span {
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  margin-left: 0.5em;
-}
+.table-container {
+  .table-select-tags {
+    font-weight: 400;
+  }
 
-.table-container .badge {
-  margin: 0.2em;
+  .badge {
+    margin: 0.2em;
+  }
+
+  table th.cursor-pointer span {
+    display: inline-block;
+    width: 0.5em;
+    height: 0.5em;
+    margin-left: 0.5em;
+  }
 }
