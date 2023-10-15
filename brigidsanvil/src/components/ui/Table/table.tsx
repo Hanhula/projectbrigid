@@ -16,8 +16,8 @@ import {
   Column,
   Table,
 } from "@tanstack/react-table";
-import { Fragment } from "react";
-import { Dropdown } from "react-bootstrap";
+import { Fragment, useState } from "react";
+import { Dropdown, Form } from "react-bootstrap";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -27,8 +27,92 @@ import {
   faChevronRight,
   faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
+import { selectCurrentDetailStateByWorld } from "@/components/store/articlesSlice";
+import { useSelector } from "react-redux";
+import { selectWorld } from "@/components/store/apiSlice";
 
-const columns: ColumnDef<Article>[] = [
+let minDetailColumns: ColumnDef<Article>[] = [
+  {
+    id: "expander",
+    header: () => null,
+    cell: ({ row }) => {
+      return row.getCanExpand() ? (
+        <button
+          className="btn btn-secondary"
+          {...{
+            onClick: row.getToggleExpandedHandler(),
+            style: { cursor: "pointer" },
+          }}
+        >
+          {row.getIsExpanded() ? (
+            <FontAwesomeIcon icon={faChevronRight} />
+          ) : (
+            <FontAwesomeIcon icon={faChevronDown} />
+          )}
+        </button>
+      ) : (
+        "🔵"
+      );
+    },
+  },
+  {
+    accessorFn: (row) => row.title,
+    id: "title",
+    cell: (info) => info.getValue(),
+    header: "Title",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.entityClass,
+    id: "entityClass",
+    cell: (info) => info.getValue(),
+    header: "Type",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.url,
+    id: "url",
+    cell: (info: any) => <a href={info.getValue() as string}>Link</a>,
+    header: "Link",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.state,
+    id: "state",
+    cell: (info) => info.getValue(),
+    header: "State",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.isDraft,
+    id: "isDraft",
+    cell: (info) => String(info.getValue()),
+    header: "Is Draft?",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.tags,
+    id: "tags",
+    cell: (info) => {
+      const tagValue = info.getValue();
+      const tags = (tagValue || "").toString();
+
+      return (
+        <div>
+          {tags.split(",").map((tag, index) => (
+            <span key={index} className="badge text-bg-secondary">
+              {tag}
+            </span>
+          ))}
+        </div>
+      );
+    },
+    header: "Tags",
+    footer: (props) => props.column.id,
+  },
+];
+
+let fullDetailColumns: ColumnDef<Article>[] = [
   {
     id: "expander",
     header: () => null,
@@ -126,10 +210,17 @@ export function ArticleTable({
   data,
   getRowCanExpand,
 }: TableProps<Article>): JSX.Element {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [useSelectFilter, setUseSelectFilter] = useState(false); // Add state for the checkbox
+
+  const world = useSelector(selectWorld);
+  const currentDetailState = useSelector(
+    selectCurrentDetailStateByWorld(world.id)
   );
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const isDetailed = currentDetailState.isFullDetail;
+
+  let columns = isDetailed ? fullDetailColumns : minDetailColumns;
 
   const table = useReactTable<Article>({
     data,
@@ -163,7 +254,7 @@ export function ArticleTable({
                         <div
                           {...{
                             className: header.column.getCanSort()
-                              ? "cursor-pointer select-none"
+                              ? `cursor-pointer select-none col-${header.column.id}`
                               : "",
                             onClick: header.column.getToggleSortingHandler(),
                           }}
@@ -193,9 +284,29 @@ export function ArticleTable({
                             ),
                           }[header.column.getIsSorted() as string] ?? null}
                         </div>
+                        {header.column.getCanFilter() &&
+                          header.column.id === "tags" && (
+                            <span>
+                              <Form className={"tag-select"}>
+                                <Form.Check
+                                  type="switch"
+                                  id="custom-switch"
+                                  label="Multiselect"
+                                  checked={useSelectFilter}
+                                  onChange={() =>
+                                    setUseSelectFilter(!useSelectFilter)
+                                  }
+                                />
+                              </Form>
+                            </span>
+                          )}
                         {header.column.getCanFilter() ? (
                           <div>
-                            <Filter column={header.column} table={table} />
+                            <Filter
+                              column={header.column}
+                              table={table}
+                              filterType={useSelectFilter}
+                            />
                           </div>
                         ) : null}
                       </>
@@ -318,9 +429,11 @@ interface TagOption {
 function Filter({
   column,
   table,
+  filterType,
 }: {
   column: Column<any, unknown>;
   table: Table<any>;
+  filterType: boolean;
 }) {
   const filterValue = column.getFilterValue() || undefined;
 
@@ -337,7 +450,7 @@ function Filter({
     column.setFilterValue(selectedValues || undefined);
   };
 
-  if (column.id === "tags") {
+  if (column.id === "tags" && filterType) {
     const filteredData = table
       .getPreFilteredRowModel()
       .flatRows.filter((row) => row.original.tags !== null);
