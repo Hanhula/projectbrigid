@@ -40,7 +40,7 @@ const NavBar = () => {
                 href="/worldanvil/apitool"
                 disabled={!world.success && articles.length > 1}
               >
-                API Tool
+                Articles Explorer
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>

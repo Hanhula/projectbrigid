@@ -10,6 +10,7 @@ import "./apitool.scss";
 import WorldSelect from "@/components/ui/WorldSelect/worldselect";
 import Articles from "@/components/ui/Articles/articles";
 import { selectAuthToken } from "@/components/store/authSlice";
+import Head from "next/head";
 
 const APITool = () => {
   const authToken = useSelector(selectAuthToken);
@@ -19,10 +20,13 @@ const APITool = () => {
 
   return (
     <div className="container">
+      <Head>
+        <title>Articles Explorer</title>
+      </Head>
       {authToken && identity.success && (
         <div className="row">
           <div className="col">
-            <h1>WorldAnvil Tools</h1>
+            <h1>Articles Explorer</h1>
             Page under construction!
             <hr />
             {worlds.success && !world.success && <WorldSelect />}
