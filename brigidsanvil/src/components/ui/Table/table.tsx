@@ -702,7 +702,6 @@ function Filter({
             options={options}
             value={options.find((option) => option.value === columnFilterValue)}
             onChange={(selectedOption) => {
-              console.log(selectedOption);
               const value = selectedOption ? selectedOption.value : undefined;
               column.setFilterValue(
                 value === "" ? undefined : value === "true"
@@ -730,7 +729,6 @@ function Filter({
             options={options}
             value={options.find((option) => option.value === columnFilterValue)}
             onChange={(selectedOption) => {
-              console.log(selectedOption);
               const value = selectedOption ? selectedOption.value : undefined;
               column.setFilterValue(value);
             }}

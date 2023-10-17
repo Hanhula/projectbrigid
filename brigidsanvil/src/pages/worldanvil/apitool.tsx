@@ -27,7 +27,11 @@ const APITool = () => {
         <div className="row">
           <div className="col">
             <h1>Articles Explorer</h1>
-            Page under construction!
+            <div>
+              {
+                "Please note that this explorer will not show any articles before they have been fetched. You will need to fetch your articles to display them and to activate the items on the Statistics tab."
+              }
+            </div>
             <hr />
             {worlds.success && !world.success && <WorldSelect />}
             {world.success && <Articles />}

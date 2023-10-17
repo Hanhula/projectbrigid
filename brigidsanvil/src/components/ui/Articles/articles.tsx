@@ -51,8 +51,6 @@ const Articles = () => {
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
 
-  console.log(articles);
-
   return (
     <div className="table-container">
       <div className="button-container">
