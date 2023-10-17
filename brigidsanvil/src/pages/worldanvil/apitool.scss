@@ -46,6 +46,26 @@
   .col-tags {
     display: inline-block;
     margin-right: 0.3em;
+
+    ~ .col-filter {
+      max-width: 4em;
+    }
+  }
+
+  .col-isDraft, .col-state {
+    min-width: 5em;
+  }
+
+  .excerpt-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5em;
+
+    .excerpt-text {
+      max-width: 10em;
+      display: inline-block;
+    }
   }
 
   .tag-select {
