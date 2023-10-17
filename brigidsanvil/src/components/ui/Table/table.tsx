@@ -26,10 +26,90 @@ import {
   faSortDown,
   faChevronRight,
   faChevronDown,
+  faExpand,
+  faCompress,
 } from "@fortawesome/free-solid-svg-icons";
 import { selectCurrentDetailStateByWorld } from "@/components/store/articlesSlice";
 import { useSelector } from "react-redux";
 import { selectWorld } from "@/components/store/apiSlice";
+
+interface SelectStyles {
+  control: (
+    baseStyles: Record<string, any>,
+    state: Record<string, any>
+  ) => Record<string, any>;
+  input: (baseStyles: Record<string, any>) => Record<string, any>;
+  singleValue: (baseStyles: Record<string, any>) => Record<string, any>;
+  multiValue: (baseStyles: Record<string, any>) => Record<string, any>;
+  multiValueLabel: (baseStyles: Record<string, any>) => Record<string, any>;
+  multiValueRemove: (baseStyles: Record<string, any>) => Record<string, any>;
+  menuList: (baseStyles: Record<string, any>) => Record<string, any>;
+  option: (
+    baseStyles: Record<string, any>,
+    state: Record<string, any>
+  ) => Record<string, any>;
+  placeholder: (baseStyles: Record<string, any>) => Record<string, any>;
+  indicatorSeparator: (baseStyles: Record<string, any>) => Record<string, any>;
+}
+
+const selectStyles: SelectStyles = {
+  control: (baseStyles, state) => ({
+    ...baseStyles,
+    backgroundColor: state.isFocused
+      ? "var(--darkest-terror)"
+      : "var(--dark-terror)",
+    borderColor: state.isFocused ? "var(--dark-terror)" : "var(--light-terror)",
+    color: "var(--lightest-terror)",
+  }),
+  input: (baseStyles) => ({
+    ...baseStyles,
+    color: "var(--lightest-terror)",
+  }),
+  singleValue: (baseStyles) => ({
+    ...baseStyles,
+    color: "white",
+    fontWeight: 400,
+  }),
+  multiValue: (baseStyles) => ({
+    ...baseStyles,
+    backgroundColor: "var(--primary)",
+    borderColor: "var(--primary-dark)",
+    borderRadius: "0.375rem",
+  }),
+  multiValueLabel: (baseStyles) => ({
+    ...baseStyles,
+    color: "white",
+    fontWeight: 600,
+  }),
+  multiValueRemove: (baseStyles) => ({
+    ...baseStyles,
+    "&:hover": {
+      backgroundColor: "var(--primary-dark)",
+      borderColor: "var(--primary-dark)",
+      color: "var(--create-light)",
+    },
+  }),
+  menuList: (baseStyles) => ({
+    ...baseStyles,
+    backgroundColor: "var(--darker-terror)",
+  }),
+  option: (baseStyles, state) => ({
+    ...baseStyles,
+    backgroundColor: state.isFocused
+      ? "var(--light-terror)"
+      : "var(--darker-terror)",
+    color: "var(--offwhite)",
+  }),
+  placeholder: (baseStyles) => ({
+    ...baseStyles,
+    color: "var(--lightest-terror)",
+    fontWeight: 400,
+  }),
+  indicatorSeparator: (baseStyles) => ({
+    ...baseStyles,
+    backgroundColor: "var(--dark-terror)",
+  }),
+};
 
 let minDetailColumns: ColumnDef<Article>[] = [
   {
@@ -158,6 +238,13 @@ let fullDetailColumns: ColumnDef<Article>[] = [
     footer: (props) => props.column.id,
   },
   {
+    accessorFn: (row) => row.editURL,
+    id: "editURL",
+    cell: (info: any) => <a href={info.getValue() as string}>Edit</a>,
+    header: "Edit",
+    footer: (props) => props.column.id,
+  },
+  {
     accessorFn: (row) => row.state,
     id: "state",
     cell: (info) => info.getValue(),
@@ -169,6 +256,13 @@ let fullDetailColumns: ColumnDef<Article>[] = [
     id: "isDraft",
     cell: (info) => String(info.getValue()),
     header: "Is Draft?",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.wordcount,
+    id: "wordcount",
+    cell: (info) => info.getValue(),
+    header: "Wordcount",
     footer: (props) => props.column.id,
   },
   {
@@ -189,6 +283,57 @@ let fullDetailColumns: ColumnDef<Article>[] = [
       );
     },
     header: "Tags",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => {
+      if (row.category) {
+        return row.category.title; // Use category.title if it's available
+      } else if (row.articleParent) {
+        return row.articleParent.title; // Use articleParent.title as a fallback
+      }
+      return ""; // Return an empty string if both category and articleParent are null
+    },
+    id: "category",
+    cell: (info) => {
+      const value = info.getValue();
+      return value ? value : ""; // Display the value or an empty string
+    },
+    header: "Category",
+    footer: (props) => props.column.id,
+  },
+  {
+    accessorFn: (row) => row.excerpt,
+    id: "excerpt",
+    cell: (info) => {
+      const [expanded, setExpanded] = React.useState(false);
+
+      const toggleExpand = () => {
+        setExpanded(!expanded);
+      };
+
+      const excerptValue =
+        info.getValue() !== null ? String(info.getValue()) : "";
+      const isTruncated = !expanded;
+
+      return (
+        <div className="excerpt-container">
+          <div className={`excerpt-text ${isTruncated ? "text-truncate" : ""}`}>
+            {excerptValue}
+          </div>
+          {excerptValue !== "" && (
+            <button onClick={toggleExpand} className="btn btn-secondary">
+              {isTruncated ? (
+                <FontAwesomeIcon icon={faExpand} />
+              ) : (
+                <FontAwesomeIcon icon={faCompress} />
+              )}
+            </button>
+          )}
+        </div>
+      );
+    },
+    header: "Excerpt",
     footer: (props) => props.column.id,
   },
 ];
@@ -290,7 +435,7 @@ export function ArticleTable({
                               <Form className={"tag-select"}>
                                 <Form.Check
                                   type="switch"
-                                  id="custom-switch"
+                                  id="multiselect-switch"
                                   label="Multiselect"
                                   checked={useSelectFilter}
                                   onChange={() =>
@@ -301,7 +446,7 @@ export function ArticleTable({
                             </span>
                           )}
                         {header.column.getCanFilter() ? (
-                          <div>
+                          <div className="col-filter">
                             <Filter
                               column={header.column}
                               table={table}
@@ -325,7 +470,7 @@ export function ArticleTable({
                   {/* first row is a normal row */}
                   {row.getVisibleCells().map((cell) => {
                     return (
-                      <td key={cell.id}>
+                      <td key={cell.id} className={`cell-${cell.id}`}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -544,29 +689,53 @@ function Filter({
   } else if (column.id === "isDraft") {
     const columnFilterValue = column.getFilterValue();
 
+    const options = [
+      { value: "", label: "All" },
+      { value: "true", label: "True" },
+      { value: "false", label: "False" },
+    ];
+
     return (
       <div>
         <div className="input-group">
-          <select
-            value={
-              columnFilterValue === true
-                ? "true"
-                : columnFilterValue === false
-                ? "false"
-                : ""
-            }
-            onChange={(e) => {
-              const value = e.target.value;
+          <Select
+            options={options}
+            value={options.find((option) => option.value === columnFilterValue)}
+            onChange={(selectedOption) => {
+              console.log(selectedOption);
+              const value = selectedOption ? selectedOption.value : undefined;
               column.setFilterValue(
                 value === "" ? undefined : value === "true"
               );
             }}
-            className="form-select"
-          >
-            <option value="">All</option>
-            <option value="true">True</option>
-            <option value="false">False</option>
-          </select>
+            styles={selectStyles}
+          />
+        </div>
+        <div className="h-1" />
+      </div>
+    );
+  } else if (column.id === "state") {
+    const columnFilterValue = column.getFilterValue();
+
+    const options = [
+      { value: "", label: "All" },
+      { value: "public", label: "Public" },
+      { value: "private", label: "Private" },
+    ];
+
+    return (
+      <div className="state-select">
+        <div className="input-group">
+          <Select
+            options={options}
+            value={options.find((option) => option.value === columnFilterValue)}
+            onChange={(selectedOption) => {
+              console.log(selectedOption);
+              const value = selectedOption ? selectedOption.value : undefined;
+              column.setFilterValue(value);
+            }}
+            styles={selectStyles}
+          />
         </div>
         <div className="h-1" />
       </div>
