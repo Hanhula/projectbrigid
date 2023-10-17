@@ -771,7 +771,7 @@ function Filter({
             type="text"
             value={(columnFilterValue ?? "") as string}
             onChange={(value) => column.setFilterValue(value)}
-            placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
+            placeholder={`Search...`}
             className="form-control"
             list={column.id + "list"}
             data-bs-theme="dark"
