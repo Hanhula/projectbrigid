@@ -17,7 +17,7 @@ import {
   Table,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
-import { Dropdown, Form } from "react-bootstrap";
+import { Dropdown, Form, Table as BootstrapTable } from "react-bootstrap";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -387,7 +387,7 @@ export function ArticleTable({
   return (
     <div className="p-2">
       <div className="h-2" />
-      <table className="table table-dark table-striped">
+      <BootstrapTable striped hover responsive size="sm">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
@@ -491,7 +491,7 @@ export function ArticleTable({
             );
           })}
         </tbody>
-      </table>
+      </BootstrapTable>
       <div className="h-2" />
       <div className="row">
         <div className="pagination col-md-3 button-container">

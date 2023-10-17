@@ -88,4 +88,8 @@
     height: 0.5em;
     margin-left: 0.5em;
   }
+
+  .table {
+    --bs-table-hover-bg: var(--dark-terror);
+  }
 }
