@@ -87,6 +87,13 @@ const Articles = () => {
       </div>
       <ArticleTable data={articles} getRowCanExpand={() => true} />
       <div>
+        <h4>{"Han's Utility Bits"}</h4>
+        <p>
+          This stuff's just for me to track how my progress is going with the
+          stub murder. It displays how many articles include the word 'stub' in
+          their tags, and how many drafts the world has. For full stats, check
+          the stats page!
+        </p>
         {stubs + " stubs DONE"}
         <br />
         {drafts + " drafts REMAINING"}
