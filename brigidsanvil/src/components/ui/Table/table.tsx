@@ -266,6 +266,13 @@ let fullDetailColumns: ColumnDef<Article>[] = [
     footer: (props) => props.column.id,
   },
   {
+    accessorFn: (row) => row.likes,
+    id: "likes",
+    cell: (info) => info.getValue(),
+    header: "Likes",
+    footer: (props) => props.column.id,
+  },
+  {
     accessorFn: (row) => row.tags,
     id: "tags",
     cell: (info) => {
