@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Article, WorldArticles } from "../types/article";
+import { Article, WorldArticle, WorldArticles } from "../types/article";
 import {
   selectIdentity,
   setIdentity,
@@ -278,11 +278,47 @@ export function useWorldAnvilAPI() {
       const data = await callWorldAnvil(endpoint, CallType.GET);
       console.log("Article to update: ", data);
       if (shouldDispatch) {
-        dispatch(updateArticleById(data));
+        let worldArticle: WorldArticle = {
+          world: world,
+          article: data,
+        };
+        dispatch(updateArticleById(worldArticle));
       }
       return data;
     } catch (error) {
-      // Handle any errors, e.g., network issues or API errors
+      console.error("Error getting article:", error);
+      throw error;
+    }
+  }
+
+  async function updateArticleByField(
+    articleID: string,
+    fieldToUpdate: string,
+    dataToUpdate: string
+  ) {
+    const params = {
+      id: articleID,
+    };
+    const endpoint = `/article?id=${params.id}`;
+
+    const updateBody: Record<string, any> = {};
+    updateBody[fieldToUpdate] = dataToUpdate;
+
+    try {
+      const data = await callWorldAnvil(
+        endpoint,
+        CallType.PATCH,
+        JSON.stringify(updateBody)
+      );
+      console.log("Article to update: ", data);
+
+      let worldArticle: WorldArticle = {
+        world: world,
+        article: data,
+      };
+      dispatch(updateArticleById(worldArticle));
+      return data;
+    } catch (error) {
       console.error("Error getting article:", error);
       throw error;
     }
@@ -318,6 +354,13 @@ export function useWorldAnvilAPI() {
     },
     getArticle: async (id: string, shouldDispatch: boolean) => {
       return await getArticle(id, shouldDispatch);
+    },
+    updateArticleByField: async (
+      articleID: string,
+      fieldToUpdate: string,
+      dataToUpdate: any
+    ) => {
+      return await updateArticleByField(articleID, fieldToUpdate, dataToUpdate);
     },
   };
 }

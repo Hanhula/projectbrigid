@@ -53,9 +53,10 @@ const Articles = () => {
 
   return (
     <div className="table-container">
-      <div className="button-container">
+      <div className="button-container top-button-container">
         <Button
-          className="btn btn-primary"
+          variant="primary"
+          className="fetch-button"
           onClick={() => {
             worldAnvilAPI.getArticles(
               Math.min(articleCount, 50),
@@ -80,10 +81,26 @@ const Articles = () => {
             checked={currentDetailState.isFullDetail}
             onChange={(e) => setDetailLevel(e.target.checked)}
           />
-          <Form.Text>{`Please note that this tool takes approximately 1 second per article to retrieve your world's articles at full detail. As you have ${articleCount} articles, please expect full detail mode to take ${minutes} minutes and ${seconds} seconds for its first-time load. Subsequent responses will be much faster, as they'll only update if you've changed something on WA! Timer functionality for this has not yet been implemented, sorry!`}</Form.Text>
         </Form>
       </div>
-      <ArticleTable data={articles} getRowCanExpand={() => true} />
+      <Form.Text>{`Please note that this tool takes approximately 1 second per article to retrieve your world's articles at full detail. As you have ${articleCount} articles, please expect full detail mode to take ${minutes} minutes and ${seconds} seconds for its first-time load. Subsequent responses will be much faster, as they'll only update if you've changed something on WA! Timer functionality for this has not yet been implemented, sorry!`}</Form.Text>
+      <div>
+        <h3>Important Note on Editing</h3>
+        <div>
+          {
+            "Edited articles won't be updated prior to being edited. If you're going to edit fields in this tool and you may have edited them elsewhere, FETCH FIRST, or those changes will be overwritten. That being said, the tool also only updates the one field you choose to edit!"
+          }
+        </div>
+      </div>
+      <div
+        className={
+          currentDetailState.isFullDetail
+            ? "full-detail-table"
+            : "min-detail-table"
+        }
+      >
+        <ArticleTable data={articles} getRowCanExpand={() => true} />
+      </div>
       <div>
         <h4>{"Han's Utility Bits"}</h4>
         <p>

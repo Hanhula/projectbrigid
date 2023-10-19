@@ -26,7 +26,7 @@ const WorldSelect = () => {
   }, [world, dispatch]);
 
   return (
-    <div className="container">
+    <div className="container main-container">
       <div className="row">
         <div className="col-12">
           <Form onSubmit={submitWorldSelect}>
