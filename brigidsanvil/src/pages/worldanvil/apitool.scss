@@ -48,13 +48,24 @@
     align-items: center;
     justify-content: space-between;
 
-    .input-group {
-      width: auto;
-    }
+    // .input-group {
+    //   width: auto;
+    // }
 
-    input.form-control {
-      color: white;
-      max-width: 8em;
+    // input.form-control {
+    //   color: white;
+    //   max-width: 8em;
+    // }
+
+    .rti--container {
+      --rti-bg: var(--dark-terror);
+      --rti-border: var(--darker-terror);
+      --rti-main: var(--primary);
+      --rti-radius: 0.375rem;
+      --rti-s: 0.2rem;
+      --rti-tag: var(--primary);
+      --rti-tag-remove: var(--primary-light);
+      --rti-tag-padding: 0.15rem 0.25rem;
     }
   }
 

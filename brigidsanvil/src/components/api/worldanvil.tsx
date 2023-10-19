@@ -280,7 +280,11 @@ export function useWorldAnvilAPI() {
       const data = await callWorldAnvil(endpoint, CallType.GET);
       console.log("Article to update: ", data);
       if (shouldDispatch) {
-        dispatch(updateArticleById(data));
+        let worldArticle: WorldArticle = {
+          world: world,
+          article: data,
+        };
+        dispatch(updateArticleById(worldArticle));
       }
       return data;
     } catch (error) {

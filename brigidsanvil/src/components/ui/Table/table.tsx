@@ -31,6 +31,7 @@ import {
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { Filter } from "./filter";
+import { TagsInput } from "react-tag-input-component";
 
 export interface TagOption {
   label: string;
@@ -48,13 +49,16 @@ function EditableCell({
   onCancel,
 }: {
   value: string;
-  onSave: (newValue: string) => void;
+  onSave: (newValues: string) => void;
   onCancel: () => void;
 }) {
-  const [value, setValue] = React.useState(initialValue);
+  const [tags, setTags] = React.useState(
+    initialValue.split(",").filter((tag) => tag.trim() !== "")
+  );
 
   const handleSave = () => {
-    onSave(value);
+    const newTagsString = tags.join(",");
+    onSave(newTagsString);
   };
 
   const handleCancel = () => {
@@ -64,11 +68,12 @@ function EditableCell({
   return (
     <div className="cell-editing">
       <div className="input-group">
-        <input
-          className="form-control"
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
+        <TagsInput
+          value={tags}
+          onChange={setTags}
+          name="tags"
+          placeHolder="Enter tags"
+          separators={[","]}
         />
       </div>
       <button className="btn btn-success cell-save" onClick={handleSave}>
@@ -171,9 +176,9 @@ export function ArticleTable({
           setEditing(true);
         };
 
-        const handleSaveTags = (newTags: string) => {
+        const handleSaveTags = async (newTags: string) => {
           const articleID = info.row.original.id;
-          worldAnvilAPI.updateArticleByField(articleID, "tags", newTags);
+          await worldAnvilAPI.updateArticleByField(articleID, "tags", newTags);
           setEditing(false);
         };
 
