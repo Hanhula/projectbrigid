@@ -16,8 +16,6 @@ import {
   flexRender,
   Row,
   ColumnFiltersState,
-  Column,
-  Table,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import {
@@ -46,7 +44,6 @@ import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { Filter } from "./filter";
 import { TagsInput } from "react-tag-input-component";
-import { divide } from "lodash";
 
 export interface TagOption {
   label: string;
@@ -80,6 +77,12 @@ function EditableCell({
     onCancel();
   };
 
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSave();
+    }
+  };
+
   return (
     <div className="cell-editing">
       <div className="input-group">
@@ -89,6 +92,7 @@ function EditableCell({
           name="tags"
           placeHolder="Enter tags"
           separators={[","]}
+          onKeyUp={handleKeyUp}
         />
       </div>
       <div className="cell-edit-buttons">
