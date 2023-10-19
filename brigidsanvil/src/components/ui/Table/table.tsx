@@ -44,6 +44,7 @@ import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { Filter } from "./filter";
 import { TagsInput } from "react-tag-input-component";
+import { DateTime } from "luxon";
 
 export interface TagOption {
   label: string;
@@ -233,6 +234,27 @@ export function ArticleTable({
         );
       },
       header: "Tags",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.updateDate.date,
+      id: "date",
+      cell: (info) => {
+        const dateString = String(info.getValue());
+        const inputDateString = dateString.substring(0, dateString.length - 7);
+        const dateTime = DateTime.fromFormat(
+          inputDateString,
+          "yyyy-MM-dd HH:mm:ss",
+          { zone: "utc" }
+        );
+        const localDateTime = dateTime.toLocal();
+        const formattedDateTime = localDateTime.toFormat(
+          "yyyy-MM-dd 'at' HH:mm:ss"
+        );
+        console.log(formattedDateTime);
+        return formattedDateTime;
+      },
+      header: "Updated At",
       footer: (props) => props.column.id,
     },
     {
@@ -438,6 +460,27 @@ export function ArticleTable({
         );
       },
       header: "Excerpt",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.updateDate.date,
+      id: "date",
+      cell: (info) => {
+        const dateString = String(info.getValue());
+        const inputDateString = dateString.substring(0, dateString.length - 7);
+        const dateTime = DateTime.fromFormat(
+          inputDateString,
+          "yyyy-MM-dd HH:mm:ss",
+          { zone: "utc" }
+        );
+        const localDateTime = dateTime.toLocal();
+        const formattedDateTime = localDateTime.toFormat(
+          "yyyy-MM-dd 'at' HH:mm:ss"
+        );
+        console.log(formattedDateTime);
+        return formattedDateTime;
+      },
+      header: "Updated At",
       footer: (props) => props.column.id,
     },
     {
