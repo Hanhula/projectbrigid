@@ -1,6 +1,7 @@
 import { selectIdentity } from "@/components/store/apiSlice";
 import { selectAuthToken } from "@/components/store/authSlice";
 import { WorldStatistics } from "@/components/ui/Statistics/worldStatistics";
+import Head from "next/head";
 import { useSelector } from "react-redux";
 
 export default function Statistics() {
@@ -9,6 +10,9 @@ export default function Statistics() {
 
   return (
     <div>
+      <Head>
+        <title>Statistics</title>
+      </Head>
       {authToken && identity.success && (
         <div className="container">
           <h1

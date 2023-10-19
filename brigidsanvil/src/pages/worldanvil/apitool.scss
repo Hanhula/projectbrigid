@@ -1,3 +1,14 @@
+@media (min-width: 1400px) {
+  .container-xxl,
+  .container-xl,
+  .container-lg,
+  .container-md,
+  .container-sm,
+  .container {
+    max-width: 1600px;
+  }
+}
+
 .button-container {
   button {
     margin-right: 1em;
@@ -35,6 +46,17 @@
 }
 
 .table-container {
+  .top-button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+
+    .fetch-button {
+      width: 10em;
+    }
+  }
+
   .table-select-tags {
     font-weight: 400;
   }
@@ -47,15 +69,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.2em;
 
-    // .input-group {
-    //   width: auto;
-    // }
-
-    // input.form-control {
-    //   color: white;
-    //   max-width: 8em;
-    // }
+    .cell-edit-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2em;
+    }
 
     .rti--container {
       --rti-bg: var(--dark-terror);
@@ -79,10 +99,80 @@
     justify-content: center;
   }
 
+  .col-tags {
+    display: inline-block;
+    margin-right: 0.3em;
+
+    ~ .col-filter {
+      max-width: 11em;
+    }
+  }
+
+  .col-editURL ~ .col-filter .input-group,
+  .col-url ~ .col-filter .input-group {
+    max-width: 3em;
+  }
+
+  .col-wordcount ~ .col-filter .input-group {
+    max-width: 8em;
+  }
+
+  .cell-likes,
+  .cell-wordcount,
+  .cell-isDraft,
+  .cell-state,
+  .cell-url,
+  .cell-editURL {
+    text-align: center;
+  }
+
+  .cell-title {
+    max-width: 10em;
+    width: 10em;
+    min-width: 10em;
+  }
+
+  .col-isDraft,
+  .col-state,
+  .col-likes,
+  .col-state {
+    min-width: 5em;
+  }
+
+  .excerpt-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.5em;
+
+    .excerpt-text {
+      max-width: 10em;
+      display: inline-block;
+    }
+  }
+
+  .tag-select {
+    display: inline-block;
+
+    .form-switch {
+      display: inline-block;
+    }
+
+    .form-check-label {
+      font-weight: 500;
+      font-size: 0.9em;
+      color: var(--lightest-terror);
+    }
+  }
+
   table th.cursor-pointer span {
     display: inline-block;
     width: 0.5em;
     height: 0.5em;
     margin-left: 0.5em;
+  }
+
+  .table {
+    --bs-table-hover-bg: var(--dark-terror);
   }
 }

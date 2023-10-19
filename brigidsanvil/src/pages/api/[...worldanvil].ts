@@ -19,17 +19,11 @@ export default async function handler(
   let filteredQueryParams = { ...queryParameters };
   delete filteredQueryParams.worldanvil;
 
-  // console.log(apiEndpoint);
-  // console.log("query parameters:", queryParameters);
-  // console.log("filtered query parameters:", filteredQueryParams);
-
   const queryString = Object.entries(filteredQueryParams)
     .map(([key, value]) => `${key}=${encodeURIComponent(value as string)}`)
     .join("&");
 
   authToken = req.headers.authorization!;
-
-  //console.log("token", authToken);
 
   let additionalHeaders: HeadersInit = {
     "Content-Type": "application/json;charset=UTF-8",

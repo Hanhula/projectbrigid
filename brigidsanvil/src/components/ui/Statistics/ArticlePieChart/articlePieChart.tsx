@@ -103,7 +103,6 @@ export function ArticlePieChart() {
                 value,
                 index,
               }) => {
-                console.log("handling label?");
                 const RADIAN = Math.PI / 180;
                 const radius = 25 + innerRadius + (outerRadius - innerRadius);
                 const x = cx + radius * Math.cos(-midAngle * RADIAN);

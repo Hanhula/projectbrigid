@@ -1,3 +1,4 @@
+import Head from "next/head";
 import React, { useEffect } from "react";
 import "./search.scss";
 
@@ -14,6 +15,9 @@ function WorldAnvilSearch() {
 
   return (
     <div className="search-container container">
+      <Head>
+        <title>Istralar Search</title>
+      </Head>
       <div className="row">
         <div className="col">
           <h1>Istralar Search</h1>
