@@ -251,7 +251,6 @@ export function ArticleTable({
         const formattedDateTime = localDateTime.toFormat(
           "yyyy-MM-dd 'at' HH:mm:ss"
         );
-        console.log(formattedDateTime);
         return formattedDateTime;
       },
       header: "Updated At",

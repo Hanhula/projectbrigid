@@ -158,7 +158,6 @@ export const articleSlice = createSlice({
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
-      console.log('redux update call ', updatedArticleObj);
       const worldIndex = state.worldArticles.findIndex(
         (worldArticle) => worldArticle.world.id === updatedArticleObj.world.id
       );
