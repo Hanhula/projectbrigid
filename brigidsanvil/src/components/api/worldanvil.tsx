@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Article, WorldArticles } from "../types/article";
+import { Article, WorldArticle, WorldArticles } from "../types/article";
 import {
   selectIdentity,
   setIdentity,
@@ -310,7 +310,11 @@ export function useWorldAnvilAPI() {
       );
       console.log("Article to update: ", data);
 
-      dispatch(updateArticleById(data));
+      let worldArticle: WorldArticle = {
+        world: world,
+        article: data,
+      };
+      dispatch(updateArticleById(worldArticle));
       return data;
     } catch (error) {
       console.error("Error getting article:", error);

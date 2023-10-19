@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Article } from "@/components/types/article";
-import Select from "react-select";
 
 import {
   useReactTable,
@@ -26,93 +25,61 @@ import {
   faSortDown,
   faChevronRight,
   faChevronDown,
+  faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import { useWorldAnvilAPI } from "@/components/api/worldanvil";
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+import { Filter } from "./filter";
 
-const columns: ColumnDef<Article>[] = [
-  {
-    id: "expander",
-    header: () => null,
-    cell: ({ row }) => {
-      return row.getCanExpand() ? (
-        <button
-          className="btn btn-secondary"
-          {...{
-            onClick: row.getToggleExpandedHandler(),
-            style: { cursor: "pointer" },
-          }}
-        >
-          {row.getIsExpanded() ? (
-            <FontAwesomeIcon icon={faChevronRight} />
-          ) : (
-            <FontAwesomeIcon icon={faChevronDown} />
-          )}
-        </button>
-      ) : (
-        "🔵"
-      );
-    },
-  },
-  {
-    accessorFn: (row) => row.title,
-    id: "title",
-    cell: (info) => info.getValue(),
-    header: "Title",
-    footer: (props) => props.column.id,
-  },
-  {
-    accessorFn: (row) => row.entityClass,
-    id: "entityClass",
-    cell: (info) => info.getValue(),
-    header: "Type",
-    footer: (props) => props.column.id,
-  },
-  {
-    accessorFn: (row) => row.url,
-    id: "url",
-    cell: (info: any) => <a href={info.getValue() as string}>Link</a>,
-    header: "Link",
-    footer: (props) => props.column.id,
-  },
-  {
-    accessorFn: (row) => row.state,
-    id: "state",
-    cell: (info) => info.getValue(),
-    header: "State",
-    footer: (props) => props.column.id,
-  },
-  {
-    accessorFn: (row) => row.isDraft,
-    id: "isDraft",
-    cell: (info) => String(info.getValue()),
-    header: "Is Draft?",
-    footer: (props) => props.column.id,
-  },
-  {
-    accessorFn: (row) => row.tags,
-    id: "tags",
-    cell: (info) => {
-      const tagValue = info.getValue();
-      const tags = (tagValue || "").toString();
+export interface TagOption {
+  label: string;
+  value: string;
+}
 
-      return (
-        <div>
-          {tags.split(",").map((tag, index) => (
-            <span key={index} className="badge text-bg-secondary">
-              {tag}
-            </span>
-          ))}
-        </div>
-      );
-    },
-    header: "Tags",
-    footer: (props) => props.column.id,
-  },
-];
-
-type TableProps<TData> = {
+export type TableProps<TData> = {
   data: TData[];
   getRowCanExpand: (row: Row<TData>) => boolean;
 };
+
+function EditableCell({
+  value: initialValue,
+  onSave,
+  onCancel,
+}: {
+  value: string;
+  onSave: (newValue: string) => void;
+  onCancel: () => void;
+}) {
+  const [value, setValue] = React.useState(initialValue);
+
+  const handleSave = () => {
+    onSave(value);
+  };
+
+  const handleCancel = () => {
+    onCancel();
+  };
+
+  return (
+    <div className="cell-editing">
+      <div className="input-group">
+        <input
+          className="form-control"
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+      </div>
+      <button className="btn btn-success cell-save" onClick={handleSave}>
+        <FontAwesomeIcon icon={faCheck} />
+      </button>
+      <button className="btn btn-danger cell-cancel" onClick={handleCancel}>
+        <FontAwesomeIcon icon={faXmark} />
+      </button>
+    </div>
+  );
+}
 
 const renderSubComponent = ({ row }: { row: Row<Article> }) => {
   return (
@@ -130,6 +97,109 @@ export function ArticleTable({
     []
   );
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const worldAnvilAPI = useWorldAnvilAPI();
+
+  const columns: ColumnDef<Article>[] = [
+    {
+      id: "expander",
+      header: () => null,
+      cell: ({ row }) => {
+        return row.getCanExpand() ? (
+          <button
+            className="btn btn-secondary"
+            {...{
+              onClick: row.getToggleExpandedHandler(),
+              style: { cursor: "pointer" },
+            }}
+          >
+            {row.getIsExpanded() ? (
+              <FontAwesomeIcon icon={faChevronRight} />
+            ) : (
+              <FontAwesomeIcon icon={faChevronDown} />
+            )}
+          </button>
+        ) : (
+          "🔵"
+        );
+      },
+    },
+    {
+      accessorFn: (row) => row.title,
+      id: "title",
+      cell: (info) => info.getValue(),
+      header: "Title",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.entityClass,
+      id: "entityClass",
+      cell: (info) => info.getValue(),
+      header: "Type",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.url,
+      id: "url",
+      cell: (info: any) => <a href={info.getValue() as string}>Link</a>,
+      header: "Link",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.state,
+      id: "state",
+      cell: (info) => info.getValue(),
+      header: "State",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.isDraft,
+      id: "isDraft",
+      cell: (info) => String(info.getValue()),
+      header: "Is Draft?",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.tags,
+      id: "tags",
+      cell: (info) => {
+        const tagValue = info.getValue();
+        const tags = (tagValue || "").toString();
+
+        const [editing, setEditing] = React.useState(false);
+
+        const handleEdit = () => {
+          setEditing(true);
+        };
+
+        const handleSaveTags = (newTags: string) => {
+          const articleID = info.row.original.id;
+          worldAnvilAPI.updateArticleByField(articleID, "tags", newTags);
+          setEditing(false);
+        };
+
+        return editing ? (
+          <EditableCell
+            value={tags}
+            onSave={handleSaveTags}
+            onCancel={() => setEditing(false)}
+          />
+        ) : (
+          <div>
+            {tags.split(",").map((tag, index) => (
+              <span key={index} className="badge text-bg-secondary">
+                {tag}
+              </span>
+            ))}
+            <button className="btn btn-primary cell-edit" onClick={handleEdit}>
+              <FontAwesomeIcon icon={faPenToSquare} />
+            </button>
+          </div>
+        );
+      },
+      header: "Tags",
+      footer: (props) => props.column.id,
+    },
+  ];
 
   const table = useReactTable<Article>({
     data,
@@ -307,231 +377,5 @@ export function ArticleTable({
         </div>
       </div>
     </div>
-  );
-}
-
-interface TagOption {
-  label: string;
-  value: string;
-}
-
-function Filter({
-  column,
-  table,
-}: {
-  column: Column<any, unknown>;
-  table: Table<any>;
-}) {
-  const filterValue = column.getFilterValue() || undefined;
-
-  const handleTagFilterChange = (selectedOptions: TagOption[]) => {
-    // Filter out empty strings from selectedValues
-    const selectedValues = selectedOptions
-      ? selectedOptions
-          .filter((option) => option.value !== "") // Filter out empty strings
-          .map((option) => option.value)
-          .join(",")
-      : "";
-
-    // Check if selectedValues is empty, and if so, set the filter value to undefined
-    column.setFilterValue(selectedValues || undefined);
-  };
-
-  if (column.id === "tags") {
-    const filteredData = table
-      .getPreFilteredRowModel()
-      .flatRows.filter((row) => row.original.tags !== null);
-
-    const uniqueTagsSet = new Set<string>();
-
-    // Iterate through the filtered data and collect unique tags
-    filteredData.forEach((row) => {
-      const tags = row.original.tags
-        ?.split(",")
-        .map((tag: string) => tag.trim());
-      if (tags) {
-        tags.forEach((tag: string) => uniqueTagsSet.add(tag));
-      }
-    });
-
-    const uniqueTagsArray: TagOption[] = Array.from(uniqueTagsSet).map(
-      (tag) => ({
-        label: tag,
-        value: tag,
-      })
-    );
-
-    return (
-      <div>
-        <Select
-          isMulti
-          options={uniqueTagsArray}
-          value={
-            filterValue
-              ? (filterValue as string)
-                  .split(",")
-                  .map((value) =>
-                    uniqueTagsArray.find((option) => option.value === value)
-                  )
-              : []
-          }
-          onChange={(value) => handleTagFilterChange(value as TagOption[])}
-          placeholder={`Select Tags`}
-          className={"table-select-tags"}
-          styles={{
-            control: (baseStyles, state) => ({
-              ...baseStyles,
-              backgroundColor: state.isFocused
-                ? "var(--darkest-terror)"
-                : "var(--dark-terror)",
-              borderColor: state.isFocused
-                ? "var(--dark-terror)"
-                : "var(--light-terror)",
-              color: "var(--lightest-terror)",
-            }),
-            input: (baseStyles) => ({
-              ...baseStyles,
-              color: "var(--lightest-terror)",
-            }),
-            multiValue: (baseStyles) => ({
-              ...baseStyles,
-              backgroundColor: "var(--primary)",
-              borderColor: "var(--primary-dark)",
-              borderRadius: "0.375rem",
-            }),
-            multiValueLabel: (baseStyles) => ({
-              ...baseStyles,
-              color: "white",
-              fontWeight: 600,
-            }),
-            multiValueRemove: (baseStyles) => ({
-              ...baseStyles,
-              "&:hover": {
-                backgroundColor: "var(--primary-dark)",
-                borderColor: "var(--primary-dark)",
-                color: "var(--create-light)",
-              },
-            }),
-            menuList: (baseStyles) => ({
-              ...baseStyles,
-              backgroundColor: "var(--darker-terror)",
-            }),
-            option: (baseStyles, state) => ({
-              ...baseStyles,
-              backgroundColor: state.isFocused
-                ? "var(--light-terror)"
-                : "var(--darker-terror)",
-              color: "var(--offwhite)",
-            }),
-          }}
-        />
-        <div className="h-1" />
-      </div>
-    );
-  } else if (column.id === "isDraft") {
-    const columnFilterValue = column.getFilterValue();
-
-    return (
-      <div>
-        <div className="input-group">
-          <select
-            value={
-              columnFilterValue === true
-                ? "true"
-                : columnFilterValue === false
-                ? "false"
-                : ""
-            }
-            onChange={(e) => {
-              const value = e.target.value;
-              column.setFilterValue(
-                value === "" ? undefined : value === "true"
-              );
-            }}
-            className="form-select"
-          >
-            <option value="">All</option>
-            <option value="true">True</option>
-            <option value="false">False</option>
-          </select>
-        </div>
-        <div className="h-1" />
-      </div>
-    );
-  } else {
-    const firstValue = table
-      .getPreFilteredRowModel()
-      .flatRows[0]?.getValue(column.id);
-
-    const columnFilterValue = column.getFilterValue();
-
-    const getSortedUniqueValues = () => {
-      return typeof firstValue === "number"
-        ? []
-        : Array.from(column.getFacetedUniqueValues().keys()).sort();
-    };
-
-    // Include 'column' in the dependency array for React.useMemo
-    const sortedUniqueValues = React.useMemo(getSortedUniqueValues, [
-      firstValue,
-      column,
-    ]);
-
-    return (
-      <>
-        <datalist id={column.id + "list"}>
-          {sortedUniqueValues.slice(0, 5000).map((value: any) => (
-            <option value={value} key={value} />
-          ))}
-        </datalist>
-        <div className="input-group">
-          <DebouncedInput
-            type="text"
-            value={(columnFilterValue ?? "") as string}
-            onChange={(value) => column.setFilterValue(value)}
-            placeholder={`Search... (${column.getFacetedUniqueValues().size})`}
-            className="form-control"
-            list={column.id + "list"}
-            data-bs-theme="dark"
-          />
-        </div>
-        <div className="h-1" />
-      </>
-    );
-  }
-}
-
-// A debounced input react component
-function DebouncedInput({
-  value: initialValue,
-  onChange,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  debounce?: number;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
-  const [value, setValue] = React.useState(initialValue);
-
-  React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  return (
-    <input
-      {...props}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-    />
   );
 }

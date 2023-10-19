@@ -43,6 +43,31 @@
     margin: 0.2em;
   }
 
+  .cell-editing {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .input-group {
+      width: auto;
+    }
+
+    input.form-control {
+      color: white;
+      max-width: 8em;
+    }
+  }
+
+  .cell-edit,
+  .cell-save,
+  .cell-cancel {
+    padding: 4px;
+    margin: 0px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   table th.cursor-pointer span {
     display: inline-block;
     width: 0.5em;
