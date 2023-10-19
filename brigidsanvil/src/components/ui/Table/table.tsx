@@ -16,6 +16,7 @@ import {
   flexRender,
   Row,
   ColumnFiltersState,
+  CellContext,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import {
@@ -39,6 +40,7 @@ import {
   faSync,
   faFileEdit,
   faLink,
+  faClipboard,
 } from "@fortawesome/free-solid-svg-icons";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
@@ -59,23 +61,28 @@ export type TableProps<TData> = {
 function EditableCell({
   value: initialValue,
   onSave,
-  onCancel,
 }: {
   value: string;
   onSave: (newValues: string) => void;
-  onCancel: () => void;
 }) {
   const [tags, setTags] = React.useState(
     initialValue.split(",").filter((tag) => tag.trim() !== "")
   );
+  const [editing, setEditing] = React.useState(false);
+
+  const handleEdit = () => {
+    setEditing(true);
+  };
 
   const handleSave = () => {
     const newTagsString = tags.join(",");
     onSave(newTagsString);
+    setEditing(false);
   };
 
   const handleCancel = () => {
-    onCancel();
+    setTags(initialValue.split(",").filter((tag) => tag.trim() !== ""));
+    setEditing(false);
   };
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -85,26 +92,70 @@ function EditableCell({
   };
 
   return (
-    <div className="cell-editing">
-      <div className="input-group">
-        <TagsInput
-          value={tags}
-          onChange={setTags}
-          name="tags"
-          placeHolder="Enter tags"
-          separators={[","]}
-          onKeyUp={handleKeyUp}
-        />
-      </div>
-      <div className="cell-edit-buttons">
-        <button className="btn btn-success cell-save" onClick={handleSave}>
-          <FontAwesomeIcon icon={faCheck} />
-        </button>
-        <button className="btn btn-danger cell-cancel" onClick={handleCancel}>
-          <FontAwesomeIcon icon={faXmark} />
-        </button>
-      </div>
+    <div className="editing">
+      {editing ? (
+        <div className="cell-editing">
+          <div className="input-group">
+            <TagsInput
+              value={tags}
+              onChange={setTags}
+              name="tags"
+              placeHolder="Enter tags"
+              separators={[","]}
+              onKeyUp={handleKeyUp}
+            />
+          </div>
+          <div className="cell-edit-buttons">
+            <Button
+              variant="success"
+              className="cell-save"
+              onClick={handleSave}
+            >
+              <FontAwesomeIcon icon={faCheck} />
+            </Button>
+            <Button
+              variant="danger"
+              className="cell-cancel"
+              onClick={handleCancel}
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          {initialValue.split(",").map((tag, index) => (
+            <span key={index} className="badge text-bg-secondary">
+              {tag}
+            </span>
+          ))}
+          <Button variant="primary" className="cell-edit" onClick={handleEdit}>
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </Button>
+        </div>
+      )}
     </div>
+  );
+}
+
+function generateMention(info: CellContext<Article, unknown>) {
+  const articleID = info.row.original.id;
+  const articleType = info.row.original.entityClass.toLowerCase();
+  const mention = `@[${String(info.getValue())}](${articleType}:${articleID})`;
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(mention);
+      console.log("Text copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
+  return (
+    <Button className="copy-block" variant="primary" onClick={copyToClipboard}>
+      <FontAwesomeIcon icon={faClipboard} />
+    </Button>
   );
 }
 
@@ -178,6 +229,14 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      id: "copyblock",
+      cell: (info: any) => {
+        return generateMention(info);
+      },
+      header: "Block",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => row.state,
       id: "state",
       cell: (info) => info.getValue(),
@@ -198,39 +257,18 @@ export function ArticleTable({
         const tagValue = info.getValue();
         const tags = (tagValue || "").toString();
 
-        const [editing, setEditing] = React.useState(false);
-
-        const handleEdit = () => {
-          setEditing(true);
-        };
-
-        const handleSaveTags = async (newTags: string) => {
-          const articleID = info.row.original.id;
-          await worldAnvilAPI.updateArticleByField(articleID, "tags", newTags);
-          setEditing(false);
-        };
-
-        return editing ? (
+        return (
           <EditableCell
             value={tags}
-            onSave={handleSaveTags}
-            onCancel={() => setEditing(false)}
+            onSave={async (newTags) => {
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "tags",
+                newTags
+              );
+            }}
           />
-        ) : (
-          <div>
-            {tags.split(",").map((tag, index) => (
-              <span key={index} className="badge text-bg-secondary">
-                {tag}
-              </span>
-            ))}
-            <Button
-              variant="primary"
-              className="cell-edit"
-              onClick={handleEdit}
-            >
-              <FontAwesomeIcon icon={faPenToSquare} />
-            </Button>
-          </div>
         );
       },
       header: "Tags",
@@ -340,6 +378,14 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      id: "copyblock",
+      cell: (info: any) => {
+        return generateMention(info);
+      },
+      header: "Copy Block",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => row.state,
       id: "state",
       cell: (info) => info.getValue(),
@@ -374,35 +420,18 @@ export function ArticleTable({
         const tagValue = info.getValue();
         const tags = (tagValue || "").toString();
 
-        const [editing, setEditing] = React.useState(false);
-
-        const handleEdit = () => {
-          setEditing(true);
-        };
-
-        const handleSaveTags = async (newTags: string) => {
-          const articleID = info.row.original.id;
-          await worldAnvilAPI.updateArticleByField(articleID, "tags", newTags);
-          setEditing(false);
-        };
-
-        return editing ? (
+        return (
           <EditableCell
             value={tags}
-            onSave={handleSaveTags}
-            onCancel={() => setEditing(false)}
+            onSave={async (newTags) => {
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "tags",
+                newTags
+              );
+            }}
           />
-        ) : (
-          <div>
-            {tags.split(",").map((tag, index) => (
-              <span key={index} className="badge text-bg-secondary">
-                {tag}
-              </span>
-            ))}
-            <button className="btn btn-primary cell-edit" onClick={handleEdit}>
-              <FontAwesomeIcon icon={faPenToSquare} />
-            </button>
-          </div>
         );
       },
       header: "Tags",
@@ -411,11 +440,11 @@ export function ArticleTable({
     {
       accessorFn: (row) => {
         if (row.category) {
-          return row.category.title; // Use category.title if it's available
+          return row.category.title;
         } else if (row.articleParent) {
-          return row.articleParent.title; // Use articleParent.title as a fallback
+          return row.articleParent.title;
         }
-        return ""; // Return an empty string if both category and articleParent are null
+        return "";
       },
       id: "category",
       cell: (info) => {
@@ -476,7 +505,6 @@ export function ArticleTable({
         const formattedDateTime = localDateTime.toFormat(
           "yyyy-MM-dd 'at' HH:mm:ss"
         );
-        console.log(formattedDateTime);
         return formattedDateTime;
       },
       header: "Updated At",
