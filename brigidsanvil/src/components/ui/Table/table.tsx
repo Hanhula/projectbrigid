@@ -166,7 +166,13 @@ export function ArticleTable({
     {
       accessorFn: (row) => row.url,
       id: "url",
-      cell: (info: any) => <a href={info.getValue() as string}>Link</a>,
+      cell: (info: any) => (
+        <a href={info.getValue() as string}>
+          <Button className="link-url" variant="primary">
+            <FontAwesomeIcon icon={faLink} />
+          </Button>
+        </a>
+      ),
       header: "Link",
       footer: (props) => props.column.id,
     },

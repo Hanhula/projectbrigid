@@ -92,7 +92,15 @@ const Articles = () => {
           }
         </div>
       </div>
-      <ArticleTable data={articles} getRowCanExpand={() => true} />
+      <div
+        className={
+          currentDetailState.isFullDetail
+            ? "full-detail-table"
+            : "min-detail-table"
+        }
+      >
+        <ArticleTable data={articles} getRowCanExpand={() => true} />
+      </div>
       <div>
         <h4>{"Han's Utility Bits"}</h4>
         <p>

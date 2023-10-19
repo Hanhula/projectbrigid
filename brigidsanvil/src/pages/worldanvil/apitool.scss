@@ -65,78 +65,80 @@
     margin: 0.2em;
   }
 
-  .cell-editing {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.2em;
-
-    .cell-edit-buttons {
+  .full-detail-table {
+    .cell-editing {
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
       gap: 0.2em;
+
+      .cell-edit-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      .rti--container {
+        --rti-bg: var(--dark-terror);
+        --rti-border: var(--darker-terror);
+        --rti-main: var(--primary);
+        --rti-radius: 0.375rem;
+        --rti-s: 0.2rem;
+        --rti-tag: var(--primary);
+        --rti-tag-remove: var(--primary-light);
+        --rti-tag-padding: 0.15rem 0.25rem;
+      }
     }
 
-    .rti--container {
-      --rti-bg: var(--dark-terror);
-      --rti-border: var(--darker-terror);
-      --rti-main: var(--primary);
-      --rti-radius: 0.375rem;
-      --rti-s: 0.2rem;
-      --rti-tag: var(--primary);
-      --rti-tag-remove: var(--primary-light);
-      --rti-tag-padding: 0.15rem 0.25rem;
+    .cell-edit,
+    .cell-save,
+    .cell-cancel {
+      padding: 4px;
+      margin: 0px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-  }
 
-  .cell-edit,
-  .cell-save,
-  .cell-cancel {
-    padding: 4px;
-    margin: 0px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
+    .col-tags {
+      display: inline-block;
+      margin-right: 0.3em;
 
-  .col-tags {
-    display: inline-block;
-    margin-right: 0.3em;
-
-    ~ .col-filter {
-      max-width: 11em;
+      ~ .col-filter {
+        max-width: 11em;
+      }
     }
-  }
 
-  .col-editURL ~ .col-filter .input-group,
-  .col-url ~ .col-filter .input-group {
-    max-width: 3em;
-  }
+    .col-editURL ~ .col-filter .input-group,
+    .col-url ~ .col-filter .input-group {
+      max-width: 3em;
+    }
 
-  .col-wordcount ~ .col-filter .input-group {
-    max-width: 8em;
-  }
+    .col-wordcount ~ .col-filter .input-group {
+      max-width: 8em;
+    }
 
-  .cell-likes,
-  .cell-wordcount,
-  .cell-isDraft,
-  .cell-state,
-  .cell-url,
-  .cell-editURL {
-    text-align: center;
-  }
+    .cell-likes,
+    .cell-wordcount,
+    .cell-isDraft,
+    .cell-state,
+    .cell-url,
+    .cell-editURL {
+      text-align: center;
+    }
 
-  .cell-title {
-    max-width: 10em;
-    width: 10em;
-    min-width: 10em;
-  }
+    .cell-title {
+      max-width: 10em;
+      width: 10em;
+      min-width: 10em;
+    }
 
-  .col-isDraft,
-  .col-state,
-  .col-likes,
-  .col-state {
-    min-width: 5em;
+    .col-isDraft,
+    .col-state,
+    .col-likes,
+    .col-state {
+      min-width: 5em;
+    }
   }
 
   .excerpt-container {
