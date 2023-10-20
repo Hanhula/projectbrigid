@@ -117,9 +117,39 @@ export default function TagCloud() {
   }));
 
   const sortedTagData = tagData.sort((a, b) => b.value - a.value);
+  const totalTags = Object.values(tagCount).reduce(
+    (acc, count) => acc + count,
+    0
+  );
+
+  const averageTagsPerArticle = totalTags / articles.length;
+
+  const untaggedArticles = articles.filter(
+    (article) => !article.tags || article.tags.trim() === ""
+  );
+  const numUntaggedArticles = untaggedArticles.length;
 
   return (
     <div className="wordcloud-and-tags">
+      <div className="row">
+        <div className="col">
+          <dt>Total Unique Tags</dt>
+          <dd>{sortedTagData.length}</dd>
+        </div>
+        <div className="col">
+          <dt>Total Tags Used</dt>
+          <dd>{totalTags}</dd>
+        </div>
+        <div className="col">
+          <dt>Average Tags per Article</dt>
+          <dd>{averageTagsPerArticle.toFixed(2)}</dd>
+        </div>
+        <div className="col">
+          <dt>Untagged Articles</dt>
+          <dd>{numUntaggedArticles}</dd>
+        </div>
+      </div>
+      <hr />
       <div className="row">
         <div className="col-md-2">
           <div className="tag-list">
