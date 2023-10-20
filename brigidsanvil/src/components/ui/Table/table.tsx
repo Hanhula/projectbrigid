@@ -141,7 +141,8 @@ function EditableCell({
 function generateMention(info: CellContext<Article, unknown>) {
   const articleID = info.row.original.id;
   const articleType = info.row.original.entityClass.toLowerCase();
-  const mention = `@[${String(info.getValue())}](${articleType}:${articleID})`;
+  const articleTitle = info.row.original.title;
+  const mention = `@[${articleTitle}](${articleType}:${articleID})`;
 
   const copyToClipboard = async () => {
     try {
