@@ -64,12 +64,14 @@ function EditableCell({
   editing,
   setEditing,
   isTruncated,
+  isDisabled,
 }: {
   value: string;
   onSave: (newValues: string) => void;
   editing: boolean;
   setEditing: (value: boolean) => void;
   isTruncated?: boolean;
+  isDisabled?: boolean;
 }) {
   const [editedValue, setEditedValue] = React.useState(initialValue);
 
@@ -100,7 +102,7 @@ function EditableCell({
           <div className="input-group">
             <input
               type="text"
-              className="cell-edit"
+              className="cell-edit form-control"
               value={editedValue}
               onChange={(e) => setEditedValue(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -133,7 +135,12 @@ function EditableCell({
           >
             {editedValue}
           </div>
-          <Button variant="primary" className="cell-edit" onClick={handleEdit}>
+          <Button
+            variant="primary"
+            className="cell-edit"
+            onClick={handleEdit}
+            disabled={isDisabled}
+          >
             <FontAwesomeIcon icon={faPenToSquare} />
           </Button>
         </div>
@@ -447,6 +454,8 @@ export function ArticleTable({
             }}
             editing={editing}
             setEditing={setEditing}
+            isTruncated={false}
+            isDisabled={true}
           ></EditableCell>
         );
       },
