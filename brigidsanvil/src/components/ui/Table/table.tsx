@@ -425,12 +425,14 @@ export function ArticleTable({
           <EditableCell
             value={tags}
             onSave={async (newTags) => {
+              const paginationState = table.getState().pagination;
               const articleID = info.row.original.id;
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "tags",
                 newTags
               );
+              table.setPagination(paginationState);
             }}
           />
         );
