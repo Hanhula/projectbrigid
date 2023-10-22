@@ -425,7 +425,31 @@ export function ArticleTable({
     {
       accessorFn: (row) => row.title,
       id: "title",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const [editing, setEditing] = React.useState(false);
+
+        const titleValue = String(info.getValue());
+
+        return (
+          <EditableCell
+            value={titleValue}
+            onSave={async (newTitle) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "title",
+                newTitle
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            editing={editing}
+            setEditing={setEditing}
+          ></EditableCell>
+        );
+      },
       header: "Title",
       footer: (props) => props.column.id,
     },
