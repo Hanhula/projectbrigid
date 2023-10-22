@@ -61,6 +61,97 @@ export type TableProps<TData> = {
 function EditableCell({
   value: initialValue,
   onSave,
+  editing,
+  setEditing,
+  isTruncated,
+  isDisabled,
+}: {
+  value: string;
+  onSave: (newValues: string) => void;
+  editing: boolean;
+  setEditing: (value: boolean) => void;
+  isTruncated?: boolean;
+  isDisabled?: boolean;
+}) {
+  const [editedValue, setEditedValue] = React.useState(initialValue);
+
+  const handleEdit = () => {
+    setEditing(true);
+  };
+
+  const handleSave = () => {
+    onSave(editedValue);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedValue(initialValue);
+    setEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSave();
+    }
+  };
+
+  return (
+    <div className="editing">
+      {editing ? (
+        <div className="cell-editing">
+          <div className="input-group">
+            <input
+              type="text"
+              className="cell-edit form-control"
+              value={editedValue}
+              onChange={(e) => setEditedValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              maxLength={255}
+            />
+          </div>
+          <div className="cell-edit-buttons">
+            <Button
+              variant="success"
+              className="cell-save"
+              onClick={handleSave}
+            >
+              <FontAwesomeIcon icon={faCheck} />
+            </Button>
+            <Button
+              variant="danger"
+              className="cell-cancel"
+              onClick={handleCancel}
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div
+            className={
+              isTruncated ? "excerpt-text text-truncate" : "excerpt-text"
+            }
+          >
+            {editedValue}
+          </div>
+          <Button
+            variant="primary"
+            className="cell-edit"
+            onClick={handleEdit}
+            disabled={isDisabled}
+          >
+            <FontAwesomeIcon icon={faPenToSquare} />
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EditableTags({
+  value: initialValue,
+  onSave,
 }: {
   value: string;
   onSave: (newValues: string) => void;
@@ -259,7 +350,7 @@ export function ArticleTable({
         const tags = (tagValue || "").toString();
 
         return (
-          <EditableCell
+          <EditableTags
             value={tags}
             onSave={async (newTags) => {
               const articleID = info.row.original.id;
@@ -298,9 +389,11 @@ export function ArticleTable({
     {
       id: "Sync",
       cell: (info) => {
-        const handleSync = () => {
+        const handleSync = async () => {
+          const paginationState = table.getState().pagination;
           const articleID = info.row.original.id;
-          worldAnvilAPI.getArticle(articleID, true);
+          await worldAnvilAPI.getArticle(articleID, true);
+          table.setPagination(paginationState);
         };
 
         return (
@@ -341,7 +434,33 @@ export function ArticleTable({
     {
       accessorFn: (row) => row.title,
       id: "title",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const [editing, setEditing] = React.useState(false);
+
+        const titleValue = String(info.getValue());
+
+        return (
+          <EditableCell
+            value={titleValue}
+            onSave={async (newTitle) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "title",
+                newTitle
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            editing={editing}
+            setEditing={setEditing}
+            isTruncated={false}
+            isDisabled={true}
+          ></EditableCell>
+        );
+      },
       header: "Title",
       footer: (props) => props.column.id,
     },
@@ -422,7 +541,7 @@ export function ArticleTable({
         const tags = (tagValue || "").toString();
 
         return (
-          <EditableCell
+          <EditableTags
             value={tags}
             onSave={async (newTags) => {
               const paginationState = table.getState().pagination;
@@ -462,6 +581,7 @@ export function ArticleTable({
       id: "excerpt",
       cell: (info) => {
         const [expanded, setExpanded] = React.useState(false);
+        const [editing, setEditing] = React.useState(false);
 
         const toggleExpand = () => {
           setExpanded(!expanded);
@@ -473,19 +593,32 @@ export function ArticleTable({
 
         return (
           <div className="excerpt-container">
-            <div
-              className={`excerpt-text ${isTruncated ? "text-truncate" : ""}`}
-            >
-              {excerptValue}
-            </div>
-            {excerptValue !== "" && (
-              <button onClick={toggleExpand} className="btn btn-secondary">
+            <EditableCell
+              value={excerptValue}
+              onSave={async (newExcerpt) => {
+                const paginationState = table.getState().pagination;
+                const articleID = info.row.original.id;
+                await worldAnvilAPI.updateArticleByField(
+                  articleID,
+                  "excerpt",
+                  newExcerpt
+                );
+                table.setPagination(paginationState);
+                await worldAnvilAPI.getArticle(articleID, true);
+                table.setPagination(paginationState);
+              }}
+              editing={editing}
+              setEditing={setEditing}
+              isTruncated={isTruncated}
+            ></EditableCell>
+            {!editing && excerptValue !== "" && (
+              <Button onClick={toggleExpand} variant="secondary">
                 {isTruncated ? (
                   <FontAwesomeIcon icon={faExpand} />
                 ) : (
                   <FontAwesomeIcon icon={faCompress} />
                 )}
-              </button>
+              </Button>
             )}
           </div>
         );
@@ -516,9 +649,11 @@ export function ArticleTable({
     {
       id: "Sync",
       cell: (info) => {
-        const handleSync = () => {
+        const handleSync = async () => {
+          const paginationState = table.getState().pagination;
           const articleID = info.row.original.id;
-          worldAnvilAPI.getArticle(articleID, true);
+          await worldAnvilAPI.getArticle(articleID, true);
+          table.setPagination(paginationState);
         };
 
         return (
