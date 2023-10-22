@@ -94,15 +94,13 @@ export function Filter({
   const filterValue = column.getFilterValue() || undefined;
 
   const handleTagFilterChange = (selectedOptions: TagOption[]) => {
-    // Filter out empty strings from selectedValues
     const selectedValues = selectedOptions
       ? selectedOptions
-          .filter((option) => option.value !== "") // Filter out empty strings
+          .filter((option) => option.value !== "")
           .map((option) => option.value)
           .join(",")
       : "";
 
-    // Check if selectedValues is empty, and if so, set the filter value to undefined
     column.setFilterValue(selectedValues || undefined);
   };
 
@@ -113,7 +111,6 @@ export function Filter({
 
     const uniqueTagsSet = new Set<string>();
 
-    // Iterate through the filtered data and collect unique tags
     filteredData.forEach((row) => {
       const tags = row.original.tags
         ?.split(",")
@@ -147,52 +144,7 @@ export function Filter({
           onChange={(value) => handleTagFilterChange(value as TagOption[])}
           placeholder={`Select Tags`}
           className={"table-select-tags"}
-          styles={{
-            control: (baseStyles, state) => ({
-              ...baseStyles,
-              backgroundColor: state.isFocused
-                ? "var(--darkest-terror)"
-                : "var(--dark-terror)",
-              borderColor: state.isFocused
-                ? "var(--dark-terror)"
-                : "var(--light-terror)",
-              color: "var(--lightest-terror)",
-            }),
-            input: (baseStyles) => ({
-              ...baseStyles,
-              color: "var(--lightest-terror)",
-            }),
-            multiValue: (baseStyles) => ({
-              ...baseStyles,
-              backgroundColor: "var(--primary)",
-              borderColor: "var(--primary-dark)",
-              borderRadius: "0.375rem",
-            }),
-            multiValueLabel: (baseStyles) => ({
-              ...baseStyles,
-              color: "white",
-              fontWeight: 600,
-            }),
-            multiValueRemove: (baseStyles) => ({
-              ...baseStyles,
-              "&:hover": {
-                backgroundColor: "var(--primary-dark)",
-                borderColor: "var(--primary-dark)",
-                color: "var(--create-light)",
-              },
-            }),
-            menuList: (baseStyles) => ({
-              ...baseStyles,
-              backgroundColor: "var(--darker-terror)",
-            }),
-            option: (baseStyles, state) => ({
-              ...baseStyles,
-              backgroundColor: state.isFocused
-                ? "var(--light-terror)"
-                : "var(--darker-terror)",
-              color: "var(--offwhite)",
-            }),
-          }}
+          styles={selectStyles}
         />
         <div className="h-1" />
       </div>
@@ -249,6 +201,47 @@ export function Filter({
         <div className="h-1" />
       </div>
     );
+  } else if (column.id === "entityClass") {
+    const columnFilterValue = column.getFilterValue() as string;
+    const filteredData = table
+      .getPreFilteredRowModel()
+      .flatRows.filter((row) => row.original.entityClass !== null);
+
+    const uniqueTypesSet = new Set<string>();
+
+    filteredData.forEach((row) => {
+      const types = row.original.entityClass
+        ?.split(",")
+        .map((type: string) => type.trim());
+      if (types) {
+        types.forEach((type: string) => uniqueTypesSet.add(type));
+      }
+    });
+
+    const uniqueTypesArray: string[] = Array.from(uniqueTypesSet);
+
+    const options = uniqueTypesArray.map((type) => ({
+      label: type,
+      value: type,
+    }));
+
+    return (
+      <div>
+        <Select
+          options={options}
+          value={
+            options.find((option) => option.value === columnFilterValue) || null
+          }
+          onChange={(selectedOption) =>
+            column.setFilterValue(selectedOption?.value || "")
+          }
+          placeholder={`Type`}
+          className={"table-select-type"}
+          styles={selectStyles}
+        />
+        <div className="h-1" />
+      </div>
+    );
   } else {
     const firstValue = table
       .getPreFilteredRowModel()
@@ -262,7 +255,6 @@ export function Filter({
         : Array.from(column.getFacetedUniqueValues().keys()).sort();
     };
 
-    // Include 'column' in the dependency array for React.useMemo
     const sortedUniqueValues = useMemo(getSortedUniqueValues, [
       firstValue,
       column,

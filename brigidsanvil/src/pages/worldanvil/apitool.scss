@@ -119,6 +119,10 @@
       max-width: 8em;
     }
 
+    .col-entityClass ~ .col-filter .table-select-type {
+      min-width: 9em;
+    }
+
     .col-wordcount {
       min-width: 6em;
     }

@@ -292,7 +292,7 @@ export function ArticleTable({
         );
         return formattedDateTime;
       },
-      header: "Updated At",
+      header: "Last Edit",
       footer: (props) => props.column.id,
     },
     {
@@ -508,7 +508,7 @@ export function ArticleTable({
         );
         return formattedDateTime;
       },
-      header: "Updated At",
+      header: "Last Edit",
       footer: (props) => props.column.id,
     },
     {

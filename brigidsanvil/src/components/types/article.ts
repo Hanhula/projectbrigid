@@ -99,6 +99,7 @@ export type Article = {
   displayTitle?: boolean;
   displaySheet?: boolean;
   badge?: string;
+  fans?: User[] | null;
   secrets?: Secret[];
   histories?: History[];
   editURL?: string;
@@ -107,7 +108,7 @@ export type Article = {
     firstUp: Article | Category | World;
     secondUp: Article | Category | World;
     thirdUp: Article | Category | World;
-  }
+  };
 };
 
 export type ApiResponse = {
