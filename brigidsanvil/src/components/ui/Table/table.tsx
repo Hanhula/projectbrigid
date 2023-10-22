@@ -389,9 +389,11 @@ export function ArticleTable({
     {
       id: "Sync",
       cell: (info) => {
-        const handleSync = () => {
+        const handleSync = async () => {
+          const paginationState = table.getState().pagination;
           const articleID = info.row.original.id;
-          worldAnvilAPI.getArticle(articleID, true);
+          await worldAnvilAPI.getArticle(articleID, true);
+          table.setPagination(paginationState);
         };
 
         return (
@@ -647,9 +649,11 @@ export function ArticleTable({
     {
       id: "Sync",
       cell: (info) => {
-        const handleSync = () => {
+        const handleSync = async () => {
+          const paginationState = table.getState().pagination;
           const articleID = info.row.original.id;
-          worldAnvilAPI.getArticle(articleID, true);
+          await worldAnvilAPI.getArticle(articleID, true);
+          table.setPagination(paginationState);
         };
 
         return (
