@@ -104,6 +104,10 @@
     justify-content: center;
   }
 
+  .cell-edit.form-control {
+    resize: both;
+  }
+
   .full-detail-table {
     .col-tags ~ .col-filter {
       max-width: 11em;
