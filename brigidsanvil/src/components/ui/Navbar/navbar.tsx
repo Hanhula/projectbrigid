@@ -55,7 +55,7 @@ const NavBar = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link as={Link} eventKey="1" href="/worldanvil/search">
-                World Search
+                Search Istralar
               </Nav.Link>
             </Nav.Item>
             {worlds.success && (
