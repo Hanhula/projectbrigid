@@ -89,8 +89,9 @@ function EditableCell({
     setEditing(false);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
+      e.preventDefault();
       handleSave();
     }
   };
@@ -100,8 +101,7 @@ function EditableCell({
       {editing ? (
         <div className="cell-editing">
           <div className="input-group">
-            <input
-              type="text"
+            <textarea
               className="cell-edit form-control"
               value={editedValue}
               onChange={(e) => setEditedValue(e.target.value)}
