@@ -353,12 +353,16 @@ export function ArticleTable({
           <EditableTags
             value={tags}
             onSave={async (newTags) => {
+              const paginationState = table.getState().pagination;
               const articleID = info.row.original.id;
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "tags",
                 newTags
               );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
             }}
           />
         );
@@ -551,6 +555,8 @@ export function ArticleTable({
                 "tags",
                 newTags
               );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
               table.setPagination(paginationState);
             }}
           />
