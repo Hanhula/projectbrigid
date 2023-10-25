@@ -17,6 +17,7 @@ import {
   Row,
   ColumnFiltersState,
   CellContext,
+  FilterFn,
 } from "@tanstack/react-table";
 import { Fragment, useState } from "react";
 import {
@@ -270,6 +271,15 @@ const renderSubComponent = ({ row }: { row: Row<Article> }) => {
   );
 };
 
+export const csvFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  const columnValue = String(row.getValue(columnId)).toLowerCase();
+  const filters = filterValue
+    .split(",")
+    .map((value: string) => value.trim().toLowerCase());
+
+  return filters.every((filter: string) => columnValue.includes(filter));
+};
+
 export function ArticleTable({
   data,
   getRowCanExpand,
@@ -380,6 +390,7 @@ export function ArticleTable({
       },
       header: "Tags",
       footer: (props) => props.column.id,
+      filterFn: csvFilter,
     },
     {
       accessorFn: (row) => row.updateDate.date,
@@ -575,6 +586,7 @@ export function ArticleTable({
       },
       header: "Tags",
       footer: (props) => props.column.id,
+      filterFn: csvFilter,
     },
     {
       accessorFn: (row) => {
@@ -697,6 +709,9 @@ export function ArticleTable({
   const table = useReactTable<Article>({
     data,
     columns,
+    filterFns: {
+      csv: csvFilter,
+    },
     state: {
       columnFilters,
       globalFilter,
