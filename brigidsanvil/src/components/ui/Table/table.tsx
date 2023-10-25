@@ -45,8 +45,11 @@ import {
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { Filter } from "./filter";
-import { TagsInput } from "react-tag-input-component";
+// import { TagsInput } from "react-tag-input-component";
 import { DateTime } from "luxon";
+
+import TagsInput from "react-tagsinput";
+import "react-tagsinput/react-tagsinput.css";
 
 export interface TagOption {
   label: string;
@@ -188,12 +191,20 @@ function EditableTags({
         <div className="cell-editing">
           <div className="input-group">
             <TagsInput
+              className="react-tagsinput form-control"
               value={tags}
               onChange={setTags}
-              name="tags"
-              placeHolder="Enter tags"
-              separators={[","]}
-              onKeyUp={handleKeyUp}
+              inputProps={{
+                name: "tags",
+                placeholder: "Enter tags",
+                onKeyUp: handleKeyUp,
+              }}
+              addOnBlur={true}
+              addKeys={["Tab", ","]}
+              addOnPaste={true}
+              pasteSplit={(data) => {
+                return data.split(",").map((d) => d.trim());
+              }}
             />
           </div>
           <div className="cell-edit-buttons">

@@ -77,15 +77,42 @@
       gap: 0.2em;
     }
 
-    .rti--container {
-      --rti-bg: var(--dark-terror);
-      --rti-border: var(--darker-terror);
-      --rti-main: var(--primary);
-      --rti-radius: 0.375rem;
-      --rti-s: 0.2rem;
-      --rti-tag: var(--primary);
-      --rti-tag-remove: var(--primary-light);
-      --rti-tag-padding: 0.15rem 0.25rem;
+    .react-tagsinput {
+      background: var(--dark-terror);
+      border-color: var(--light-terror);
+      color: var(--lightest-terror);
+
+      &-input {
+        color: var(--lightest-terror);
+        font-size: 16px;
+        width: 6em;
+      }
+
+      &--focused {
+        color: var(--bs-body-color);
+        background-color: var(--bs-body-bg);
+        border-color: var(--primary);
+      }
+
+      &-tag {
+        background-color: var(--primary);
+        border-color: var(--primary-dark);
+        color: white;
+        border-radius: 0.375rem;
+        font-size: 16px;
+
+        &:hover {
+          .react-tagsinput-remove {
+            color: var(--primary-light);
+          }
+        }
+      }
+
+      &-remove {
+        color: white;
+        text-decoration: none;
+        transition: 0.2s;
+      }
     }
   }
 
