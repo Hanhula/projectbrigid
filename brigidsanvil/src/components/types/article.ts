@@ -11,6 +11,7 @@ import { SubscriberGroup } from "./subscribergroup";
 import { Timeline } from "./timeline";
 import { User } from "./user";
 import { World } from "./world";
+import { Image } from "./image";
 
 export type WorldArticles = {
   world: World;
@@ -87,6 +88,7 @@ export type Article = {
   metaTitle?: string;
   metadDescription?: string;
   subheading?: string;
+  cover?: Image;
   coverIsMap?: boolean;
   isFeaturedArticle?: boolean;
   isAdultContent?: boolean;

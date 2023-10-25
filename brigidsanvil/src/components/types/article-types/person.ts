@@ -1,9 +1,12 @@
 import { Article } from "../article";
+import { Image } from "../image";
 import { Location } from "./location";
+import { Organisation } from "./organisation";
 import { Species } from "./species";
 
 export type Person = Article & {
     character: string | null;
+    portrait: Image;
     firstname: string | null;
     lastname: string | null;
     middlename: string | null;
@@ -112,15 +115,15 @@ export type Person = Article & {
     reign: string | null;
     datasheet: string | null;
     vehicle: string | null;
-    parentBiological1: string | null;
-    parentBiological2: string | null;
-    parentAdopting1: string | null;
-    parentAdopting2: string | null;
-    parentSurrogate: string | null;
+    parentBiological1: Person | null;
+    parentBiological2: Person | null;
+    parentAdopting1: Person | null;
+    parentAdopting2: Person | null;
+    parentSurrogate: Person | null;
     church: string | null;
     realm: string | null;
-    organization: string | null;
-    familyorganization: string | null;
+    organization: Organisation | null;
+    familyorganization: Organisation | null;
     ethnicity: string | null;
     species: Species | null;
     currentLocation: Location | null;
