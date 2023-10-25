@@ -40,17 +40,31 @@ const CSVGenerator: React.FC<CSVGeneratorProps> = ({ articles }) => {
     return undefined;
   };
 
+  const replaceNewlines = (text: string) => {
+    // Replace newline characters with a space or an empty string, depending on your needs
+    return text.replace(/[\r\n]/g, " "); // This example replaces newlines with spaces
+  };
+
   const modifiedArticles = articles.map((article) => {
     const articleData: Record<string, any> = {};
 
     allPropertyNames.forEach((property) => {
-      articleData[property] = mapProperty(article, property);
+      const propertyValue = mapProperty(article, property);
+      if (typeof propertyValue === "string") {
+        articleData[property] = replaceNewlines(propertyValue);
+      } else {
+        articleData[property] = propertyValue;
+      }
     });
 
     return articleData;
   });
 
-  const csv = Papa.unparse(modifiedArticles);
+  const csv = Papa.unparse(modifiedArticles, {
+    quotes: true,
+    escapeFormulae: true,
+    delimiter: ",",
+  });
 
   const csvDataUri = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
 
