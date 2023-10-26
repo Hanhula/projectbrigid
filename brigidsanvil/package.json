@@ -32,6 +32,8 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "eslint-config-next": "^13.3.2",
+    "html-react-parser": "^4.2.9",
+    "html-to-react": "^1.7.0",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.279.0",
@@ -48,7 +50,8 @@
     "react-tagsinput": "^3.20.3",
     "recharts": "^2.8.0",
     "redux-persist": "^6.0.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "ya-bbcode": "^4.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",
