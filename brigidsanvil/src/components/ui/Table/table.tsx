@@ -539,6 +539,13 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => row.isWip,
+      id: "isWip",
+      cell: (info) => String(info.getValue()),
+      header: "Is WIP?",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => row.isDraft,
       id: "isDraft",
       cell: (info) => String(info.getValue()),
