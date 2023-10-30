@@ -272,12 +272,20 @@ const renderSubComponent = ({ row }: { row: Row<Article> }) => {
 };
 
 export const csvFilter: FilterFn<any> = (row, columnId, filterValue) => {
-  const columnValue = String(row.getValue(columnId)).toLowerCase();
-  const filters = filterValue
-    .split(",")
-    .map((value: string) => value.trim().toLowerCase());
+  const columnValues = String(row.getValue(columnId)).toLowerCase().split(",");
+  const trimmedFilterValue = filterValue.trim().toLowerCase();
 
-  return filters.every((filter: string) => columnValue.includes(filter));
+  if (trimmedFilterValue.endsWith(",")) {
+    const exactSearch = trimmedFilterValue.slice(0, -1);
+    return columnValues.includes(exactSearch);
+  } else if (trimmedFilterValue.includes(",")) {
+    const filters = trimmedFilterValue
+      .split(",")
+      .map((value: string) => value.trim());
+    return filters.every((filter: string) => columnValues.includes(filter));
+  } else {
+    return columnValues.some((tag) => tag.includes(trimmedFilterValue));
+  }
 };
 
 export function ArticleTable({
