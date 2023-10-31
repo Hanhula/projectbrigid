@@ -4,11 +4,33 @@ import { Article } from "@/components/types/article";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import yabbcode from "ya-bbcode";
-import parse from "html-react-parser";
-import { renderToStaticMarkup } from "react-dom/server";
+import parse, { DOMNode } from "html-react-parser";
 
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { Button, Collapse } from "react-bootstrap";
+
+const CustomSpoiler: React.FC<{ title: string; content: string }> = ({
+  title,
+  content,
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div>
+      <Button
+        onClick={() => setOpen(!open)}
+        aria-controls="spoiler-content"
+        aria-expanded={open}
+      >
+        {title || "Spoiler"}
+      </Button>
+      <Collapse in={open}>
+        <div id="spoiler-content">{content}</div>
+      </Collapse>
+    </div>
+  );
+};
 
 const ArticlePage: React.FC = () => {
   const router = useRouter();
@@ -18,25 +40,24 @@ const ArticlePage: React.FC = () => {
   const currentArticles = worldArticles!.articles;
 
   const parser = new yabbcode();
+
   parser.registerTag("br", {
     type: "replace",
     open: () => "<br>",
-    close: null, // Since <br> is a self-closing tag, set close to null
+    close: null,
   });
+
   parser.registerTag("quote", {
     type: "content",
     replace: (attr, content) => {
-      // Split the content using | as the delimiter
       const parts = content.split("|");
 
       if (parts.length === 2) {
-        // If there are two parts, create a <div> for the second part
         const mainContent = parts[0].trim();
         const additionalContent = parts[1].trim();
 
-        return `<blockquote class="blockquote">${mainContent}<div class="author">${additionalContent}</div></blockquote>`;
+        return `<figure><blockquote class="blockquote">${mainContent}</blockquote><figcaption class="blockquote-footer">${additionalContent}</figcaption></figure>`;
       } else {
-        // If there's no | character or more than one, treat it as standard [quote] content
         return `<blockquote class="blockquote">${content}</blockquote>`;
       }
     },
@@ -56,7 +77,10 @@ const ArticlePage: React.FC = () => {
 
   parser.registerTag("h3", {
     type: "replace",
-    open: () => "<h4>",
+    open: (attr) => {
+      const idName = attr || "";
+      return `<h4 id="${idName}">`;
+    },
     close: "</h4>",
   });
 
@@ -72,58 +96,206 @@ const ArticlePage: React.FC = () => {
     close: "</h6>",
   });
 
+  parser.registerTag("hr", {
+    type: "replace",
+    open: () => `<hr>`,
+    close: null,
+  });
+
+  parser.registerTag("ol", {
+    type: "replace",
+    open: () => "<ol>",
+    close: "</ol>",
+  });
+
+  parser.registerTag("ul", {
+    type: "replace",
+    open: () => "<ul>",
+    close: "</ul>",
+  });
+
+  parser.registerTag("li", {
+    type: "replace",
+    open: () => "<li>",
+    close: "</li>",
+  });
+
+  parser.registerTag("sup", {
+    type: "replace",
+    open: () => "<sup>",
+    close: "</sup>",
+  });
+
+  parser.registerTag("row", {
+    type: "replace",
+    open: () => `<div class='row'>`,
+    close: "</div>",
+  });
+
+  parser.registerTag("col", {
+    type: "replace",
+    open: () => `<div class='col-md-6'>`,
+    close: "</div>",
+  });
+
+  parser.registerTag("col3", {
+    type: "replace",
+    open: () => `<div class='col-md-4'>`,
+    close: "</div>",
+  });
+
+  parser.registerTag("customDiv", {
+    type: "replace",
+    open: (attr) => {
+      const className = attr || "";
+      return `<div class="${className}">`;
+    },
+    close: "</div>",
+  });
+
+  parser.registerTag("customSpan", {
+    type: "replace",
+    open: (attr) => {
+      const className = attr || "";
+      return `<span class="${className}">`;
+    },
+    close: "</span>",
+  });
+
+  parser.registerTag("customUrl", {
+    type: "replace",
+    open: (attr) => {
+      const id = attr || "";
+
+      return `<customUrl href="${id}">`;
+    },
+    close: "</customUrl>",
+  });
+
+  parser.registerTag("url", {
+    type: "replace",
+    open: (attr) => {
+      const id = attr || "";
+
+      return `<a href="${id}">`;
+    },
+    close: "</a>",
+  });
+
+  parser.registerTag("spoiler", {
+    type: "content",
+    replace: (attr, content) => {
+      const parts = content.split("|");
+      if (parts.length === 2) {
+        const spoilerText = parts[0].trim();
+        const spoilerTitle = parts[1].trim();
+        return `<customspoiler title="${spoilerTitle}"> ${spoilerText} </customspoiler>`;
+      } else {
+        return `<customspoiler title=""> ${content} </customspoiler>`;
+      }
+    },
+  });
+
   const article = currentArticles.find(
     (article: Article) => article.id === slug
   );
+
+  console.log(article);
 
   if (!article) {
     return <div>Article not found</div>;
   }
 
-  function replacePersonLinks(text: string) {
+  function replaceLinks(text: string) {
     const pattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
     return text.replace(pattern, (match, name, type, id) => {
-      // Replace with a placeholder using a unique identifier
-      return `@@Link_${id}@@`;
+      return `[customUrl=${id}]${name}[/customUrl]`;
     });
   }
 
-  let parsed = parser.parse(article.content);
+  let content = article.content ? article.content : "";
+  let preprocessedContent = content
+    .replace(
+      /\[container:([^\]]+)\]/g,
+      (match, className) => `[customDiv=${className}]`
+    )
+    .replace(/\[\/container\]/g, "[/customDiv]")
+    .replace(
+      /\[section:([^\]]+)\]/g,
+      (match, className) => `[customSpan=${className}]`
+    )
+    .replace(/\[\/section\]/g, "[/customSpan]")
+    .replace(/\[h3\|([^\]]+)\]/g, (match, anchorText) => `[h3=${anchorText}]`)
+    .replace(/\[url:([^\]]+)\]/g, (match, href) => `[url=${href}]`);
 
-  // Replace @[Name](type:ID) format with placeholders
-  parsed = replacePersonLinks(parsed);
+  preprocessedContent = replaceLinks(preprocessedContent);
+  let parsed = parser.parse(preprocessedContent);
 
-  // Function to replace placeholders with Link components
-  function replaceLinkPlaceholders(parsedText: string) {
-    const linkPattern = /@@Link_(.*?)@@/g;
-
-    let replacedText = parsedText;
-    let match;
-    while ((match = linkPattern.exec(parsedText)) !== null) {
-      const id = match[1];
-
-      // Replace the placeholder with a Link component
-      const linkComponent = (
-        <Link key={id} href={`/worldanvil/articles/${id}`}>
-          {"test"}
-        </Link>
+  const customTransform = (domNode: DOMNode) => {
+    // @ts-expect-error
+    if (domNode.type === "tag" && domNode.name === "customurl") {
+      // @ts-expect-error
+      const reactChildren = domNode.children.map(
+        (childNode: DOMNode, index: number) => {
+          if (childNode.type === "text") {
+            // @ts-expect-error
+            return childNode.data;
+          } else {
+            return null;
+          }
+        }
       );
 
-      const linkHTML = renderToStaticMarkup(linkComponent);
-
-      replacedText = replacedText.replace(`@@Link_${id}@@`, linkHTML);
+      return (
+        // @ts-expect-error
+        <Link href={domNode.attribs.href}>
+          {reactChildren.filter((child: any) => child !== null)}
+        </Link>
+      );
     }
 
-    return replacedText;
-  }
+    // else if (domNode.type === "tag" && domNode.name === "customspoiler") {
+    //   const spoilerTitle = domNode.attribs.title;
 
-  // Replace placeholders with Link components
-  parsed = replaceLinkPlaceholders(parsed);
+    //   const [open, setOpen] = useState(false);
+
+    //   const parsedSpoilerText = domNode.children.map((childNode) => {
+    //     if (childNode.type === "text") {
+    //       return childNode.data;
+    //     } else if (childNode.type === "tag") {
+    //       // If it's a tag, recursively parse it with the same customTransform function
+    //       return customTransform(childNode);
+    //     } else {
+    //       return null;
+    //     }
+    //   });
+
+    //   return (
+    //     <div>
+    //       <Button
+    //         onClick={() => setOpen(!open)}
+    //         aria-controls="spoiler-content"
+    //         aria-expanded={open}
+    //       >
+    //         {spoilerTitle || "Spoiler"}
+    //       </Button>
+    //       <Collapse in={open}>
+    //         <div id="spoiler-content">{parsedSpoilerText}</div>
+    //       </Collapse>
+    //     </div>
+    //   );
+    // }
+    return domNode; // Return the unchanged node for all other cases
+  };
+
+  const parstext = parse(parsed, {
+    replace: customTransform,
+  });
 
   return (
     <div className="container">
       <h1>{article.title}</h1>
-      <div dangerouslySetInnerHTML={{ __html: parsed }} />
+      <div>{parstext}</div>
     </div>
   );
 };
