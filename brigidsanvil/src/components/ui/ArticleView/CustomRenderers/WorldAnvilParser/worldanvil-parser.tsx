@@ -94,6 +94,18 @@ class WorldAnvilParser extends yabbcode {
       close: "</sup>",
     });
 
+    this.registerTag("sub", {
+      type: "replace",
+      open: () => "<sub>",
+      close: "</sub>",
+    });
+
+    this.registerTag("small", {
+      type: "replace",
+      open: () => "<small>",
+      close: "</small>",
+    });
+
     this.registerTag("row", {
       type: "replace",
       open: () => `<div class='row'>`,
@@ -180,6 +192,82 @@ class WorldAnvilParser extends yabbcode {
         }
       },
     });
+
+    this.registerTag("table", {
+      type: "replace",
+      open: () => "<table>",
+      close: "</table>",
+    });
+
+    this.registerTag("th", {
+      type: "replace",
+      open: () => "<th>",
+      close: "</th>",
+    });
+
+    this.registerTag("td", {
+      type: "replace",
+      open: () => "<td>",
+      close: "</td>",
+    });
+
+    this.registerTag("tr", {
+      type: "replace",
+      open: () => "<tr>",
+      close: "</tr>",
+    });
+
+    this.registerTag("center", {
+      type: "replace",
+      open: () => `<div class="text-center">`,
+      close: "</div>",
+    });
+
+    this.registerTag("in", {
+      type: "replace",
+      open: () => `<div class="paragraph-indent">`,
+      close: "</div>",
+    });
+
+    this.registerTag("p", {
+      type: "replace",
+      open: () => "<p>",
+      close: "</p>",
+    });
+
+    this.registerTag("strike", {
+      type: "replace",
+      open: () => "<del>",
+      close: "</del>",
+    });
+
+    this.registerTag("s", {
+      type: "replace",
+      open: () => "<del>",
+      close: "</del>",
+    });
+
+    this.registerTag("redacted", {
+      type: "replace",
+      open: (attr) => {
+        const num = attr || "";
+        const number = parseInt(num);
+        if (!isNaN(number)) {
+          // Generate the redacted text with █ characters
+          return "█".repeat(number);
+        } else {
+          // If 'number' attribute is not provided or not a number, return an empty string
+          return "";
+        }
+      },
+      close: null, // This tag doesn't have a closing tag
+    });
+
+    this.registerTag("dc", {
+      type: "replace",
+      open: () => `<span class="dropcap">`,
+      close: "</span>",
+    });
   }
 
   processContent(content: string) {
@@ -193,6 +281,7 @@ class WorldAnvilParser extends yabbcode {
     const h4Pattern = /\[h4\|([^\]]+)\]/g;
     const h5Pattern = /\[h5\|([^\]]+)\]/g;
     const urlPattern = /\[url:([^\]]+)\]/g;
+    const redactedPattern = /\[redacted:([^\]]+)\]/g;
 
     content = content
       .replace(
@@ -214,7 +303,8 @@ class WorldAnvilParser extends yabbcode {
       .replace(
         linkPattern,
         (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
-      );
+      )
+      .replace(redactedPattern, (match, number) => `[redacted=${number}]`);
 
     return content;
   }
