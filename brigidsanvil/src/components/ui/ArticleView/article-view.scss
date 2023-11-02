@@ -10,3 +10,20 @@
   text-transform: uppercase;
   padding-right: 10px;
 }
+
+.article-buttons {
+  display: flex;
+  gap: 0.5em;
+  padding: 0.5em 0em;
+}
+
+a {
+  text-decoration: none;
+}
+
+figure {
+  background: var(--dark-terror);
+  padding: 1em;
+  border-radius: 0em 1em 1em 0em;
+  border-left: 0.7em solid var(--primary-dark);
+}

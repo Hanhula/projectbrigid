@@ -166,9 +166,9 @@ export class ArticleDisplay {
     sidebarcontentbottom: string | null;
   }
   footer: {
-    footnotes: string | null;
     fullfooter: string | null;
-    authornotes: string | null;
+    footnotes: string | null;
+    authorNotes: string | null;
     scrapbook: string | null;
     credits: string | null;
   }
@@ -195,9 +195,9 @@ export class ArticleDisplay {
     }
 
     this.footer = {
-      footnotes: article.footnotes ? article.footnotes : null,
       fullfooter: article.fullfooter ? article.fullfooter : null,
-      authornotes: article.authornotes ? article.authornotes : null,
+      footnotes: article.footnotes ? article.footnotes : null,
+      authorNotes: article.authornotes ? article.authornotes : null,
       scrapbook: article.scrapbook ? article.scrapbook : null,
       credits: article.credits ? article.credits : null,
     }

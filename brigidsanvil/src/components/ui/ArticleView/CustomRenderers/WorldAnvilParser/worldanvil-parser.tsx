@@ -11,7 +11,7 @@ class WorldAnvilParser extends yabbcode {
   registerTags() {
     this.registerTag("br", {
       type: "replace",
-      open: () => "<br>",
+      open: () => "<ber>",
       close: null,
     });
 
@@ -26,7 +26,7 @@ class WorldAnvilParser extends yabbcode {
 
           return `<figure><blockquote class="blockquote">${mainContent}</blockquote><figcaption class="blockquote-footer">${additionalContent}</figcaption></figure>`;
         } else {
-          return `<blockquote class="blockquote">${content}</blockquote>`;
+          return `<figure><blockquote class="blockquote">${content}</blockquote></figure>`;
         }
       },
     });
@@ -165,7 +165,7 @@ class WorldAnvilParser extends yabbcode {
     this.registerTag("spoiler", {
       type: "content",
       replace: (attr, content) => {
-        const parts = content.split("|");
+        const parts: any = content.split("|");
         if (parts.length === 2) {
           const spoilerText = parts[0].trim();
           const spoilerTitle = parts[1].trim();
@@ -253,19 +253,38 @@ class WorldAnvilParser extends yabbcode {
         const num = attr || "";
         const number = parseInt(num);
         if (!isNaN(number)) {
-          // Generate the redacted text with █ characters
           return "█".repeat(number);
         } else {
-          // If 'number' attribute is not provided or not a number, return an empty string
           return "";
         }
       },
-      close: null, // This tag doesn't have a closing tag
+      close: null,
     });
 
     this.registerTag("dc", {
       type: "replace",
       open: () => `<span class="dropcap">`,
+      close: "</span>",
+    });
+
+    this.registerTag("dt", {
+      type: "replace",
+      open: () => "<dt>",
+      close: "</dt>",
+    });
+
+    this.registerTag("dd", {
+      type: "replace",
+      open: () => "<dd>",
+      close: "</dd>",
+    });
+
+    this.registerTag("color", {
+      type: "replace",
+      open: (attr) => {
+        const color = attr || "white";
+        return `<span style="color: ${color}">`;
+      },
       close: "</span>",
     });
   }
@@ -282,6 +301,8 @@ class WorldAnvilParser extends yabbcode {
     const h5Pattern = /\[h5\|([^\]]+)\]/g;
     const urlPattern = /\[url:([^\]]+)\]/g;
     const redactedPattern = /\[redacted:([^\]]+)\]/g;
+    const keyValuePattern = /--([^:]+)(::)(.*?)(--|$)/g;
+    const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
 
     content = content
       .replace(
@@ -304,14 +325,24 @@ class WorldAnvilParser extends yabbcode {
         linkPattern,
         (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
       )
-      .replace(redactedPattern, (match, number) => `[redacted=${number}]`);
+      .replace(redactedPattern, (match, number) => `[redacted=${number}]`)
+      .replace(
+        keyValuePattern,
+        (match, key, separator, value) => `[dt]${key}[/dt][dd]${value}[/dd]`
+      )
+      .replace(
+        colorPattern,
+        (match, color, content) => `[color=${color}]${content}[/color]`
+      );
 
     return content;
   }
 
   parseField(content: string) {
     let preprocessedContent = this.processContent(content);
-    let parsedBBCode = this.parse(preprocessedContent);
+    let parsedBBCode = this.parse(preprocessedContent)
+      .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
+      .replace(/<ber>/g, "<br>");
 
     const parsedHTML = parse(parsedBBCode, {
       replace: customTransform,

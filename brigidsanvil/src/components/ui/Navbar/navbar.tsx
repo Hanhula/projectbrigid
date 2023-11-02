@@ -75,7 +75,7 @@ const NavBar = () => {
                 </div>
               </Nav.Item>
             )}
-            <Nav.Item>
+            <Nav.Item className="nav-dev-updates">
               <Nav.Link href="https://bsky.app/profile/brigid.hanhula.com">
                 <FontAwesomeIcon icon={faCloud} />
                 Dev Updates
