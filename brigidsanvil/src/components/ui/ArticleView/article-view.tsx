@@ -71,6 +71,8 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
     });
   }
 
+  // add a link to the article on WA
+
   return (
     <div className="container">
       <h1>{article.title}</h1>

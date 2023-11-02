@@ -36,6 +36,7 @@ let initialArticle: Article = {
     timezone_type: 0,
     timezone: "",
   },
+  content: null
 };
 
 let initialWorld: World = {
