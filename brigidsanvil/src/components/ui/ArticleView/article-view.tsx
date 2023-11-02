@@ -39,35 +39,32 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
 
   if (display.body) {
     Object.entries(display.body).forEach(([fieldName, field]) => {
-      if (!field) {
-        field = "";
+      if (field) {
+        parsedBodyFields.push(
+          <div key={fieldName}>
+            {fieldName !== "content" && <h3>{titleFormatting(fieldName)}</h3>}
+            {WorldAnvilParser.parseField(field)}
+          </div>
+        );
       }
-      parsedBodyFields.push(
-        <div key={fieldName}>
-          {fieldName !== "content" && <h3>{titleFormatting(fieldName)}</h3>}
-          {WorldAnvilParser.parseField(field)}
-        </div>
-      );
     });
   }
 
   if (display.sidebar) {
     Object.entries(display.sidebar).forEach(([fieldName, field]) => {
-      if (!field) {
-        field = "";
+      if (field) {
+        parsedSidebarFields.push(
+          <div key={fieldName}>
+            {fieldName !== "sidebarcontent" &&
+              fieldName !== "sidepanelcontenttop" &&
+              fieldName !== "sidepanelcontent" &&
+              fieldName !== "sidebarcontentbottom" && (
+                <dt>{titleFormatting(fieldName)}</dt>
+              )}
+            <dd>{WorldAnvilParser.parseField(field)}</dd>
+          </div>
+        );
       }
-
-      parsedSidebarFields.push(
-        <div key={fieldName}>
-          {fieldName !== "sidebarcontent" &&
-            fieldName !== "sidepanelcontenttop" &&
-            fieldName !== "sidepanelcontent" &&
-            fieldName !== "sidebarcontentbottom" && (
-              <dt>{titleFormatting(fieldName)}</dt>
-            )}
-          <dd>{WorldAnvilParser.parseField(field)}</dd>
-        </div>
-      );
     });
   }
 
