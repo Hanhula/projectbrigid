@@ -1,5 +1,3 @@
-// ArticleView.tsx
-
 import React from "react";
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
 import { Button, Col, Row } from "react-bootstrap";
@@ -13,6 +11,37 @@ import "./article-view.scss";
 import _ from "lodash";
 import { Person, PersonDisplay } from "@/components/types/article-types/person";
 import Link from "next/link";
+import {
+  Organisation,
+  OrganisationDisplay,
+} from "@/components/types/article-types/organisation";
+import {
+  Species,
+  SpeciesDisplay,
+} from "@/components/types/article-types/species";
+import { Spell, SpellDisplay } from "@/components/types/article-types/spell";
+import { Law, LawDisplay } from "@/components/types/article-types/law";
+import {
+  Condition,
+  ConditionDisplay,
+} from "@/components/types/article-types/condition";
+import {
+  Document,
+  DocumentDisplay,
+} from "@/components/types/article-types/document";
+import {
+  Ethnicity,
+  EthnicityDisplay,
+} from "@/components/types/article-types/ethnicity";
+import {
+  Formation,
+  FormationDisplay,
+} from "@/components/types/article-types/formation";
+import { Item, ItemDisplay } from "@/components/types/article-types/item";
+import {
+  Landmark,
+  LandmarkDisplay,
+} from "@/components/types/article-types/landmark";
 
 interface ArticleViewProps {
   article: Article;
@@ -28,10 +57,43 @@ function titleFormatting(title: string) {
 const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
   let display;
 
-  if (article.entityClass === ArticleTypes.Person) {
-    display = new PersonDisplay(article as Person);
-  } else {
-    display = new ArticleDisplay(article);
+  switch (article.entityClass) {
+    case ArticleTypes.Condition:
+      display = new ConditionDisplay(article as Condition);
+      break;
+    case ArticleTypes.Document:
+      display = new DocumentDisplay(article as Document);
+      break;
+    case ArticleTypes.Ethnicity:
+      display = new EthnicityDisplay(article as Ethnicity);
+      break;
+    case ArticleTypes.Formation:
+      display = new FormationDisplay(article as Formation);
+      break;
+    case ArticleTypes.Item:
+      display = new ItemDisplay(article as Item);
+      break;
+    case ArticleTypes.Person:
+      display = new PersonDisplay(article as Person);
+      break;
+    case ArticleTypes.Landmark:
+      display = new LandmarkDisplay(article as Landmark);
+      break;
+    case ArticleTypes.Law:
+      display = new LawDisplay(article as Law);
+      break;
+    case ArticleTypes.Organisation:
+      display = new OrganisationDisplay(article as Organisation);
+      break;
+    case ArticleTypes.Species:
+      display = new SpeciesDisplay(article as Species);
+      break;
+    case ArticleTypes.Spell:
+      display = new SpellDisplay(article as Spell);
+      break;
+    default:
+      display = new ArticleDisplay(article);
+      break;
   }
 
   const parsedHeaderFields: any[] = [];
@@ -40,11 +102,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
   const parsedFooterFields: any[] = [];
 
   if (display.header) {
-    console.log(display.header);
     Object.entries(display.header).forEach(([fieldName, field]) => {
       if (field) {
         parsedHeaderFields.push(
-          <div key={fieldName}>
+          <div key={fieldName} className={fieldName}>
             {fieldName === "subheading" && (
               <h4>{WorldAnvilParser.parseField(field)}</h4>
             )}
@@ -61,7 +122,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
     Object.entries(display.body).forEach(([fieldName, field]) => {
       if (field) {
         parsedBodyFields.push(
-          <div key={fieldName}>
+          <div key={fieldName} className={fieldName}>
             {fieldName !== "content" && <h3>{titleFormatting(fieldName)}</h3>}
             {WorldAnvilParser.parseField(field)}
           </div>
@@ -74,11 +135,13 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
     Object.entries(display.sidebar).forEach(([fieldName, field]) => {
       if (field) {
         parsedSidebarFields.push(
-          <div key={fieldName}>
+          <div key={fieldName} className={fieldName}>
             {fieldName !== "sidebarcontent" &&
               fieldName !== "sidepanelcontenttop" &&
               fieldName !== "sidepanelcontent" &&
-              fieldName !== "sidebarcontentbottom" && (
+              fieldName !== "sidebarcontentbottom" &&
+              fieldName !== "motto" &&
+              fieldName !== "disbanded" && (
                 <dt>{titleFormatting(fieldName)}</dt>
               )}
             <dd>{WorldAnvilParser.parseField(field)}</dd>
@@ -92,7 +155,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
     Object.entries(display.footer).forEach(([fieldName, field]) => {
       if (field) {
         parsedFooterFields.push(
-          <div key={fieldName}>
+          <div key={fieldName} className={fieldName}>
             {fieldName !== "fullfooter" &&
               fieldName !== "sidepanelcontenttop" &&
               fieldName !== "sidepanelcontent" &&
@@ -105,8 +168,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
       }
     });
   }
-
-  // add a link to the article on WA
 
   return (
     <div className="container">

@@ -6,8 +6,6 @@ import { faSquare, IconName } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
 
-//library.add(faSquare);
-
 export function elementToString(element: DOMNode): string {
   if (element.type === "text" && "data" in element) {
     return element.data || "";

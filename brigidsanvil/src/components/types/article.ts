@@ -137,7 +137,7 @@ export enum ArticleTypes {
   Material = "Material",
   MilitaryConflict = "MilitaryConflict",
   Myth = "Myth",
-  Organization = "Organization",
+  Organisation = "Organization",
   Person = "Person",
   Plot = "Plot",
   Profession = "Profession",
