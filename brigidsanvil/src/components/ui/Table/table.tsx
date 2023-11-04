@@ -51,6 +51,7 @@ import { DateTime } from "luxon";
 
 import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
+import Link from "next/link";
 
 export interface TagOption {
   label: string;
@@ -474,25 +475,28 @@ export function ArticleTable({
         const titleValue = String(info.getValue());
 
         return (
-          <EditableCell
-            value={titleValue}
-            onSave={async (newTitle) => {
-              const paginationState = table.getState().pagination;
-              const articleID = info.row.original.id;
-              await worldAnvilAPI.updateArticleByField(
-                articleID,
-                "title",
-                newTitle
-              );
-              table.setPagination(paginationState);
-              await worldAnvilAPI.getArticle(articleID, true);
-              table.setPagination(paginationState);
-            }}
-            editing={editing}
-            setEditing={setEditing}
-            isTruncated={false}
-            isDisabled={true}
-          ></EditableCell>
+          // <EditableCell
+          //   value={titleValue}
+          //   onSave={async (newTitle) => {
+          //     const paginationState = table.getState().pagination;
+          //     const articleID = info.row.original.id;
+          //     await worldAnvilAPI.updateArticleByField(
+          //       articleID,
+          //       "title",
+          //       newTitle
+          //     );
+          //     table.setPagination(paginationState);
+          //     await worldAnvilAPI.getArticle(articleID, true);
+          //     table.setPagination(paginationState);
+          //   }}
+          //   editing={editing}
+          //   setEditing={setEditing}
+          //   isTruncated={false}
+          //   isDisabled={true}
+          // ></EditableCell>
+          <Link href={`/worldanvil/articles/${info.row.original.id}`}>
+            {titleValue}
+          </Link>
         );
       },
       header: "Title",

@@ -12,6 +12,7 @@ import { Timeline } from "./timeline";
 import { User } from "./user";
 import { World } from "./world";
 import { Image } from "./image";
+import _ from "lodash";
 
 export type WorldArticles = {
   world: World;
@@ -54,7 +55,7 @@ export type Article = {
   displayCss?: string;
   templateType?: string;
   customArticleTemplate?: string;
-  content?: string;
+  content: string | null;
   author?: User;
   category?: Category;
   world?: World;
@@ -123,30 +124,114 @@ export type ArticleApiResponse = {
 };
 
 export enum ArticleTypes {
-  Article,
-  Condition,
-  Document,
-  Ethnicity,
-  Formation,
-  Item,
-  Landmark,
-  Language,
-  Law,
-  Location,
-  Material,
-  MilitaryConflict,
-  Myth,
-  Organization,
-  Person,
-  Plot,
-  Profession,
-  Prose,
-  Rank,
-  Report,
-  Ritual,
-  Settlement,
-  Species,
-  Spell,
-  Technology,
-  Vehicle,
+  Article = "Article",
+  Condition = "Condition",
+  Document = "Document",
+  Ethnicity = "Ethnicity",
+  Formation = "Formation",
+  Item = "Item",
+  Landmark = "Landmark",
+  Language = "Language",
+  Law = "Law",
+  Location = "Location",
+  Material = "Material",
+  MilitaryConflict = "MilitaryConflict",
+  Myth = "Myth",
+  Organisation = "Organization",
+  Person = "Person",
+  Plot = "Plot",
+  Profession = "Profession",
+  Prose = "Prose",
+  Rank = "Rank",
+  Report = "Report",
+  Ritual = "Ritual",
+  Settlement = "Settlement",
+  Species = "Species",
+  Spell = "Spell",
+  Technology = "Technology",
+  Vehicle = "Vehicle",
+}
+
+export class ArticleDisplay {
+  id: string;
+  title: string;
+  excerpt: string | undefined;
+  tags: string;
+  header: { subheading: string | null };
+  body: { content: string | null };
+  sidebar: {
+    sidebarcontent: string | null;
+    sidepanelcontenttop: string | null;
+    sidepanelcontent: string | null;
+    sidebarcontentbottom: string | null;
+  }
+  footer: {
+    fullfooter: string | null;
+    footnotes: string | null;
+    authorNotes: string | null;
+    scrapbook: string | null;
+    credits: string | null;
+  }
+
+  constructor(article: Article) {
+    this.id = article.id;
+    this.title = article.title;
+    this.excerpt = article.excerpt;
+    this.tags = article.tags;
+
+    this.header = {
+      subheading: article.subheading ? article.subheading : null
+    }
+
+    this.body = {
+      content: article.content ? article.content : null
+    }
+
+    this.sidebar = {
+      sidebarcontent: article.sidebarcontent ? article.sidebarcontent : null,
+      sidepanelcontenttop: article.sidepanelcontenttop ? article.sidepanelcontenttop : null,
+      sidepanelcontent: article.sidepanelcontent ? article.sidepanelcontent : null,
+      sidebarcontentbottom: article.sidebarcontentbottom ? article.sidebarcontentbottom : null,
+    }
+
+    this.footer = {
+      fullfooter: article.fullfooter ? article.fullfooter : null,
+      footnotes: article.footnotes ? article.footnotes : null,
+      authorNotes: article.authornotes ? article.authornotes : null,
+      scrapbook: article.scrapbook ? article.scrapbook : null,
+      credits: article.credits ? article.credits : null,
+    }
+  }
+
+  formatMention(entity: { title: string; entityClass: string; id: string }): string {
+    return `@[${entity.title}](${entity.entityClass}:${entity.id})`;
+  }
+
+  formatMentions(entities: Array<{ title: string; entityClass: string; id: string }> | undefined): string | null {
+    if (entities && entities.length > 0) {
+      return entities.map(this.formatMention).join(', ');
+    } else {
+      return null;
+    }
+  }
+
+  formatLink(entity: { title: string; url: string; id: string }): string {
+    return `[url:${entity.url}] ${entity.title} [/url]`;
+  }
+
+  formatLinks(entities: Array<{ title: string; url: string; id: string }> | undefined): string | null {
+    if (entities && entities.length > 0) {
+      return entities.map(this.formatLink).join(', ');
+    } else {
+      return null;
+    }
+  }
+
+  formatTitles(entities: Array<{ title: string; id: string }> | undefined) {
+    if (entities && entities.length > 0) {
+      return entities.map(entities => entities.title).join(', ');
+    } else {
+      return null;
+    }
+  }
 }

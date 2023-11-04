@@ -1,0 +1,31 @@
+@import "~@fortawesome/fontawesome-svg-core/styles.css";
+
+.article-viewer {
+  .paragraph-indent {
+    text-indent: 50px;
+  }
+
+  .dropcap {
+    font-weight: 700;
+    font-size: 70px;
+    text-transform: uppercase;
+    padding-right: 10px;
+  }
+
+  .article-buttons {
+    display: flex;
+    gap: 0.5em;
+    padding: 0.5em 0em;
+  }
+
+  figure {
+    background: var(--dark-terror);
+    padding: 1em;
+    border-radius: 0em 1em 1em 0em;
+    border-left: 0.7em solid var(--primary-dark);
+  }
+
+  h3 {
+    margin-top: 0.5em;
+  }
+}

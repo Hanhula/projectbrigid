@@ -13,6 +13,8 @@ import WorldSelect from "../WorldSelect/worldselect";
 import { selectAuthToken } from "@/components/store/authSlice";
 import IdentityForm from "../Identity/identity";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
+import { faCloud } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const NavBar = () => {
   const world = useSelector(selectWorld);
@@ -73,6 +75,12 @@ const NavBar = () => {
                 </div>
               </Nav.Item>
             )}
+            <Nav.Item className="nav-dev-updates">
+              <Nav.Link href="https://bsky.app/profile/brigid.hanhula.com">
+                <FontAwesomeIcon icon={faCloud} />
+                Dev Updates
+              </Nav.Link>
+            </Nav.Item>
             {identity.success && (
               <Nav.Item className="nav-current-user">
                 <div className="current-user">
