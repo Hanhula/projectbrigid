@@ -42,6 +42,43 @@ import {
   Landmark,
   LandmarkDisplay,
 } from "@/components/types/article-types/landmark";
+import {
+  Language,
+  LanguageDisplay,
+} from "@/components/types/article-types/language";
+import {
+  Location,
+  LocationDisplay,
+} from "@/components/types/article-types/location";
+import {
+  Material,
+  MaterialDisplay,
+} from "@/components/types/article-types/material";
+import {
+  MilitaryConflict,
+  MilitaryConflictDisplay,
+} from "@/components/types/article-types/militaryconflict";
+import { Myth, MythDisplay } from "@/components/types/article-types/myth";
+import { Plot, PlotDisplay } from "@/components/types/article-types/plot";
+import {
+  Profession,
+  ProfessionDisplay,
+} from "@/components/types/article-types/profession";
+import { Prose, ProseDisplay } from "@/components/types/article-types/prose";
+import { Rank, RankDisplay } from "@/components/types/article-types/rank";
+import { Report, ReportDisplay } from "@/components/types/article-types/report";
+import {
+  Settlement,
+  SettlementDisplay,
+} from "@/components/types/article-types/settlement";
+import {
+  Technology,
+  TechnologyDisplay,
+} from "@/components/types/article-types/technology";
+import {
+  Vehicle,
+  VehicleDisplay,
+} from "@/components/types/article-types/vehicle";
 
 interface ArticleViewProps {
   article: Article;
@@ -51,7 +88,8 @@ function titleFormatting(title: string) {
   return title
     .replace(/([a-z])([A-Z])/g, "$1 $2") // Insert a space before each capital letter
     .replace(/^(.)/, (match) => match.toUpperCase()) // Capitalize the first letter
-    .replace(/\bAnd\b/g, "&"); // Replace "And" with "&"
+    .replace(/\bAnd\b/g, "&") // Replace "And" with "&"
+    .replace(/\bOr\b/g, "/"); // Replace "Or" with "/"
 }
 
 const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
@@ -79,17 +117,56 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
     case ArticleTypes.Landmark:
       display = new LandmarkDisplay(article as Landmark);
       break;
+    case ArticleTypes.Language:
+      display = new LanguageDisplay(article as Language);
+      break;
     case ArticleTypes.Law:
       display = new LawDisplay(article as Law);
       break;
+    case ArticleTypes.Location:
+      display = new LocationDisplay(article as Location);
+      break;
+    case ArticleTypes.Material:
+      display = new MaterialDisplay(article as Material);
+      break;
+    case ArticleTypes.MilitaryConflict:
+      display = new MilitaryConflictDisplay(article as MilitaryConflict);
+      break;
+    case ArticleTypes.Myth:
+      display = new MythDisplay(article as Myth);
+      break;
     case ArticleTypes.Organisation:
       display = new OrganisationDisplay(article as Organisation);
+      break;
+    case ArticleTypes.Plot:
+      display = new PlotDisplay(article as Plot);
+      break;
+    case ArticleTypes.Profession:
+      display = new ProfessionDisplay(article as Profession);
+      break;
+    case ArticleTypes.Prose:
+      display = new ProseDisplay(article as Prose);
+      break;
+    case ArticleTypes.Rank:
+      display = new RankDisplay(article as Rank);
+      break;
+    case ArticleTypes.Report:
+      display = new ReportDisplay(article as Report);
+      break;
+    case ArticleTypes.Settlement:
+      display = new SettlementDisplay(article as Settlement);
       break;
     case ArticleTypes.Species:
       display = new SpeciesDisplay(article as Species);
       break;
     case ArticleTypes.Spell:
       display = new SpellDisplay(article as Spell);
+      break;
+    case ArticleTypes.Technology:
+      display = new TechnologyDisplay(article as Technology);
+      break;
+    case ArticleTypes.Vehicle:
+      display = new VehicleDisplay(article as Vehicle);
       break;
     default:
       display = new ArticleDisplay(article);
@@ -170,7 +247,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
   }
 
   return (
-    <div className="container">
+    <div className="container article-viewer">
       <div className="article-buttons">
         <Link href={article.url}>
           <Button className="article-link">{"View on WorldAnvil"}</Button>
@@ -204,6 +281,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
           ))}
         </Col>
       </Row>
+      <br />
       <Row>
         <Col>
           {parsedFooterFields.map((parsedField, index) => (

@@ -12,7 +12,7 @@ export default class Homepage extends Component {
         <h1 className="display-1">{"Brigid's Anvil"}</h1>
         <div className="description">
           {
-            "Project Brigid is a community-led effort to develop extra tools for WorldAnvil. Here, you will find utilities to see your world in ways that the site itself does not yet offer."
+            "Project Brigid is a community-led effort to develop extra tools for WorldAnvil, largely developed by Hanhula using WorldAnvil's Boromir API. Here, you will find utilities to see your world in ways that the site itself does not yet offer."
           }
         </div>
         <br />
@@ -21,10 +21,12 @@ export default class Homepage extends Component {
           <div className="col">
             <Card>
               <Card.Body>
-                <Card.Title>API Tool</Card.Title>
-                <Card.Text>{"Largely an article viewer right now."}</Card.Text>
+                <Card.Title>Article Explorer</Card.Title>
+                <Card.Text>
+                  {"Filter, sort, view, and edit your articles."}
+                </Card.Text>
                 <Link href="/worldanvil/apitool">
-                  <Button variant="primary">Go to API Tool</Button>
+                  <Button variant="primary">Go to Article Explorer</Button>
                 </Link>
               </Card.Body>
             </Card>
@@ -40,6 +42,23 @@ export default class Homepage extends Component {
                 </Card.Text>
                 <Link href="/worldanvil/statistics">
                   <Button variant="primary">Go to Statistics</Button>
+                </Link>
+              </Card.Body>
+            </Card>
+          </div>
+          <div className="col">
+            <Card>
+              <Card.Body>
+                <Card.Title>Search</Card.Title>
+                <Card.Text>
+                  {
+                    "Search across your world's current articles. Currently still in development!"
+                  }
+                </Card.Text>
+                <Link href="/worldanvil/search">
+                  <Button variant="primary disabled" disabled={true}>
+                    Go to Search
+                  </Button>
                 </Link>
               </Card.Body>
             </Card>

@@ -214,4 +214,24 @@ export class ArticleDisplay {
       return null;
     }
   }
+
+  formatLink(entity: { title: string; url: string; id: string }): string {
+    return `[url:${entity.url}] ${entity.title} [/url]`;
+  }
+
+  formatLinks(entities: Array<{ title: string; url: string; id: string }> | undefined): string | null {
+    if (entities && entities.length > 0) {
+      return entities.map(this.formatLink).join(', ');
+    } else {
+      return null;
+    }
+  }
+
+  formatTitles(entities: Array<{ title: string; id: string }> | undefined) {
+    if (entities && entities.length > 0) {
+      return entities.map(entities => entities.title).join(', ');
+    } else {
+      return null;
+    }
+  }
 }

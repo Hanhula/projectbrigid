@@ -223,6 +223,12 @@ class WorldAnvilParser extends yabbcode {
       close: "</div>",
     });
 
+    this.registerTag("left", {
+      type: "replace",
+      open: () => `<div class="text-left">`,
+      close: "</div>",
+    });
+
     this.registerTag("in", {
       type: "replace",
       open: () => `<div class="paragraph-indent">`,
@@ -344,7 +350,11 @@ class WorldAnvilParser extends yabbcode {
     let preprocessedContent = this.processContent(content);
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
-      .replace(/<ber>/g, "<br>");
+      .replace(/<ber>/g, "<br>")
+      .replace(
+        /(<figure>.*?<\/figure>)(<br\s*\/?>){2}/g,
+        (match, figureBlock) => figureBlock
+      );
 
     const parsedHTML = parse(parsedBBCode, {
       replace: customTransform,
