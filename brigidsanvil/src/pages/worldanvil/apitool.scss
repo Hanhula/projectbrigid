@@ -164,6 +164,7 @@
 
     .cell-likes,
     .cell-wordcount,
+    .cell-isWip,
     .cell-isDraft,
     .cell-state,
     .cell-url,
@@ -179,10 +180,16 @@
     }
 
     .col-isDraft,
+    .col-isWip,
     .col-state,
     .col-likes,
-    .col-state {
+    .col-state,
+    .col-date {
       min-width: 5em;
+    }
+
+    .col-wordcount {
+      min-width: 7em;
     }
   }
 

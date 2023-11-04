@@ -149,7 +149,7 @@ export function Filter({
         <div className="h-1" />
       </div>
     );
-  } else if (column.id === "isDraft") {
+  } else if (column.id === "isDraft" || column.id === "isWip") {
     const columnFilterValue = column.getFilterValue();
 
     const options = [
