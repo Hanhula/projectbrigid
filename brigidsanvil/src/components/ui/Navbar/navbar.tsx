@@ -1,4 +1,3 @@
-import { Component } from "react";
 import Nav from "react-bootstrap/Nav";
 import Link from "next/link";
 
@@ -57,7 +56,7 @@ const NavBar = () => {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link as={Link} eventKey="1" href="/worldanvil/search">
-                Search Istralar
+                Search
               </Nav.Link>
             </Nav.Item>
             {worlds.success && (

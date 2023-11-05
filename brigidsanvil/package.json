@@ -33,6 +33,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "eslint-config-next": "^13.3.2",
+    "flexsearch-ts": "^0.7.35",
     "html-react-parser": "^4.2.9",
     "html-to-react": "^1.7.0",
     "localforage": "^1.10.0",

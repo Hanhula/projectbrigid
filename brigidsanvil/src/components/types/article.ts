@@ -112,6 +112,7 @@ export type Article = {
     secondUp: Article | Category | World;
     thirdUp: Article | Category | World;
   };
+  foundInFields?: string[];
 };
 
 export type ApiResponse = {

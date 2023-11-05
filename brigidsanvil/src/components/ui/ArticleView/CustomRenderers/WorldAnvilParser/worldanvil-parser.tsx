@@ -310,8 +310,6 @@ class WorldAnvilParser extends yabbcode {
     const keyValuePattern = /--([^:]+)(::)(.*?)(--|$)/g;
     const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
 
-    console.log(content);
-
     content = content
       .replace(
         containerPattern,

@@ -4,15 +4,15 @@ import { Location } from "./location";
 import { Organisation } from "./organisation";
 
 export type Ritual = Article & {
-  components: null;
-  history: string;
-  execution: string;
-  participants: string;
-  observance: string;
-  location: Location;
-  organizations: Organisation[];
-  importantLocations: Location[];
-  ethnicities: Ethnicity[];
+  components: string | null;
+  history: string | null;
+  execution: string | null;
+  participants: string | null;
+  observance: string | null;
+  location: Location | null;
+  organizations: Organisation[] | null;
+  importantLocations: Location[] | null;
+  ethnicities: Ethnicity[] | null;
 };
 
 export class RitualDisplay extends ArticleDisplay {
