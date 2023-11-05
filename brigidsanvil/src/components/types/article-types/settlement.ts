@@ -139,7 +139,7 @@ export class SettlementDisplay extends ArticleDisplay {
         foundingDate: settlement.constructed ? settlement.constructed : null,
         founders: settlement.founders ? this.formatMentions(settlement.founders) : null,
         alternativeNames: settlement.alternativename ? settlement.alternativename : null,
-        type: settlement.type.title ? settlement.type.title : null,
+        type: settlement.type && settlement.type.title ? settlement.type.title : null,
         population: settlement.population ? settlement.population : null,
         inhabitantDemonym: settlement.demonym ? settlement.demonym : null,
         locationUnder: settlement.parent ? this.formatMention(settlement.parent) : null,
