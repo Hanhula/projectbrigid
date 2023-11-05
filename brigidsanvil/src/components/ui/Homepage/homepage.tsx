@@ -23,7 +23,7 @@ export default class Homepage extends Component {
               <Card.Body>
                 <Card.Title>Article Explorer</Card.Title>
                 <Card.Text>
-                  {"Filter, sort, view, and edit your articles."}
+                  {"Filter, sort, view, export, and edit your articles."}
                 </Card.Text>
                 <Link href="/worldanvil/apitool">
                   <Button variant="primary">Go to Article Explorer</Button>
@@ -52,13 +52,11 @@ export default class Homepage extends Component {
                 <Card.Title>Search</Card.Title>
                 <Card.Text>
                   {
-                    "Search across your world's current articles. Currently still in development!"
+                    "Search across your world's articles! May be laggy; searches all fields!"
                   }
                 </Card.Text>
                 <Link href="/worldanvil/search">
-                  <Button variant="primary disabled" disabled={true}>
-                    Go to Search
-                  </Button>
+                  <Button variant="primary">Go to Search</Button>
                 </Link>
               </Card.Body>
             </Card>

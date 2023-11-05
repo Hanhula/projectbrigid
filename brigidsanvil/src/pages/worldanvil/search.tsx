@@ -14,8 +14,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import "./search.scss";
-import lunr from "lunr";
-import { Organisation } from "@/components/types/article-types/organisation";
+import { Document } from "flexsearch-ts";
 import {
   createSearchObject,
   searchableFields,
@@ -28,31 +27,35 @@ function WorldAnvilSearch() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isIndexing, setIsIndexing] = useState(true); // Track the indexing process
-  const [searchIndex, setSearchIndex] = useState<lunr.Index | null>(null);
-  const [searchResults, setSearchResults] = useState<lunr.Index.Result[]>([]);
+  //@ts-expect-error: Document type is weird in flexsearch
+  const [searchIndex, setSearchIndex] = useState<Document | null>(null);
+  const [searchResults, setSearchResults] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [foundArticles, setFoundArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     async function initializeSearchIndexAsync() {
-      const index = lunr(function () {
-        this.ref("id");
-        this.field("title");
-        this.field("content");
-        this.field("fullFooter");
+      const index = new Document({
+        tokenize: "full",
+        document: {
+          id: "id",
+          index: ["title", "content", ...searchableFields],
+        },
+      });
 
-        searchableFields.forEach((field) => {
-          this.field(field);
-        });
-
-        articles.forEach((article) => {
-          const searchObject = createSearchObject(article);
-          this.add(searchObject);
-        });
+      articles.forEach((article) => {
+        const searchObject = createSearchObject(article);
+        const document = {
+          id: article.id,
+          title: article.title,
+          content: article.content,
+          ...searchObject,
+        };
+        index.add(document);
       });
 
       setSearchIndex(index);
-      setIsIndexing(false); // Set indexing as complete
+      setIsIndexing(false);
     }
 
     initializeSearchIndexAsync();
@@ -63,18 +66,38 @@ function WorldAnvilSearch() {
       const query = searchInputRef.current?.value || "";
       const results = searchIndex.search(query);
 
-      const matchingArticles: Article[] = results.reduce(
-        (acc: Article[], result) => {
-          const article = articles.find((a) => a.id === result.ref);
-          if (article) {
-            acc.push(article);
-          }
-          return acc;
-        },
-        []
-      );
+      const matchingArticles: Article[] = results
+        .map((result: any) => {
+          const articleIds = result.result;
+          return articles.filter((article) => articleIds.includes(article.id));
+        })
+        .flat();
 
-      setFoundArticles(matchingArticles);
+      const uniqueArticleIds = new Set();
+      const filteredMatchingArticles = matchingArticles.filter((article) => {
+        if (!uniqueArticleIds.has(article.id)) {
+          uniqueArticleIds.add(article.id);
+          return true;
+        }
+        return false;
+      });
+
+      const articlesWithFieldInfo = filteredMatchingArticles.map((article) => {
+        const fieldsInfo = results.filter((result: any) =>
+          result.result.includes(article.id)
+        );
+        const foundInFields = fieldsInfo.map(
+          (fieldInfo: any) => fieldInfo.field
+        );
+        return {
+          ...article,
+          foundInFields: foundInFields,
+        };
+      });
+
+      console.log(articlesWithFieldInfo);
+
+      setFoundArticles(articlesWithFieldInfo);
       setSearchResults(results);
       setIsSearching(true);
     }
@@ -83,54 +106,6 @@ function WorldAnvilSearch() {
   const handleSearchKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Enter") {
       performSearch();
-    }
-  };
-
-  const getSnippet = (article: Article) => {
-    if (article.content) {
-      console.log(article);
-      const content = article.content;
-      const snippetLength = 200;
-      const searchTerms = (searchInputRef.current?.value || "").split(" ");
-
-      let snippet = "";
-
-      searchTerms.forEach((term) => {
-        const searchTermIndex = content
-          .toLowerCase()
-          .indexOf(term.toLowerCase());
-        if (searchTermIndex !== -1) {
-          let start = Math.max(0, searchTermIndex - snippetLength / 2);
-          let end = Math.min(
-            content.length,
-            searchTermIndex + snippetLength / 2
-          );
-
-          while (start > 0 && !/\s/.test(content[start])) {
-            start--;
-          }
-
-          while (end < content.length && !/\s/.test(content[end])) {
-            end++;
-          }
-
-          snippet += content.substring(start, end) + " ";
-        }
-      });
-
-      if (snippet.length > snippetLength) {
-        snippet = "..." + snippet.substring(1);
-        if (snippet.length < content.length) {
-          snippet += "...";
-        }
-      }
-
-      snippet = snippet.trim();
-      const parsedSnippet = WorldAnvilParser.parseField(snippet);
-
-      return parsedSnippet;
-    } else {
-      return "";
     }
   };
 
@@ -176,7 +151,7 @@ function WorldAnvilSearch() {
                 )}
                 {isSearching && searchResults.length > 0 && (
                   <div>
-                    <h3>Matching Articles</h3>
+                    <h3>{`Matching Articles (${foundArticles.length})`}</h3>
                     {foundArticles.map((matchingArticle) => (
                       <div key={matchingArticle.id}>
                         <Card>
@@ -210,7 +185,17 @@ function WorldAnvilSearch() {
                               {matchingArticle.excerpt}
                             </Card.Subtitle>
                             <hr />
-                            <Card.Text>{getSnippet(matchingArticle)}</Card.Text>
+                            <Card.Text as="div">
+                              {matchingArticle.foundInFields &&
+                                matchingArticle.foundInFields.length > 0 && (
+                                  <span className="match-text">
+                                    <dt>Matches found in:</dt>
+                                    <dd>
+                                      {matchingArticle.foundInFields.join(", ")}
+                                    </dd>
+                                  </span>
+                                )}
+                            </Card.Text>
                           </Card.Body>
                         </Card>
                       </div>
