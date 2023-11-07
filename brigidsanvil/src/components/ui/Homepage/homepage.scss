@@ -1,18 +1,19 @@
 .homepage {
-    .col {
-        display: flex;
-        align-items: stretch;
-        justify-content: center;
-    }
+  .col {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+  }
 
-    .card {
-        width: 18rem;
+  .card {
+    width: 18rem;
+    margin: 0.5em;
 
-        .card-body {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .card-body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
     }
+  }
 }

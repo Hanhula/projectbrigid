@@ -4,10 +4,7 @@ import { useState } from "react";
 import { Button, Collapse } from "react-bootstrap";
 import { fas, faSquare, IconName } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { findIconDefinition, library } from "@fortawesome/fontawesome-svg-core";
-import "rpg-awesome/css/rpg-awesome.min.css";
-
-library.add(fas);
+import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 export function elementToString(element: DOMNode): string {
   if (element.type === "text" && "data" in element) {

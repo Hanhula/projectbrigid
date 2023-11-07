@@ -12,9 +12,13 @@ import WorldSelect from "../WorldSelect/worldselect";
 import { selectAuthToken } from "@/components/store/authSlice";
 import IdentityForm from "../Identity/identity";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
-import { faCloud } from "@fortawesome/free-solid-svg-icons";
+import { faCloud, fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Navbar, NavbarToggle } from "react-bootstrap";
+
+library.add(fas);
+import "rpg-awesome/css/rpg-awesome.min.css";
+import { library } from "@fortawesome/fontawesome-svg-core";
 
 const NavBar = () => {
   const world = useSelector(selectWorld);
