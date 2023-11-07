@@ -1,6 +1,6 @@
 import React from "react";
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
-import { Button, Col, Image, Row } from "react-bootstrap";
+import { Button, Card, Col, Image, Row } from "react-bootstrap";
 import {
   Article,
   ArticleDisplay,
@@ -233,12 +233,9 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
       if (field) {
         parsedFooterFields.push(
           <div key={fieldName} className={fieldName}>
-            {fieldName !== "fullfooter" &&
-              fieldName !== "sidepanelcontenttop" &&
-              fieldName !== "sidepanelcontent" &&
-              fieldName !== "sidebarcontentbottom" && (
-                <h5>{titleFormatting(fieldName)}</h5>
-              )}
+            {fieldName !== "fullfooter" && (
+              <h5>{titleFormatting(fieldName)}</h5>
+            )}
             <div>{WorldAnvilParser.parseField(field)}</div>
           </div>
         );
@@ -281,9 +278,44 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
           ))}
         </Col>
         <Col md={4}>
-          {parsedSidebarFields.map((parsedField, index) => (
-            <div key={index}>{parsedField}</div>
-          ))}
+          {/* Create a Card for the sidebar contents */}
+          {parsedSidebarFields
+            .filter((field) => {
+              const fieldName = field.props.className;
+              return (
+                fieldName === "sidebarcontent" ||
+                fieldName === "motto" ||
+                fieldName === "disbanded"
+              );
+            })
+            .map((parsedField, index) => (
+              <div key={index}>{parsedField}</div>
+            ))}
+          <Card className="sidebar-card">
+            <Card.Body>
+              {parsedSidebarFields
+                .filter((field) => {
+                  const fieldName = field.props.className;
+                  return (
+                    fieldName !== "sidebarcontent" &&
+                    fieldName !== "sidebarcontentbottom" &&
+                    fieldName !== "motto" &&
+                    fieldName !== "disbanded"
+                  );
+                })
+                .map((parsedField, index) => (
+                  <div key={index}>{parsedField}</div>
+                ))}
+            </Card.Body>
+          </Card>
+          {parsedSidebarFields
+            .filter((field) => {
+              const fieldName = field.props.className;
+              return fieldName === "sidebarcontentbottom";
+            })
+            .map((parsedField, index) => (
+              <div key={index}>{parsedField}</div>
+            ))}
         </Col>
       </Row>
       <br />
