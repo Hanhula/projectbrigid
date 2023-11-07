@@ -1,6 +1,6 @@
 import React from "react";
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
-import { Button, Col, Row } from "react-bootstrap";
+import { Button, Col, Image, Row } from "react-bootstrap";
 import {
   Article,
   ArticleDisplay,
@@ -248,6 +248,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
 
   return (
     <div className="container article-viewer">
+      <div className="cover">
+        {article.cover && article.cover.url && (
+          <Image src={article.cover.url} fluid />
+        )}
+      </div>
       <div className="article-buttons">
         <Link href={article.url}>
           <Button className="article-link">{"View on WorldAnvil"}</Button>

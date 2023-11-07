@@ -1,6 +1,16 @@
 @import "~@fortawesome/fontawesome-svg-core/styles.css";
 
 .article-viewer {
+  .cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    background: var(--darkest-terror);
+    border-radius: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
   .paragraph-indent {
     text-indent: 50px;
   }
