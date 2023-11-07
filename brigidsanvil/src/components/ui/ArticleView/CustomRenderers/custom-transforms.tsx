@@ -2,9 +2,12 @@ import Link from "next/link";
 import parse, { DOMNode } from "html-react-parser";
 import { useState } from "react";
 import { Button, Collapse } from "react-bootstrap";
-import { faSquare, IconName } from "@fortawesome/free-solid-svg-icons";
+import { fas, faSquare, IconName } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { findIconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { findIconDefinition, library } from "@fortawesome/fontawesome-svg-core";
+import "rpg-awesome/css/rpg-awesome.min.css";
+
+library.add(fas);
 
 export function elementToString(element: DOMNode): string {
   if (element.type === "text" && "data" in element) {
@@ -48,10 +51,14 @@ export const customTransform = (domNode: DOMNode) => {
 
     if (iconNameClass) {
       const iconName = iconNameClass.replace("fa-", "");
+
+      console.log(iconName);
       const iconDefinition = findIconDefinition({
         prefix: "fas",
         iconName: iconName as IconName,
       });
+
+      console.log(iconDefinition);
 
       if (iconDefinition) {
         return <FontAwesomeIcon icon={iconDefinition} />;

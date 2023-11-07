@@ -52,6 +52,7 @@
     "react-tagsinput": "^3.20.3",
     "recharts": "^2.8.0",
     "redux-persist": "^6.0.0",
+    "rpg-awesome": "^0.2.0",
     "typescript": "^5.0.4",
     "ya-bbcode": "^4.0.0"
   },
