@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectIdentity } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { selectAuthToken, setAuthToken } from "@/components/store/authSlice";
+import Cookies from "universal-cookie";
+
 import "./identity.scss";
 
 const IdentityForm = () => {
@@ -34,6 +36,9 @@ const IdentityForm = () => {
 
   const setupAuthentication = async (event: any) => {
     event.preventDefault();
+    const cookies = new Cookies();
+    cookies.set("authToken", placeholderToken, { path: "/" });
+    console.log(cookies.get("authToken"));
     dispatch(setAuthToken(placeholderToken));
   };
 

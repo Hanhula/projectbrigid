@@ -54,6 +54,7 @@
     "redux-persist": "^6.0.0",
     "rpg-awesome": "^0.2.0",
     "typescript": "^5.0.4",
+    "universal-cookie": "^6.1.1",
     "ya-bbcode": "^4.0.0"
   },
   "devDependencies": {
