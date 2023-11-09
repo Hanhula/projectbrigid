@@ -55,6 +55,8 @@
     "recharts": "^2.8.0",
     "redux-persist": "^6.0.0",
     "rpg-awesome": "^0.2.0",
+    "slate": "^0.100.0",
+    "slate-react": "^0.100.1",
     "typescript": "^5.0.4",
     "universal-cookie": "^6.1.1",
     "ya-bbcode": "^4.0.0"
