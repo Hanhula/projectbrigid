@@ -9,6 +9,7 @@ import defaultStorage from 'redux-persist/lib/storage'
 import { authSlice } from "./authSlice";
 import { articleSlice } from "./articlesSlice";
 import createIdbStorage from '@piotr-cz/redux-persist-idb-storage'
+import Cookies from "universal-cookie";
 
 
 const reducers = combineReducers({
@@ -28,11 +29,17 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, reducers);
 
+const cookies = new Cookies();
+const initialAuthToken = cookies.get('authToken');
+
 const makeStore = () =>
   configureStore({
     reducer: persistedReducer,
     middleware: [thunkMiddleware],
     devTools: true,
+    preloadedState: {
+      [authSlice.name]: { authToken: initialAuthToken },
+    },
   });
 
 export type AppStore = ReturnType<typeof makeStore>;
