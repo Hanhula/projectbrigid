@@ -368,6 +368,22 @@ class WorldAnvilParser extends yabbcode {
 
     return parsedHTML;
   }
+
+  parsePureBBCode(content: string) {
+    let preprocessedContent = this.processContent(content).replace(
+      /\n/g,
+      "[br]"
+    );
+    let parsedBBCode = this.parse(preprocessedContent)
+      .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
+      .replace(/<ber>/g, "\n")
+      .replace(
+        /(<figure>.*?<\/figure>)(<br\s*\/?>){2}/g,
+        (match, figureBlock) => figureBlock
+      );
+
+    return parsedBBCode;
+  }
 }
 
 const parser = new WorldAnvilParser();
