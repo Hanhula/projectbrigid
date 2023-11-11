@@ -18,6 +18,7 @@ import { Slate, Editable, withReact, ReactEditor } from "slate-react";
 import { jsx } from "slate-hyperscript";
 
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
+import { withHistory } from "slate-history";
 
 type CustomElement = { type: "code" | "paragraph"; children: CustomText[] };
 type CustomText = {
@@ -267,7 +268,7 @@ export default function EditPage() {
   const authToken = useSelector(selectAuthToken);
   const identity = useSelector(selectIdentity);
 
-  const [editor] = useState(() => withReact(createEditor()));
+  const [editor] = useState(() => withHistory(withReact(createEditor())));
 
   const renderElement = useCallback((props) => {
     switch (props.element.type) {
