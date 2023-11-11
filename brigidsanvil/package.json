@@ -54,6 +54,7 @@
     "redux-persist": "^6.0.0",
     "rpg-awesome": "^0.2.0",
     "slate": "^0.100.0",
+    "slate-hyperscript": "^0.100.0",
     "slate-react": "^0.100.1",
     "typescript": "^5.0.4",
     "ya-bbcode": "^4.0.0"
