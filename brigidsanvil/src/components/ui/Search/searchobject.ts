@@ -38,6 +38,7 @@ export const searchableFields = [
   "authornotes",
   "scrapbook",
   "credits",
+  "tags",
   // Condition
   "causes",
   "transmissionvectors",
@@ -638,6 +639,7 @@ searchObject.fullfooter = article.fullfooter || null;
 searchObject.authornotes = article.authornotes || null;
 searchObject.scrapbook = article.scrapbook || null;
 searchObject.credits = article.credits || null;
+searchObject.tags = article.tags || null;
 searchObject.manuscripts = article.manuscripts && article.manuscripts.length > 0
   ? article.manuscripts.map(manuscript => manuscript.title).join(", ")
   : null;

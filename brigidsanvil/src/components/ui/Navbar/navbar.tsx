@@ -71,6 +71,15 @@ const NavBar = () => {
                     Search
                   </Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
+                    href="/worldanvil/quicklinks"
+                  >
+                    Quick Links
+                  </Nav.Link>
+                </Nav.Item>
                 {worlds.success && (
                   <Nav.Item>
                     <div className="world-selector-nav">

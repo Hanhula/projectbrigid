@@ -1,0 +1,29 @@
+.quicklinks {
+  h1,
+  h2 {
+    text-align: center;
+  }
+
+  .h5.card-title {
+    margin-bottom: 0.2em;
+    margin-top: 0.2em;
+  }
+
+  span {
+    margin-top: 0.6em;
+  }
+
+  .card {
+    padding: 0.2em;
+    text-align: center;
+    transition: 0.2s;
+
+    &:hover {
+      background: var(--primary-dark);
+    }
+  }
+
+  .card-body {
+    padding: 1.5em;
+  }
+}
