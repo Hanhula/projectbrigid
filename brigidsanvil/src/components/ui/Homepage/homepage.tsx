@@ -61,6 +61,21 @@ export default class Homepage extends Component {
               </Card.Body>
             </Card>
           </div>
+          <div className="col">
+            <Card>
+              <Card.Body>
+                <Card.Title>Quick Links</Card.Title>
+                <Card.Text>
+                  {
+                    "Quick links to pages on WorldAnvil! Kind of a second Dashboard."
+                  }
+                </Card.Text>
+                <Link href="/worldanvil/quicklinks">
+                  <Button variant="primary">Go to Quick Links</Button>
+                </Link>
+              </Card.Body>
+            </Card>
+          </div>
         </div>
       </div>
     );

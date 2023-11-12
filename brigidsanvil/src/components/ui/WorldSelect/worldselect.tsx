@@ -2,14 +2,21 @@
 
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectWorlds, selectWorld } from "@/components/store/apiSlice";
+import {
+  selectWorlds,
+  selectWorld,
+  selectIdentity,
+} from "@/components/store/apiSlice";
 import { Form, Button } from "react-bootstrap";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { setCurrentWorldArticles } from "@/components/store/articlesSlice";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSync } from "@fortawesome/free-solid-svg-icons";
 
 const WorldSelect = () => {
   const world = useSelector(selectWorld);
   const worlds = useSelector(selectWorlds);
+  const identity = useSelector(selectIdentity);
   const [selectedWorld, setSelectedWorld] = useState("");
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();
@@ -24,6 +31,13 @@ const WorldSelect = () => {
       dispatch(setCurrentWorldArticles(world));
     }
   }, [world, dispatch]);
+
+  const fetchData = async () => {
+    await worldAnvilAPI.getWorlds(identity.id);
+    worlds.entities.forEach((world) => {
+      worldAnvilAPI.getWorld(world.id);
+    });
+  };
 
   return (
     <div className="container main-container">
@@ -44,6 +58,9 @@ const WorldSelect = () => {
             </Form.Select>
             <Button variant="primary" type="submit">
               Submit
+            </Button>
+            <Button variant="primary" onClick={fetchData}>
+              <FontAwesomeIcon icon={faSync}></FontAwesomeIcon>
             </Button>
           </Form>
         </div>
