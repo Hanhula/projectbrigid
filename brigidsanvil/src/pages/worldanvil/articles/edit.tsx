@@ -19,6 +19,7 @@ import { jsx } from "slate-hyperscript";
 
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
 import { withHistory } from "slate-history";
+import { HTMLProps } from "react";
 
 type CustomElement = { type: "code" | "paragraph"; children: CustomText[] };
 type CustomText = {
@@ -48,6 +49,12 @@ type BBCodeTags = {
   bold: BBCodeTag;
   italic: BBCodeTag;
   underline: BBCodeTag;
+};
+
+type NodeAttributes = {
+  bold?: boolean;
+  italics?: boolean;
+  underline?: boolean;
 };
 
 const bbcodeTags: BBCodeTags = {
@@ -103,7 +110,7 @@ const serializeVal = (value: any[]) => {
     .join("\n\n");
 };
 
-const deserialize = (savedBBcode) => {
+const deserialize = (savedBBcode: string) => {
   if (savedBBcode) {
     const paragraphs = savedBBcode.split("\n\n"); // Split into paragraphs based on double line breaks
 
@@ -133,14 +140,17 @@ const deserialize = (savedBBcode) => {
   return initialValue;
 };
 
-const deserializeNode = (el: Node, markAttributes = {}) => {
+const deserializeNode: any = (
+  el: Node,
+  markAttributes: NodeAttributes = {}
+) => {
   if (el.nodeType === Node.TEXT_NODE) {
     return jsx("text", markAttributes, el.textContent);
   } else if (el.nodeType !== Node.ELEMENT_NODE) {
     return null;
   }
 
-  const nodeAttributes = { ...markAttributes };
+  const nodeAttributes: NodeAttributes = { ...markAttributes };
 
   // define attributes for text nodes
   switch (el.nodeName) {
@@ -176,7 +186,7 @@ const deserializeNode = (el: Node, markAttributes = {}) => {
     case "A":
       return jsx(
         "element",
-        { type: "link", url: el.getAttribute("href") },
+        { type: "link", url: (el as HTMLElement).getAttribute("href") },
         children
       );
     default:
@@ -204,6 +214,7 @@ const CustomEditor = {
 
   isCodeBlockActive(editor: Editor) {
     const [match] = Editor.nodes(editor, {
+      //@ts-expect-error: type is not on Node or CustomText
       match: (n) => n.type === "code",
     });
 
@@ -238,16 +249,16 @@ const CustomEditor = {
   },
 };
 
-const CodeElement = (props) => {
+const CodeElement: React.FC<HTMLProps<HTMLPreElement>> = (props) => {
   return (
-    <pre {...props.attributes}>
+    <pre {...props}>
       <code>{props.children}</code>
     </pre>
   );
 };
 
-const DefaultElement = (props) => {
-  return <p {...props.attributes}>{props.children}</p>;
+const DefaultElement: React.FC<HTMLProps<HTMLParagraphElement>> = (props) => {
+  return <p {...props}>{props.children}</p>;
 };
 
 const Leaf = (props) => {
