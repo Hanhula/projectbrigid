@@ -14,7 +14,14 @@ import {
   Node as SlateNode,
   Text,
 } from "slate";
-import { Slate, Editable, withReact, ReactEditor } from "slate-react";
+import {
+  Slate,
+  Editable,
+  withReact,
+  ReactEditor,
+  RenderLeafProps,
+  RenderElementProps,
+} from "slate-react";
 import { jsx } from "slate-hyperscript";
 
 import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
@@ -24,9 +31,9 @@ import { HTMLProps } from "react";
 type CustomElement = { type: "code" | "paragraph"; children: CustomText[] };
 type CustomText = {
   text: string;
-  bold: boolean;
-  italics: boolean;
-  underline: boolean;
+  bold?: boolean;
+  italics?: boolean;
+  underline?: boolean;
 };
 
 declare module "slate" {
@@ -41,8 +48,6 @@ type BBCodeTag = {
   openTag: string;
   closeTag: string;
   format: keyof CustomText;
-  openingRegex: RegExp;
-  closingRegex: RegExp;
 };
 
 type BBCodeTags = {
@@ -62,22 +67,16 @@ const bbcodeTags: BBCodeTags = {
     openTag: "[b]",
     closeTag: "[/b]",
     format: "bold",
-    openingRegex: /\[b\]/,
-    closingRegex: /\[\/b\]/,
   },
   italic: {
     openTag: "[i]",
     closeTag: "[/i]",
     format: "italics",
-    openingRegex: /\[i\]/,
-    closingRegex: /\[\/i\]/,
   },
   underline: {
     openTag: "[u]",
     closeTag: "[/u]",
     format: "underline",
-    openingRegex: /\[u\]/,
-    closingRegex: /\[\/u\]/,
   },
   // Add more BBCode elements following the same pattern
 };
@@ -115,7 +114,7 @@ const deserialize = (savedBBcode: string) => {
     const paragraphs = savedBBcode.split("\n\n"); // Split into paragraphs based on double line breaks
 
     // Map over each paragraph and process them separately
-    const elements = paragraphs.map((paragraph) => {
+    const elements: Descendant[] = paragraphs.map((paragraph) => {
       const htmlString = WorldAnvilParser.parsePureBBCode(paragraph);
       const document = new DOMParser().parseFromString(htmlString, "text/html");
       const body = document.body;
@@ -137,7 +136,7 @@ const deserialize = (savedBBcode: string) => {
     return elements;
   }
 
-  return initialValue;
+  return defaultInitialValue;
 };
 
 const deserializeNode: any = (
@@ -152,7 +151,6 @@ const deserializeNode: any = (
 
   const nodeAttributes: NodeAttributes = { ...markAttributes };
 
-  // define attributes for text nodes
   switch (el.nodeName) {
     case "STRONG":
       nodeAttributes.bold = true;
@@ -194,7 +192,7 @@ const deserializeNode: any = (
   }
 };
 
-const initialValue = [
+const defaultInitialValue: Descendant[] = [
   {
     type: "paragraph",
     children: [{ text: "A line of text in a paragraph." }],
@@ -243,8 +241,10 @@ const CustomEditor = {
     const isActive = CustomEditor.isCodeBlockActive(editor);
     Transforms.setNodes(
       editor,
+      //@ts-expect-error: null isn't on type
       { type: isActive ? null : "code" },
-      { match: (n) => Editor.isBlock(editor, n) }
+      //@ts-expect-error
+      { match: (node) => Editor.isBlock(editor, node) }
     );
   },
 };
@@ -261,7 +261,7 @@ const DefaultElement: React.FC<HTMLProps<HTMLParagraphElement>> = (props) => {
   return <p {...props}>{props.children}</p>;
 };
 
-const Leaf = (props) => {
+const Leaf = (props: RenderLeafProps) => {
   return (
     <span
       {...props.attributes}
@@ -281,7 +281,7 @@ export default function EditPage() {
 
   const [editor] = useState(() => withHistory(withReact(createEditor())));
 
-  const renderElement = useCallback((props) => {
+  const renderElement = useCallback((props: RenderElementProps) => {
     switch (props.element.type) {
       case "code":
         return <CodeElement {...props} />;
@@ -290,14 +290,18 @@ export default function EditPage() {
     }
   }, []);
 
-  const renderLeaf = useCallback((props) => {
+  const renderLeaf = useCallback((props: RenderLeafProps) => {
     return <Leaf {...props} />;
   }, []);
 
-  const initialValue = useMemo(
-    () => deserialize(localStorage.getItem("content")),
-    []
-  );
+  const initialValue = useMemo(() => {
+    const storedItem = localStorage.getItem("content");
+    if (storedItem) {
+      return deserialize(storedItem);
+    } else {
+      return defaultInitialValue;
+    }
+  }, []);
 
   console.log("Initial Value (Deserialized):", initialValue);
 
