@@ -293,6 +293,12 @@ class WorldAnvilParser extends yabbcode {
       },
       close: "</span>",
     });
+
+    this.registerTag("code", {
+      type: "replace",
+      open: () => "<pre><code>",
+      close: "</code></pre>",
+    });
   }
 
   processContent(content: string, parseForHTML: boolean = false) {
