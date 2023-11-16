@@ -4,10 +4,26 @@ import { Article, WorldArticle, WorldArticles } from "../types/article";
 import { Image } from "../types/image";
 import { User } from "../types/user";
 import { World } from "../types/world";
+import { selectWorld } from "./apiSlice";
 
 export type WorldArticleDetailState = {
   world: World;
   isFullDetail: boolean;
+};
+
+export type FieldEditState = {
+  fieldIdentifier: string;
+  editedContent: string;
+};
+
+export type ArticleEditState = {
+  articleID: string;
+  fieldsChanged: FieldEditState[];
+};
+
+export type EditState = {
+  world: World;
+  editedArticles: ArticleEditState[];
 };
 
 export type WorldArticlesState = {
@@ -19,6 +35,7 @@ export type WorldArticlesState = {
   detailStateByWorld: Record<string, WorldArticleDetailState>;
   articleIdsByWorld: Record<string, string[]>;
   articlesByIdByWorld: Record<string, Record<string, Article>>;
+  editState: EditState[];
 };
 
 let initialArticle: Article = {
@@ -154,6 +171,7 @@ const ensureArticleStateRecords = (state: WorldArticlesState) => {
   state.detailStateByWorld = state.detailStateByWorld ?? {};
   state.articleIdsByWorld = state.articleIdsByWorld ?? {};
   state.articlesByIdByWorld = state.articlesByIdByWorld ?? {};
+  state.editState = state.editState ?? [];
 };
 
 export const migratePersistedArticleState = (
@@ -171,6 +189,7 @@ export const migratePersistedArticleState = (
     detailStateByWorld: articleState?.detailStateByWorld ?? {},
     articleIdsByWorld: articleState?.articleIdsByWorld ?? {},
     articlesByIdByWorld: articleState?.articlesByIdByWorld ?? {},
+    editState: articleState?.editState ?? [],
   };
 
   const legacyWorldArticles = nextState.worldArticles ?? [];
@@ -231,6 +250,7 @@ const initialState: WorldArticlesState = {
   detailStateByWorld: {},
   articleIdsByWorld: {},
   articlesByIdByWorld: {},
+  editState: [],
 };
 
 // Actual Slice
@@ -287,6 +307,7 @@ export const articleSlice = createSlice({
       state.detailStateByWorld = {};
       state.articleIdsByWorld = {};
       state.articlesByIdByWorld = {};
+      state.editState = [];
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
@@ -308,6 +329,103 @@ export const articleSlice = createSlice({
         ...worldArticlesByIdEntry,
         articles: Object.values(articleRecord),
       };
+    },
+    setEditStateByWorld(state, action) {
+      const { world, editedArticles } = action.payload;
+
+      const existingEditStateIndex = state.editState.findIndex(
+        (editState) => editState.world.id === world.id,
+      );
+
+      if (existingEditStateIndex !== -1) {
+        state.editState[existingEditStateIndex] = {
+          world,
+          editedArticles,
+        };
+      } else {
+        state.editState.push({
+          world,
+          editedArticles,
+        });
+      }
+    },
+    setEditedArticle(state, action) {
+      const { world, articleID, fieldsChanged } = action.payload;
+
+      let editState = state.editState.find(
+        (editState) => editState.world.id === world.id,
+      );
+
+      if (!editState) {
+        editState = { world, editedArticles: [] };
+        state.editState.push(editState);
+      }
+
+      let editedArticle = editState.editedArticles.find(
+        (editedArticle) => editedArticle.articleID === articleID,
+      );
+
+      if (!editedArticle) {
+        editedArticle = { articleID, fieldsChanged: [] };
+        editState.editedArticles.push(editedArticle);
+      }
+
+      editedArticle.fieldsChanged = fieldsChanged;
+    },
+    setEditedContentByID(state, action) {
+      const { world, articleID, fieldIdentifier, editedFields } =
+        action.payload;
+
+      let editState = state.editState.find(
+        (editState) => editState.world.id === world.id,
+      );
+
+      if (!editState) {
+        editState = { world, editedArticles: [] };
+        state.editState.push(editState);
+      }
+
+      let editedArticle = editState.editedArticles.find(
+        (editedArticle) => editedArticle.articleID === articleID,
+      );
+
+      if (!editedArticle) {
+        editedArticle = { articleID, fieldsChanged: [] };
+        editState.editedArticles.push(editedArticle);
+      }
+
+      let editedField = editedArticle.fieldsChanged.find(
+        (field: FieldEditState) => field.fieldIdentifier === fieldIdentifier,
+      );
+
+      if (!editedField) {
+        editedField = { fieldIdentifier, editedContent: "" };
+        editedArticle.fieldsChanged.push(editedField);
+      }
+
+      editedField.editedContent = editedFields;
+    },
+    removeEditByID(state, action) {
+      const { worldId, articleID } = action.payload;
+
+      const worldIndex = state.editState.findIndex(
+        (editState) => editState.world.id === worldId,
+      );
+
+      if (worldIndex !== -1) {
+        const articleIndex = state.editState[
+          worldIndex
+        ].editedArticles.findIndex(
+          (editedArticle) => editedArticle.articleID === articleID,
+        );
+
+        if (articleIndex !== -1) {
+          state.editState[worldIndex].editedArticles.splice(articleIndex, 1);
+          if (state.editState[worldIndex].editedArticles.length === 0) {
+            state.editState.splice(worldIndex, 1);
+          }
+        }
+      }
     },
   },
   extraReducers(builder) {
@@ -335,6 +453,7 @@ export const articleSlice = createSlice({
           incomingState.articleIdsByWorld ?? state.articleIdsByWorld ?? {};
         state.articlesByIdByWorld =
           incomingState.articlesByIdByWorld ?? state.articlesByIdByWorld ?? {};
+        state.editState = incomingState.editState ?? state.editState ?? [];
       }
 
       return migrateWorldArticlesState(state as WorldArticlesState);
@@ -349,6 +468,10 @@ export const {
   setDetailState,
   resetArticleState,
   updateArticleById,
+  setEditStateByWorld,
+  setEditedArticle,
+  setEditedContentByID,
+  removeEditByID,
 } = articleSlice.actions;
 
 const selectWorldArticlesByIdState = (state: {
@@ -421,7 +544,6 @@ export const selectWorldStatisticsSummary = createSelector(
   [selectWorldArticlesByIdState, selectWorldId],
   (worldArticlesById, worldId) => {
     const worldArticle = worldArticlesById[worldId];
-
     const articles = worldArticle?.articles ?? [initialArticle];
 
     let publishedCount = 0;
@@ -487,6 +609,65 @@ export const selectCurrentDetailStateByWorld = (worldId: string) =>
     };
 
     return currentDetailState || placeholderState;
+  });
+
+export const selectEditState = (state: { articleState: WorldArticlesState }) =>
+  state.articleState.editState;
+
+// Select the edited articles for a specific world
+export const selectEditedArticlesByWorld =
+  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
+    const editState = state.articleState.editState.find(
+      (editState) => editState.world.id === worldId,
+    );
+
+    return editState?.editedArticles || [];
+  };
+
+// Select the edited content for a specific article within a world
+export const selectEditedContentByID =
+  (worldId: string, articleID: string) =>
+  (state: { articleState: WorldArticlesState }) => {
+    const editState = state.articleState.editState.find(
+      (editState) => editState.world.id === worldId,
+    );
+
+    const editedArticle = editState?.editedArticles.find(
+      (editedArticle) => editedArticle.articleID === articleID,
+    );
+
+    return editedArticle?.fieldsChanged || [];
+  };
+
+export const makeSelectCurrentArticles = () =>
+  createSelector(
+    [selectWorldArticlesByIdState, selectWorld],
+    (worldArticlesById, world) => {
+      return worldArticlesById[world.id]?.articles ?? [];
+    },
+  );
+
+export const selectCurrentArticles = makeSelectCurrentArticles();
+
+export const makeSelectEditedContentByID = (
+  worldId: string,
+  articleId: string,
+  fieldIdentifier: string,
+) =>
+  createSelector([selectEditState], (editState) => {
+    const worldEditState = editState.find(
+      (editState) => editState.world.id === worldId,
+    );
+
+    const editedArticle = worldEditState?.editedArticles.find(
+      (editedArticle) => editedArticle.articleID === articleId,
+    );
+
+    const editedField = editedArticle?.fieldsChanged.find(
+      (field: FieldEditState) => field.fieldIdentifier === fieldIdentifier,
+    );
+
+    return editedField?.editedContent || "";
   });
 
 export default articleSlice.reducer;

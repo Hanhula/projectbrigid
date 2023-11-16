@@ -305,7 +305,6 @@ class WorldAnvilParser extends yabbcode {
     const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
     const containerPattern = /\[container:([^\]]+)\]/g;
     const sectionPattern = /\[section:([^\]]+)\]/g;
-
     const h1Pattern = /\[h1\|([^\]]+)\]/g;
     const h2Pattern = /\[h2\|([^\]]+)\]/g;
     const h3Pattern = /\[h3\|([^\]]+)\]/g;
@@ -317,16 +316,6 @@ class WorldAnvilParser extends yabbcode {
     const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
 
     content = content
-      .replace(
-        containerPattern,
-        (match, className) => `[customDiv=${className}]`
-      )
-      .replace(/\[\/container\]/g, "[/customDiv]")
-      .replace(
-        sectionPattern,
-        (match, className) => `[customSpan=${className}]`
-      )
-      .replace(/\[\/section\]/g, "[/customSpan]")
       .replace(h1Pattern, (match, anchorText) => `[h1=${anchorText}]`)
       .replace(h2Pattern, (match, anchorText) => `[h2=${anchorText}]`)
       .replace(h3Pattern, (match, anchorText) => `[h3=${anchorText}]`)
@@ -336,22 +325,34 @@ class WorldAnvilParser extends yabbcode {
       .replace(redactedPattern, (match, number) => `[redacted=${number}]`)
       .replace(
         keyValuePattern,
-        (match, key, separator, value) => `[dt]${key}[/dt][dd]${value}[/dd]`
+        (match, key, separator, value) => `[dt]${key}[/dt][dd]${value}[/dd]`,
       )
       .replace(
         colorPattern,
-        (match, color, content) => `[color=${color}]${content}[/color]`
+        (match, color, content) => `[color=${color}]${content}[/color]`,
+      )
+      .replace(
+        containerPattern,
+        (match, className) => `[customDiv=${className}]`,
       );
+
+    content = content
+      .replace(/\[\/container\]/g, "[/customDiv]")
+      .replace(
+        sectionPattern,
+        (match, className) => `[customSpan=${className}]`,
+      )
+      .replace(/\[\/section\]/g, "[/customSpan]");
 
     if (parseForHTML) {
       content = content.replace(
         linkPattern,
-        (match, name, type, id) => `[customUrl=${name}]${name}[/customUrl]`
+        (match, name, type, id) => `[customUrl=${name}]${name}[/customUrl]`,
       );
     } else {
       content = content.replace(
         linkPattern,
-        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
+        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`,
       );
     }
 
@@ -365,7 +366,7 @@ class WorldAnvilParser extends yabbcode {
       .replace(/<ber>/g, "<br>")
       .replace(
         /(<figure>.*?<\/figure>)(<br\s*\/?>){2}/g,
-        (match, figureBlock) => figureBlock
+        (match, figureBlock) => figureBlock,
       );
 
     const parsedHTML = parse(parsedBBCode, {
@@ -378,14 +379,14 @@ class WorldAnvilParser extends yabbcode {
   parsePureBBCode(content: string) {
     let preprocessedContent = this.processContent(content).replace(
       /\n/g,
-      "[br]"
+      "[br]",
     );
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "\n")
       .replace(
         /(<figure>.*?<\/figure>)(<br\s*\/?>){2}/g,
-        (match, figureBlock) => figureBlock
+        (match, figureBlock) => figureBlock,
       );
 
     return parsedBBCode;

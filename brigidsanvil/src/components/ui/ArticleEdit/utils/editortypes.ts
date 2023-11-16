@@ -22,6 +22,7 @@ export type CustomText = {
   italics?: boolean;
   underline?: boolean;
   code?: boolean;
+  strikethrough?: boolean;
 };
 
 export type NodeAttributes = {
@@ -29,6 +30,7 @@ export type NodeAttributes = {
   italics?: boolean;
   underline?: boolean;
   code?: boolean;
+  strikethrough?: boolean;
 };
 
 export type BlockBBCodeTag = {
