@@ -294,7 +294,6 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article, generateHTML }) => {
           ))}
         </Col>
         <Col md={4}>
-          {/* Create a Card for the sidebar contents */}
           {parsedSidebarFields
             .filter((field) => {
               const fieldName = field.props.className;

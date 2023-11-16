@@ -317,16 +317,6 @@ class WorldAnvilParser extends yabbcode {
     const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
 
     content = content
-      .replace(
-        containerPattern,
-        (match, className) => `[customDiv=${className}]`
-      )
-      .replace(/\[\/container\]/g, "[/customDiv]")
-      .replace(
-        sectionPattern,
-        (match, className) => `[customSpan=${className}]`
-      )
-      .replace(/\[\/section\]/g, "[/customSpan]")
       .replace(h1Pattern, (match, anchorText) => `[h1=${anchorText}]`)
       .replace(h2Pattern, (match, anchorText) => `[h2=${anchorText}]`)
       .replace(h3Pattern, (match, anchorText) => `[h3=${anchorText}]`)
@@ -358,8 +348,32 @@ class WorldAnvilParser extends yabbcode {
     return content;
   }
 
-  parseField(content: string, parseForHTML: boolean = false) {
-    let preprocessedContent = this.processContent(content, parseForHTML);
+  processContentForView(content: string) {
+    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
+    const containerPattern = /\[container:([^\]]+)\]/g;
+    const sectionPattern = /\[section:([^\]]+)\]/g;
+    content = content
+      .replace(
+        containerPattern,
+        (match, className) => `[customDiv=${className}]`
+      )
+      .replace(/\[\/container\]/g, "[/customDiv]")
+      .replace(
+        sectionPattern,
+        (match, className) => `[customSpan=${className}]`
+      )
+      .replace(/\[\/section\]/g, "[/customSpan]")
+      .replace(
+        linkPattern,
+        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
+      );
+
+    return content;
+  }
+
+  parseField(content: string) {
+    let preprocessedContent = this.processContent(content);
+    preprocessedContent = this.processContentForView(content);
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "<br>")
