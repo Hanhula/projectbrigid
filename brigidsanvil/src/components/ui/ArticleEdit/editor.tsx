@@ -1,9 +1,9 @@
-import { selectIdentity } from "@/components/store/apiSlice";
+import { selectIdentity, selectWorld } from "@/components/store/apiSlice";
 import { selectAuthToken } from "@/components/store/authSlice";
 import Head from "next/head";
 import { useCallback, useMemo, useState } from "react";
 import { Button, ButtonGroup, ButtonToolbar, Container } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   createEditor,
   BaseEditor,
@@ -28,6 +28,11 @@ import {
 } from "@/components/ui/ArticleEdit/utils/editortypes";
 import isHotkey from "is-hotkey";
 import EditUtils from "@/components/ui/ArticleEdit/utils/editutils";
+import {
+  makeSelectEditedContentByID,
+  setEditedContentByID,
+} from "@/components/store/articlesSlice";
+import _ from "lodash";
 
 declare module "slate" {
   interface CustomTypes {
@@ -207,6 +212,10 @@ const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
     children = <u>{children}</u>;
   }
 
+  if (leaf.strikethrough) {
+    children = <del>{children}</del>;
+  }
+
   return <span {...attributes}>{children}</span>;
 };
 
@@ -242,10 +251,37 @@ const MarkButton: React.FC<ButtonProps> = ({ format, icon }) => {
   );
 };
 
-export const WorldAnvilEditor = () => {
-  const authToken = useSelector(selectAuthToken);
-  const identity = useSelector(selectIdentity);
+type EditorProps = {
+  fieldIdentifier: string;
+  id: string;
+  existingContent: string;
+};
+
+export const WorldAnvilEditor = ({
+  fieldIdentifier,
+  id,
+  existingContent,
+}: EditorProps) => {
+  const dispatch = useDispatch();
   const editUtils = new EditUtils();
+
+  const world = useSelector(selectWorld);
+  const selectEditedContentByID = makeSelectEditedContentByID(
+    world.id,
+    id,
+    fieldIdentifier
+  );
+  const editedContent = useSelector(selectEditedContentByID);
+
+  const initialValue = useMemo(() => {
+    if (editedContent) {
+      return editUtils.deserialize(editedContent);
+    } else if (existingContent) {
+      return editUtils.deserialize(existingContent);
+    } else {
+      return editUtils.defaultInitialValue;
+    }
+  }, [editedContent, existingContent]);
 
   const [editor] = useState(() => withHistory(withReact(createEditor())));
 
@@ -257,16 +293,18 @@ export const WorldAnvilEditor = () => {
     return <Leaf {...props} />;
   }, []);
 
-  const initialValue = useMemo(() => {
-    const storedItem = localStorage.getItem("content");
-    if (storedItem) {
-      return editUtils.deserialize(storedItem);
-    } else {
-      return editUtils.defaultInitialValue;
-    }
-  }, []);
-
-  console.log("Initial Value (Deserialized):", initialValue);
+  const delayedDispatch = _.debounce((value) => {
+    const serializedValue = editUtils.serializeVal(value);
+    console.log("serialised: ", serializedValue);
+    dispatch(
+      setEditedContentByID({
+        world: world,
+        articleID: id,
+        fieldIdentifier,
+        editedFields: serializedValue,
+      })
+    );
+  }, 1000);
 
   return (
     <Slate
@@ -274,14 +312,11 @@ export const WorldAnvilEditor = () => {
       //@ts-expect-error
       initialValue={initialValue}
       onChange={(value) => {
-        console.log(editUtils.serializeVal(value));
         const isAstChange = editor.operations.some(
-          (op) => "set_selection" !== op.type
+          (op) => op.type !== "set_selection"
         );
         if (isAstChange) {
-          console.log(value);
-          console.log(editUtils.serializeVal(value));
-          localStorage.setItem("content", editUtils.serializeVal(value));
+          delayedDispatch(value);
         }
       }}
     >

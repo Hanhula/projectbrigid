@@ -302,10 +302,6 @@ class WorldAnvilParser extends yabbcode {
   }
 
   processContent(content: string) {
-    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
-    const containerPattern = /\[container:([^\]]+)\]/g;
-    const sectionPattern = /\[section:([^\]]+)\]/g;
-
     const h1Pattern = /\[h1\|([^\]]+)\]/g;
     const h2Pattern = /\[h2\|([^\]]+)\]/g;
     const h3Pattern = /\[h3\|([^\]]+)\]/g;
@@ -317,26 +313,12 @@ class WorldAnvilParser extends yabbcode {
     const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
 
     content = content
-      .replace(
-        containerPattern,
-        (match, className) => `[customDiv=${className}]`
-      )
-      .replace(/\[\/container\]/g, "[/customDiv]")
-      .replace(
-        sectionPattern,
-        (match, className) => `[customSpan=${className}]`
-      )
-      .replace(/\[\/section\]/g, "[/customSpan]")
       .replace(h1Pattern, (match, anchorText) => `[h1=${anchorText}]`)
       .replace(h2Pattern, (match, anchorText) => `[h2=${anchorText}]`)
       .replace(h3Pattern, (match, anchorText) => `[h3=${anchorText}]`)
       .replace(h4Pattern, (match, anchorText) => `[h4=${anchorText}]`)
       .replace(h5Pattern, (match, anchorText) => `[h5=${anchorText}]`)
       .replace(urlPattern, (match, href) => `[url=${href}]`)
-      .replace(
-        linkPattern,
-        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
-      )
       .replace(redactedPattern, (match, number) => `[redacted=${number}]`)
       .replace(
         keyValuePattern,
@@ -350,8 +332,32 @@ class WorldAnvilParser extends yabbcode {
     return content;
   }
 
+  processContentForView(content: string) {
+    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
+    const containerPattern = /\[container:([^\]]+)\]/g;
+    const sectionPattern = /\[section:([^\]]+)\]/g;
+    content = content
+      .replace(
+        containerPattern,
+        (match, className) => `[customDiv=${className}]`
+      )
+      .replace(/\[\/container\]/g, "[/customDiv]")
+      .replace(
+        sectionPattern,
+        (match, className) => `[customSpan=${className}]`
+      )
+      .replace(/\[\/section\]/g, "[/customSpan]")
+      .replace(
+        linkPattern,
+        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
+      );
+
+    return content;
+  }
+
   parseField(content: string) {
     let preprocessedContent = this.processContent(content);
+    preprocessedContent = this.processContentForView(content);
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "<br>")
