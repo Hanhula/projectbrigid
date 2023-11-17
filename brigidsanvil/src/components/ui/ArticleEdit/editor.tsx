@@ -1,15 +1,21 @@
-import { selectIdentity, selectWorld } from "@/components/store/apiSlice";
-import { selectAuthToken } from "@/components/store/authSlice";
-import Head from "next/head";
-import { useCallback, useMemo, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Button, ButtonGroup, ButtonToolbar, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
+import ReactDOM from "react-dom";
 import {
   createEditor,
   BaseEditor,
   Editor,
   Element as SlateElement,
   Transforms,
+  Range,
 } from "slate";
 import {
   Slate,
@@ -25,14 +31,23 @@ import { withHistory } from "slate-history";
 import {
   CustomElement,
   CustomText,
+  EditorProps,
+  ButtonProps,
+  HOTKEYS,
+  LIST_TYPES,
+  TEXT_ALIGN_TYPES,
+  MentionElement,
 } from "@/components/ui/ArticleEdit/utils/editortypes";
 import isHotkey from "is-hotkey";
 import EditUtils from "@/components/ui/ArticleEdit/utils/editutils";
 import {
   makeSelectEditedContentByID,
+  selectCurrentArticles,
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
 import _ from "lodash";
+import { Article } from "@/components/types/article";
+import { selectWorld } from "@/components/store/apiSlice";
 
 declare module "slate" {
   interface CustomTypes {
@@ -42,20 +57,11 @@ declare module "slate" {
   }
 }
 
-interface ButtonProps {
-  format: string;
-  icon: string;
-}
-
-const HOTKEYS = {
-  "mod+b": "bold",
-  "mod+i": "italics",
-  "mod+u": "underline",
-  "mod+`": "code",
+export const Portal = ({ children }: { children?: ReactNode }) => {
+  return typeof document === "object"
+    ? ReactDOM.createPortal(children, document.body)
+    : null;
 };
-
-const LIST_TYPES = ["numbered-list", "bulleted-list"];
-const TEXT_ALIGN_TYPES = ["left", "center", "right", "justify"];
 
 const CustomEditor = {
   toggleBlock(editor: Editor, format: any) {
@@ -132,6 +138,12 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
     textAlign: "left" as "left" | "right" | "center" | "justify",
   };
   switch (element.type) {
+    case "mention":
+      return (
+        <span className="mention" {...attributes}>
+          {children}
+        </span>
+      );
     case "blockquote":
       return (
         <blockquote style={style} className="blockquote" {...attributes}>
@@ -195,7 +207,7 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
   }
 };
 
-const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
+const Leaf = ({ attributes, children, leaf, text }: RenderLeafProps) => {
   if (leaf.bold) {
     children = <strong>{children}</strong>;
   }
@@ -251,10 +263,25 @@ const MarkButton: React.FC<ButtonProps> = ({ format, icon }) => {
   );
 };
 
-type EditorProps = {
-  fieldIdentifier: string;
-  id: string;
-  existingContent: string;
+const insertMention = (editor: Editor, character: Article) => {
+  const mention: MentionElement = {
+    type: "mention",
+    children: [{ text: `@[${character.title}]` }],
+    id: character.id,
+    entityClass: character.entityClass,
+  };
+  Transforms.insertNodes(editor, mention);
+  Transforms.move(editor, { distance: 1, unit: "offset" });
+};
+
+const withMentions = (editor: Editor) => {
+  const { isInline } = editor;
+
+  editor.isInline = (element) => {
+    return element.type === "mention" ? true : isInline(element);
+  };
+
+  return editor;
 };
 
 export const WorldAnvilEditor = ({
@@ -264,14 +291,86 @@ export const WorldAnvilEditor = ({
 }: EditorProps) => {
   const dispatch = useDispatch();
   const editUtils = new EditUtils();
+  const [editor] = useState(() =>
+    withHistory(withReact(withMentions(createEditor())))
+  );
+  const ref = useRef<HTMLDivElement | null | undefined>();
+  const [target, setTarget] = useState<Range | undefined | null>();
+  const [index, setIndex] = useState(0);
+  const [search, setSearch] = useState("");
 
   const world = useSelector(selectWorld);
+  const articles = useSelector(selectCurrentArticles);
   const selectEditedContentByID = makeSelectEditedContentByID(
     world.id,
     id,
     fieldIdentifier
   );
   const editedContent = useSelector(selectEditedContentByID);
+
+  const chars = articles
+    .filter((article) =>
+      article.title.toLowerCase().startsWith(search.toLowerCase())
+    )
+    .slice(0, 10);
+
+  const onKeyDown = useCallback(
+    (event: any) => {
+      if (event.shiftKey && event.key === "Enter") {
+        event.preventDefault();
+        const currentSelection = editor.selection;
+        if (currentSelection) {
+          const [start] = Editor.edges(editor, currentSelection);
+          Transforms.insertText(editor, "\n", { at: start });
+        }
+      } else {
+        for (const hotkey in HOTKEYS) {
+          if (isHotkey(hotkey, event as any)) {
+            event.preventDefault();
+            //@ts-expect-error
+            const mark = HOTKEYS[hotkey];
+            CustomEditor.toggleMark(editor, mark);
+          }
+        }
+      }
+      if (target && chars.length > 0) {
+        switch (event.key) {
+          case "ArrowDown":
+            event.preventDefault();
+            const prevIndex = index >= chars.length - 1 ? 0 : index + 1;
+            setIndex(prevIndex);
+            break;
+          case "ArrowUp":
+            event.preventDefault();
+            const nextIndex = index <= 0 ? chars.length - 1 : index - 1;
+            setIndex(nextIndex);
+            break;
+          case "Tab":
+          case "Enter":
+            event.preventDefault();
+            Transforms.select(editor, target);
+            insertMention(editor, chars[index]);
+            setTarget(null);
+            break;
+          case "Escape":
+            event.preventDefault();
+            setTarget(null);
+            break;
+        }
+      }
+    },
+    [chars, editor, index, target]
+  );
+
+  useEffect(() => {
+    if (target && chars.length > 0) {
+      const el = ref!.current!;
+      const domRange = ReactEditor.toDOMRange(editor, target);
+      const rect = domRange.getBoundingClientRect();
+      el.style.top = `${rect.top + window.pageYOffset + 24}px`;
+      el.style.left = `${rect.left + window.pageXOffset}px`;
+    }
+  }, [chars.length, editor, index, search, target]);
 
   const initialValue = useMemo(() => {
     if (editedContent) {
@@ -282,8 +381,6 @@ export const WorldAnvilEditor = ({
       return editUtils.defaultInitialValue;
     }
   }, [editedContent, existingContent]);
-
-  const [editor] = useState(() => withHistory(withReact(createEditor())));
 
   const renderElement = useCallback((props: RenderElementProps) => {
     return <Element {...props} />;
@@ -304,7 +401,7 @@ export const WorldAnvilEditor = ({
         editedFields: serializedValue,
       })
     );
-  }, 1000);
+  }, 2000);
 
   return (
     <Slate
@@ -312,6 +409,29 @@ export const WorldAnvilEditor = ({
       //@ts-expect-error
       initialValue={initialValue}
       onChange={(value) => {
+        const { selection } = editor;
+        if (selection && Range.isCollapsed(selection)) {
+          const [start] = Range.edges(selection);
+          const wordBefore = Editor.before(editor, start, { unit: "word" });
+          const before = wordBefore && Editor.before(editor, wordBefore);
+          const beforeRange = before && Editor.range(editor, before, start);
+          const beforeText = beforeRange && Editor.string(editor, beforeRange);
+          const beforeMatch = beforeText && beforeText.match(/^@(\w+)$/);
+          const after = Editor.after(editor, start);
+          const afterRange = Editor.range(editor, start, after);
+          const afterText = Editor.string(editor, afterRange);
+          const afterMatch = afterText.match(/^(\s|$)/);
+
+          if (beforeMatch && afterMatch) {
+            setTarget(beforeRange);
+            setSearch(beforeMatch[1]);
+            setIndex(0);
+            return;
+          }
+        }
+
+        setTarget(null);
+
         const isAstChange = editor.operations.some(
           (op) => op.type !== "set_selection"
         );
@@ -345,26 +465,44 @@ export const WorldAnvilEditor = ({
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}
-        onKeyDown={(event) => {
-          if (event.shiftKey && event.key === "Enter") {
-            event.preventDefault();
-            const currentSelection = editor.selection;
-            if (currentSelection) {
-              const [start] = Editor.edges(editor, currentSelection);
-              Transforms.insertText(editor, "\n", { at: start });
-            }
-          } else {
-            for (const hotkey in HOTKEYS) {
-              if (isHotkey(hotkey, event as any)) {
-                event.preventDefault();
-                //@ts-expect-error
-                const mark = HOTKEYS[hotkey];
-                CustomEditor.toggleMark(editor, mark);
-              }
-            }
-          }
-        }}
+        onKeyDown={onKeyDown}
       />
+      {target && chars.length > 0 && (
+        <Portal>
+          <div
+            ref={ref}
+            style={{
+              top: "-9999px",
+              left: "-9999px",
+              position: "absolute",
+              zIndex: 1,
+              padding: "3px",
+              background: "var(--darkest-terror)",
+              borderRadius: "4px",
+              boxShadow: "0 1px 5px rgba(0,0,0,.2)",
+            }}
+            data-cy="mentions-portal"
+          >
+            {chars.map((char, i) => (
+              <div
+                key={char.id}
+                onClick={() => {
+                  Transforms.select(editor, target);
+                  insertMention(editor, char);
+                  setTarget(null);
+                }}
+                style={{
+                  padding: "1px 3px",
+                  borderRadius: "3px",
+                  background: i === index ? "#B4D5FF" : "transparent",
+                }}
+              >
+                {char.title}
+              </div>
+            ))}
+          </div>
+        </Portal>
+      )}
     </Slate>
   );
 };
