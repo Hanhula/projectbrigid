@@ -19,8 +19,11 @@ import {
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
 import {
+  removeEditByID,
   selectCurrentDetailStateByWorld,
   selectWorldArticleMapByWorld,
+  selectEditState,
+  selectEditedArticlesByWorld,
   selectWorldArticlesByWorld,
   setWorldArticles,
   updateArticleById,
@@ -47,6 +50,7 @@ export function useWorldAnvilAPI() {
     selectCurrentDetailStateByWorld(world.id),
   );
   const fetchRequestIdRef = useRef(0);
+  const editedArticles = useSelector(selectEditedArticlesByWorld(world.id));
 
   let articleFetch: Article[] = [];
 
@@ -488,6 +492,50 @@ export function useWorldAnvilAPI() {
     }
   }
 
+  async function updateEditedArticleByFields(articleID: string) {
+    console.log(articleID);
+    const articleEditState = editedArticles.find(
+      (article) => article.articleID === articleID,
+    );
+
+    console.log(articleEditState);
+
+    if (!articleEditState) {
+      throw new Error(`No edit state found for article with ID ${articleID}`);
+    }
+
+    const updateBody: Record<string, any> = {};
+    for (let i = 0; i < articleEditState.fieldsChanged.length; i++) {
+      const fieldChange = articleEditState.fieldsChanged[i];
+      updateBody[fieldChange.fieldIdentifier] = fieldChange.editedContent;
+    }
+
+    console.log(updateBody);
+
+    const endpoint = `/article?id=${articleID}`;
+
+    try {
+      const data = await callWorldAnvil(
+        endpoint,
+        CallType.PATCH,
+        JSON.stringify(updateBody),
+      );
+      console.log("Article to update: ", data);
+
+      let worldArticle: WorldArticle = {
+        world: world,
+        article: data,
+      };
+      let worldID = world.id;
+      dispatch(updateArticleById(worldArticle));
+      dispatch(removeEditByID({ worldID, articleID }));
+      return data;
+    } catch (error) {
+      console.error("Error updating article:", error);
+      throw error;
+    }
+  }
+
   return {
     callWorldAnvil: async (
       url: string,
@@ -528,6 +576,9 @@ export function useWorldAnvilAPI() {
       dataToUpdate: any,
     ) => {
       return await updateArticleByField(articleID, fieldToUpdate, dataToUpdate);
+    },
+    updateEditedArticleByFields: async (articleId: string) => {
+      return await updateEditedArticleByFields(articleId);
     },
   };
 }

@@ -406,11 +406,15 @@ export const articleSlice = createSlice({
       editedField.editedContent = editedFields;
     },
     removeEditByID(state, action) {
-      const { worldId, articleID } = action.payload;
+      const { worldID, articleID } = action.payload;
+      console.log("world:", worldID);
+      console.log("article:", articleID);
 
       const worldIndex = state.editState.findIndex(
-        (editState) => editState.world.id === worldId,
+        (editState) => editState.world.id === worldID,
       );
+
+      console.log("worldindex:", worldIndex);
 
       if (worldIndex !== -1) {
         const articleIndex = state.editState[
@@ -418,6 +422,8 @@ export const articleSlice = createSlice({
         ].editedArticles.findIndex(
           (editedArticle) => editedArticle.articleID === articleID,
         );
+
+        console.log("articleindex:", articleIndex);
 
         if (articleIndex !== -1) {
           state.editState[worldIndex].editedArticles.splice(articleIndex, 1);

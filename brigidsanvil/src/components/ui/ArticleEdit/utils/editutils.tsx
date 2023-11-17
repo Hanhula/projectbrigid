@@ -4,6 +4,7 @@ import {
   CustomElement,
   CustomText,
   MarkBBCodeTag,
+  MentionElement,
   NodeAttributes,
 } from "./editortypes";
 import { Descendant, Node as SlateNode, Text } from "slate";
@@ -49,6 +50,11 @@ class EditUtils {
       closeTag: "[/aloud]",
       type: "aloud",
     },
+    mention: {
+      openTag: "@[",
+      closeTag: "]",
+      type: "mention",
+    },
   };
 
   markBBCodeTags: Record<string, MarkBBCodeTag> = {
@@ -83,9 +89,19 @@ class EditUtils {
       const element = node as CustomElement;
       const blockTag = this.blockBBCodeTags[element.type];
       if (blockTag) {
-        return `${blockTag.openTag}${this.serializeChildren(element.children)}${
-          blockTag.closeTag
-        }`;
+        if (element.type === "mention") {
+          console.log(element);
+          const mentionNode = element as MentionElement;
+          const mentionText = mentionNode.children[0].text
+            .replace("@[", "")
+            .replace("]", "");
+          const entityClass = mentionNode.entityClass.toLowerCase();
+          return `@[${mentionText}](${entityClass}:${mentionNode.id})`;
+        } else {
+          return `${blockTag.openTag}${this.serializeChildren(
+            element.children
+          )}${blockTag.closeTag}`;
+        }
       }
       return this.serializeChildren(element.children);
     }
@@ -134,8 +150,45 @@ class EditUtils {
   };
 
   deserializeNode: any = (el: Node, markAttributes: NodeAttributes = {}) => {
-    if (el.nodeType === Node.TEXT_NODE) {
-      return jsx("text", markAttributes, el.textContent);
+    if (el.nodeType === Node.TEXT_NODE && el.textContent) {
+      const mentionRegex = /@\[(.*?)\]\((.*?):(.*?)\)/g;
+      let match;
+      const nodes = [];
+      let lastIndex = 0;
+
+      while ((match = mentionRegex.exec(el.textContent)) !== null) {
+        const [matchText, text, entityClass, id] = match;
+
+        // Add the text before the mention
+        if (match.index > lastIndex) {
+          nodes.push(
+            jsx(
+              "text",
+              markAttributes,
+              el.textContent.slice(lastIndex, match.index)
+            )
+          );
+        }
+
+        // Add the mention
+        nodes.push({
+          type: "mention",
+          entityClass: entityClass,
+          id: id,
+          children: [{ text: `@[${text}]` }],
+        });
+
+        lastIndex = match.index + matchText.length;
+      }
+
+      // Add the text after the last mention
+      if (lastIndex < el.textContent.length) {
+        nodes.push(
+          jsx("text", markAttributes, el.textContent.slice(lastIndex))
+        );
+      }
+
+      return nodes;
     } else if (el.nodeType !== Node.ELEMENT_NODE) {
       return null;
     }
@@ -198,7 +251,7 @@ class EditUtils {
   defaultInitialValue: Descendant[] = [
     {
       type: "paragraph",
-      children: [{ text: "A line of text in a paragraph." }],
+      children: [{ text: " " }],
     },
   ];
 }
