@@ -5,4 +5,10 @@
     border-radius: 0em 1em 1em 0em;
     border-left: 0.7em solid var(--primary-dark);
   }
+
+  .mention {
+    background: var(--light-terror);
+    border-radius: 0.5em;
+    padding: 0.2em;
+  }
 }
