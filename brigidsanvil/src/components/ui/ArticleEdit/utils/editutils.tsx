@@ -90,7 +90,6 @@ class EditUtils {
       const blockTag = this.blockBBCodeTags[element.type];
       if (blockTag) {
         if (element.type === "mention") {
-          console.log(element);
           const mentionNode = element as MentionElement;
           const mentionText = mentionNode.children[0].text
             .replace("@[", "")

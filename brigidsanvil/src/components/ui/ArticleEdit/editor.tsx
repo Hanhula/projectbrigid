@@ -118,7 +118,6 @@ const CustomEditor = {
         match: (n) =>
           !Editor.isEditor(n) &&
           SlateElement.isElement(n) &&
-          //@ts-expect-error
           n[blockType] === format,
       })
     );
@@ -128,7 +127,6 @@ const CustomEditor = {
 
   isMarkActive(editor: Editor, format: string) {
     const marks = Editor.marks(editor);
-    //@ts-expect-error
     return marks ? marks[format] === true : false;
   },
 };
@@ -294,7 +292,7 @@ export const WorldAnvilEditor = ({
   const [editor] = useState(() =>
     withHistory(withReact(withMentions(createEditor())))
   );
-  const ref = useRef<HTMLDivElement | null | undefined>();
+  const ref = useRef<HTMLDivElement | null>(null);
   const [target, setTarget] = useState<Range | undefined | null>();
   const [index, setIndex] = useState(0);
   const [search, setSearch] = useState("");
@@ -327,7 +325,6 @@ export const WorldAnvilEditor = ({
         for (const hotkey in HOTKEYS) {
           if (isHotkey(hotkey, event as any)) {
             event.preventDefault();
-            //@ts-expect-error
             const mark = HOTKEYS[hotkey];
             CustomEditor.toggleMark(editor, mark);
           }
@@ -406,7 +403,7 @@ export const WorldAnvilEditor = ({
   return (
     <Slate
       editor={editor}
-      //@ts-expect-error
+      //@ts-expect-error: Slate types are weird
       initialValue={initialValue}
       onChange={(value) => {
         const { selection } = editor;

@@ -263,9 +263,11 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
             {"Edit on WorldAnvil"}
           </Button>
         </Link>
-        <Button className="article-link" variant="primary disabled">
-          {"Edit on Brigid"}
-        </Button>
+        <Link href={`/worldanvil/articles/${article.id}/edit`}>
+          <Button className="article-link" variant="primary">
+            {"Edit on Brigid"}
+          </Button>
+        </Link>
       </div>
       <h1>{article.title}</h1>
       {parsedHeaderFields.map((parsedField, index) => (
