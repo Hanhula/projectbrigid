@@ -4,6 +4,7 @@ import { WorldAnvilEditor } from "./editor";
 export const ArticleEditPage = (article: Article) => {
   return (
     <div>
+      <h3>HI ALEX</h3>
       <WorldAnvilEditor
         fieldIdentifier="content"
         id={article.id}

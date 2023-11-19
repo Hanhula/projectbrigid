@@ -18,6 +18,8 @@ import "./edit.scss";
 
 export default function EditPage() {
   const router = useRouter();
+  const { slug } = router.query;
+
   const dispatch = useDispatch();
   const authToken = useSelector(selectAuthToken);
   const identity = useSelector(selectIdentity);
@@ -28,8 +30,7 @@ export default function EditPage() {
 
   const worldAnvilAPI = useWorldAnvilAPI();
 
-  const article = currentArticles[350];
-  console.log(article);
+  const article = currentArticles.find((article) => article.id === slug);
 
   const handleResetContent = () => {
     dispatch(removeEditByID({ worldId: world.id, articleID: article!.id }));
@@ -40,7 +41,6 @@ export default function EditPage() {
     try {
       await worldAnvilAPI.updateEditedArticleByFields(article!.id);
       console.log("Article updated successfully");
-      console.log(editstate);
     } catch (error) {
       console.error("Error updating article:", error);
     }

@@ -19,6 +19,7 @@ export type CustomElement = {
     | "aloud";
   children: CustomText[];
   align?: "left" | "center" | "right" | "justify";
+  [key: string]: any;
 };
 
 export interface MentionElement extends CustomElement {
@@ -36,6 +37,7 @@ export interface CustomText {
   code?: boolean;
   strikethrough?: boolean;
   type?: string;
+  [key: string]: string | boolean | undefined;
 }
 
 export type NodeAttributes = {
@@ -69,7 +71,7 @@ export type EditorProps = {
   existingContent: string;
 };
 
-export const HOTKEYS = {
+export const HOTKEYS: { [key: string]: string } = {
   "mod+b": "bold",
   "mod+i": "italics",
   "mod+u": "underline",
