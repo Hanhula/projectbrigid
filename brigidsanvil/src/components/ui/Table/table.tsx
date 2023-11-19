@@ -281,7 +281,7 @@ export function ArticleTable({
           //   isTruncated={false}
           //   isDisabled={true}
           // ></EditableCell>
-          <Link href={`/worldanvil/articles/${info.row.original.id}`}>
+          <Link href={`/worldanvil/articles/${info.row.original.id}/view`}>
             {titleValue}
           </Link>
         );
