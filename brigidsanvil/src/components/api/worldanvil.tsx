@@ -358,12 +358,8 @@ export function useWorldAnvilAPI() {
       );
       console.log("Article to update: ", data);
 
-      let worldArticle: WorldArticle = {
-        world: world,
-        article: data,
-      };
       let worldID = world.id;
-      dispatch(updateArticleById(worldArticle));
+      await getArticle(articleID, true);
       dispatch(removeEditByID({ worldID, articleID }));
       return data;
     } catch (error) {
