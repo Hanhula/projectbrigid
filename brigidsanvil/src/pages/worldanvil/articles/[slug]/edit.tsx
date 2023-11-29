@@ -15,25 +15,29 @@ import { Person } from "@/components/types/article-types/person";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 
 import "./edit.scss";
+import Link from "next/link";
+
+export async function getServerSideProps(context: any) {
+  return {
+    props: {},
+  };
+}
 
 export default function EditPage() {
   const router = useRouter();
   const { slug } = router.query;
 
   const dispatch = useDispatch();
-  const authToken = useSelector(selectAuthToken);
-  const identity = useSelector(selectIdentity);
 
   const world = useSelector(selectWorld);
   const currentArticles = useSelector(selectCurrentArticles);
-  const editstate = useSelector(selectEditState);
 
   const worldAnvilAPI = useWorldAnvilAPI();
 
   const article = currentArticles.find((article) => article.id === slug);
 
   const handleResetContent = () => {
-    dispatch(removeEditByID({ worldId: world.id, articleID: article!.id }));
+    dispatch(removeEditByID({ worldID: world.id, articleID: article!.id }));
     router.reload();
   };
 
@@ -54,12 +58,10 @@ export default function EditPage() {
             <div>
               <Button onClick={handleResetContent}>Reset Content</Button>
               <Button onClick={handleSaveContent}>Save to WorldAnvil</Button>
+              <Link href={article!.url}>
+                <Button>View on WorldAnvil</Button>
+              </Link>
             </div>
-            {/* <WorldAnvilEditor
-        fieldIdentifier="content"
-        id={article!.id}
-        existingContent={article!.content!}
-      ></WorldAnvilEditor> */}
             <CharacterEdit article={article as Person}></CharacterEdit>
           </Col>
         </Row>

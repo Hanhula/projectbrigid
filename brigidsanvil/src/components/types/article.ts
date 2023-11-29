@@ -27,6 +27,7 @@ export type WorldArticle = {
 };
 
 export type Article = {
+  [fieldIdentifier: string]: any; // index signature
   id: string;
   title: string;
   slug: string;
