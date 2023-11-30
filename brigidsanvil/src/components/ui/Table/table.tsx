@@ -695,6 +695,26 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => row.creationDate!.date,
+      id: "createdDate",
+      cell: (info) => {
+        const dateString = String(info.getValue());
+        const inputDateString = dateString.substring(0, dateString.length - 7);
+        const dateTime = DateTime.fromFormat(
+          inputDateString,
+          "yyyy-MM-dd HH:mm:ss",
+          { zone: "utc" }
+        );
+        const localDateTime = dateTime.toLocal();
+        const formattedDateTime = localDateTime.toFormat(
+          "yyyy-MM-dd 'at' HH:mm:ss"
+        );
+        return formattedDateTime;
+      },
+      header: "Created On",
+      footer: (props) => props.column.id,
+    },
+    {
       id: "Sync",
       cell: (info) => {
         const handleSync = async () => {

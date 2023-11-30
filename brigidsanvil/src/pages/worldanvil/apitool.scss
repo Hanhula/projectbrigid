@@ -184,12 +184,17 @@
     .col-isWip,
     .col-state,
     .col-likes,
-    .col-state,
-    .col-date {
+    .col-state {
       min-width: 5em;
     }
 
-    .col-wordcount {
+    .col-createdDate,
+    .col-date {
+      min-width: 6.5em;
+    }
+
+    .col-wordcount,
+    .col-category {
       min-width: 7em;
     }
   }
