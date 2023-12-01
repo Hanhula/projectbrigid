@@ -42,6 +42,8 @@ import {
   faFileEdit,
   faLink,
   faClipboard,
+  faFire,
+  faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
@@ -507,6 +509,37 @@ export function ArticleTable({
       id: "entityClass",
       cell: (info) => info.getValue(),
       header: "Type",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => {
+        const wordCount = row.wordcount ? row.wordcount : 0;
+        if (row.creationDate) {
+          const inputDateString = row.creationDate.date.substring(
+            0,
+            row.creationDate.date.length - 7
+          );
+          const creationDate = DateTime.fromFormat(
+            inputDateString,
+            "yyyy-MM-dd HH:mm:ss",
+            { zone: "utc" }
+          );
+          const isDec2023 =
+            creationDate.year === 2023 && creationDate.month === 12;
+          return wordCount < 50 && isDec2023;
+        } else {
+          return false;
+        }
+      },
+      id: "worldEmber",
+      cell: (info) => {
+        return info.getValue() ? (
+          <FontAwesomeIcon icon={faFire} color="red" />
+        ) : (
+          <FontAwesomeIcon icon={faX} color="grey" />
+        );
+      },
+      header: "WE Rdy!",
       footer: (props) => props.column.id,
     },
     {
