@@ -40,11 +40,6 @@ class EditUtils {
       closeTag: "[/h4]",
       type: "h4",
     },
-    h5: {
-      openTag: "[h5]",
-      closeTag: "[/h5]",
-      type: "h5",
-    },
     aloud: {
       openTag: "[aloud]",
       closeTag: "[/aloud]",
@@ -73,7 +68,11 @@ class EditUtils {
       closeTag: "[/u]",
       format: "underline",
     },
-    // Add more mark-level elements following the same pattern
+    code: {
+      openTag: "[code]",
+      closeTag: "[/code]",
+      format: "code",
+    },
   };
 
   serializeNode = (node: SlateNode): string => {
@@ -240,8 +239,6 @@ class EditUtils {
         return jsx("element", { type: "h3" }, children);
       case "H4":
         return jsx("element", { type: "h4" }, children);
-      case "H5":
-        return jsx("element", { type: "h5" }, children);
       default:
         return children;
     }
