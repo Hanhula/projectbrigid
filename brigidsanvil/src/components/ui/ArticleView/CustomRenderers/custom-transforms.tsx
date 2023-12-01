@@ -36,6 +36,21 @@ export function elementToString(element: DOMNode): string {
   }
 }
 
+export const findIconByString = (iconName: string) => {
+  const iconDefinition = findIconDefinition({
+    prefix: "fas",
+    iconName: iconName as IconName,
+  });
+
+  console.log(iconDefinition);
+
+  if (iconDefinition) {
+    return <FontAwesomeIcon icon={iconDefinition} />;
+  } else {
+    return <FontAwesomeIcon icon={faSquare} />;
+  }
+};
+
 export const customTransform = (domNode: DOMNode) => {
   if (domNode.type === "tag" && "name" in domNode && domNode.name === "span") {
     const classes = domNode.attribs.class || "";
@@ -48,20 +63,7 @@ export const customTransform = (domNode: DOMNode) => {
 
     if (iconNameClass) {
       const iconName = iconNameClass.replace("fa-", "");
-
-      console.log(iconName);
-      const iconDefinition = findIconDefinition({
-        prefix: "fas",
-        iconName: iconName as IconName,
-      });
-
-      console.log(iconDefinition);
-
-      if (iconDefinition) {
-        return <FontAwesomeIcon icon={iconDefinition} />;
-      } else {
-        return <FontAwesomeIcon icon={faSquare} />;
-      }
+      findIconByString(iconName);
     }
   } else if (
     domNode.type === "tag" &&
