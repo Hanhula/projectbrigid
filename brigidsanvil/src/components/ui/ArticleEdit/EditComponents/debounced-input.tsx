@@ -10,7 +10,7 @@ import { Article } from "@/components/types/article";
 import { Form } from "react-bootstrap";
 import { Person } from "@/components/types/article-types/person";
 
-interface DebouncedInputProps {
+export interface DebouncedInputProps {
   world: World;
   article: Article | Person;
   fieldIdentifier: string;

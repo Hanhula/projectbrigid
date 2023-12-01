@@ -178,12 +178,6 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
           {children}
         </h4>
       );
-    case "h5":
-      return (
-        <h5 style={style} {...attributes}>
-          {children}
-        </h5>
-      );
     case "li":
       return (
         <li style={style} {...attributes}>
@@ -448,7 +442,6 @@ export const WorldAnvilEditor = ({
             <BlockButton format="h2" icon="format_h2" />
             <BlockButton format="h3" icon="format_h3" />
             <BlockButton format="h4" icon="format_h4" />
-            <BlockButton format="h5" icon="format_h5" />
             <BlockButton format="blockquote" icon="format_quote" />
             <BlockButton format="ol" icon="format_list_numbered" />
             <BlockButton format="ul" icon="format_list_bulleted" />
