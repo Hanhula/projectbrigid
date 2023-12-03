@@ -19,6 +19,7 @@ import { Container, Navbar, NavbarToggle } from "react-bootstrap";
 library.add(fas);
 import "rpg-awesome/css/rpg-awesome.min.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 
 const NavBar = () => {
   const world = useSelector(selectWorld);
@@ -98,9 +99,17 @@ const NavBar = () => {
                 <Nav.Item className="nav-dev-updates">
                   <Nav.Link href="https://bsky.app/profile/brigid.hanhula.com">
                     <FontAwesomeIcon icon={faCloud} />
-                    Dev Updates
+                    Bluesky
                   </Nav.Link>
                 </Nav.Item>
+                {identity.success && (
+                  <Nav.Item className="nav-dev-updates">
+                    <Nav.Link href="https://discord.gg/KKtKuyqwFs">
+                      <FontAwesomeIcon icon={faDiscord} />
+                      Discord
+                    </Nav.Link>
+                  </Nav.Item>
+                )}
                 {identity.success && (
                   <Nav.Item className="nav-current-user">
                     <div className="current-user">
