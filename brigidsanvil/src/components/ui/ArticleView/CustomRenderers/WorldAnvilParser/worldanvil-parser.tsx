@@ -15,55 +15,6 @@ class WorldAnvilParser extends yabbcode {
       close: null,
     });
 
-    this.registerTag("quote", {
-      type: "content",
-      replace: (attr, content) => {
-        const parts = content.split("|");
-
-        if (parts.length === 2) {
-          const mainContent = parts[0].trim();
-          const additionalContent = parts[1].trim();
-
-          return `<figure><blockquote class="blockquote">${mainContent}</blockquote><figcaption class="blockquote-footer">${additionalContent}</figcaption></figure>`;
-        } else {
-          return `<figure><blockquote class="blockquote">${content}</blockquote></figure>`;
-        }
-      },
-    });
-
-    this.registerTag("h1", {
-      type: "replace",
-      open: () => "<h2>",
-      close: "</h2>",
-    });
-
-    this.registerTag("h2", {
-      type: "replace",
-      open: () => "<h3>",
-      close: "</h3>",
-    });
-
-    this.registerTag("h3", {
-      type: "replace",
-      open: (attr) => {
-        const idName = attr || "";
-        return `<h4 id="${idName}">`;
-      },
-      close: "</h4>",
-    });
-
-    this.registerTag("h4", {
-      type: "replace",
-      open: () => "<h5>",
-      close: "</h5>",
-    });
-
-    this.registerTag("h5", {
-      type: "replace",
-      open: () => "<h6>",
-      close: "</h6>",
-    });
-
     this.registerTag("hr", {
       type: "replace",
       open: () => `<hr>`,
@@ -372,6 +323,55 @@ class WorldAnvilParser extends yabbcode {
   }
 
   parseField(content: string) {
+    this.registerTag("h1", {
+      type: "replace",
+      open: () => "<h2>",
+      close: "</h2>",
+    });
+
+    this.registerTag("h2", {
+      type: "replace",
+      open: () => "<h3>",
+      close: "</h3>",
+    });
+
+    this.registerTag("h3", {
+      type: "replace",
+      open: (attr) => {
+        const idName = attr || "";
+        return `<h4 id="${idName}">`;
+      },
+      close: "</h4>",
+    });
+
+    this.registerTag("h4", {
+      type: "replace",
+      open: () => "<h5>",
+      close: "</h5>",
+    });
+
+    this.registerTag("h5", {
+      type: "replace",
+      open: () => "<h6>",
+      close: "</h6>",
+    });
+
+    this.registerTag("quote", {
+      type: "content",
+      replace: (attr, content) => {
+        const parts = content.split("|");
+
+        if (parts.length === 2) {
+          const mainContent = parts[0].trim();
+          const additionalContent = parts[1].trim();
+
+          return `<figure><blockquote class="blockquote">${mainContent}</blockquote><figcaption class="blockquote-footer">${additionalContent}</figcaption></figure>`;
+        } else {
+          return `<figure><blockquote class="blockquote">${content}</blockquote></figure>`;
+        }
+      },
+    });
+
     let preprocessedContent = this.processContent(content);
     preprocessedContent = this.processContentForView(content);
     let parsedBBCode = this.parse(preprocessedContent)
@@ -390,6 +390,32 @@ class WorldAnvilParser extends yabbcode {
   }
 
   parsePureBBCode(content: string) {
+    this.registerTag("h1", {
+      type: "replace",
+      open: () => "<h1>",
+      close: "</h1>",
+    });
+    this.registerTag("h2", {
+      type: "replace",
+      open: () => "<h2>",
+      close: "</h2>",
+    });
+    this.registerTag("h3", {
+      type: "replace",
+      open: () => "<h3>",
+      close: "</h3>",
+    });
+    this.registerTag("h4", {
+      type: "replace",
+      open: () => "<h4>",
+      close: "</h4>",
+    });
+    this.registerTag("quote", {
+      type: "replace",
+      open: () => "<blockquote>",
+      close: "</blockquote>",
+    });
+
     let preprocessedContent = this.processContent(content).replace(
       /\n/g,
       "[br]"

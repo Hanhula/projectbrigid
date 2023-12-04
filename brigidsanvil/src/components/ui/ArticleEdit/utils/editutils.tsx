@@ -76,6 +76,7 @@ class EditUtils {
   };
 
   serializeNode = (node: SlateNode): string => {
+    console.log("problem child: ", node);
     if (Text.isText(node)) {
       let text = node.text;
       for (const [tag, bbcode] of Object.entries(this.markBBCodeTags)) {
@@ -87,21 +88,21 @@ class EditUtils {
     } else {
       const element = node as CustomElement;
       const blockTag = this.blockBBCodeTags[element.type];
-      if (blockTag) {
-        if (element.type === "mention") {
-          const mentionNode = element as MentionElement;
-          const mentionText = mentionNode.children[0].text
-            .replace("@[", "")
-            .replace("]", "");
-          const entityClass = mentionNode.entityClass.toLowerCase();
-          return `@[${mentionText}](${entityClass}:${mentionNode.id})`;
-        } else {
-          return `${blockTag.openTag}${this.serializeChildren(
-            element.children
-          )}${blockTag.closeTag}`;
-        }
+
+      let serializedChildren = this.serializeChildren(element.children);
+
+      if (element.type === "mention") {
+        const mentionNode = element as MentionElement;
+        const mentionText = mentionNode.children[0].text
+          .replace("@[", "")
+          .replace("]", "");
+        const entityClass = mentionNode.entityClass.toLowerCase();
+        return `@[${mentionText}](${entityClass}:${mentionNode.id})`;
+      } else if (blockTag) {
+        return `${blockTag.openTag}${serializedChildren}${blockTag.closeTag}`;
       }
-      return this.serializeChildren(element.children);
+
+      return serializedChildren;
     }
   };
 
@@ -134,13 +135,26 @@ class EditUtils {
           Array.isArray(child) ? child : [child]
         );
 
+        const mergedChildren = [];
+        for (const child of flattenedChildren) {
+          if (
+            child.type === "paragraph" &&
+            mergedChildren.length > 0 &&
+            mergedChildren[mergedChildren.length - 1].type === "paragraph"
+          ) {
+            mergedChildren[mergedChildren.length - 1].children.push(
+              ...child.children
+            );
+          } else {
+            mergedChildren.push(child);
+          }
+        }
+
         return {
           type: "paragraph",
-          children:
-            flattenedChildren.length > 0 ? flattenedChildren : [{ text: "" }],
+          children: mergedChildren.length > 0 ? mergedChildren : [{ text: "" }],
         };
       });
-
       return elements;
     }
 
@@ -186,6 +200,7 @@ class EditUtils {
         );
       }
 
+      // Return the text nodes directly
       return nodes;
     } else if (el.nodeType !== Node.ELEMENT_NODE) {
       return null;
@@ -215,6 +230,8 @@ class EditUtils {
     if (children.length === 0) {
       children.push(jsx("text", nodeAttributes, ""));
     }
+
+    console.log("Deserialized node:", children); // Log the deserialized node
 
     switch (el.nodeName) {
       case "BODY":
