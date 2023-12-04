@@ -16,7 +16,10 @@ export type CustomElement = {
     | "ul"
     | "ol"
     | "li"
-    | "aloud";
+    | "aloud"
+    | "section"
+    | "container"
+    | "div";
   children: CustomText[];
   align?: "left" | "center" | "right" | "justify";
   [key: string]: any;
@@ -69,6 +72,8 @@ export type EditorProps = {
   fieldIdentifier: string;
   id: string;
   existingContent: string;
+  onFocus: (fieldIdentifier: string) => void;
+  lastFocusedEditor: string | null;
 };
 
 export const HOTKEYS: { [key: string]: string } = {

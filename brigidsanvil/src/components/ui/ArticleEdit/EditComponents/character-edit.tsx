@@ -5,82 +5,46 @@ import { selectWorld } from "@/components/store/apiSlice";
 import { useSelector } from "react-redux";
 import DebouncedInput from "./debounced-input";
 import DebouncedDropdown from "./debounced-dropdown";
+import { useState } from "react";
 
 const CharacterEdit = ({ article }: { article: Person }) => {
   const world = useSelector(selectWorld);
+  const [lastFocusedEditor, setLastFocusedEditor] = useState("");
+
+  const renderEditor = (fieldIdentifier: string, title?: string) => (
+    <>
+      {title && <h3>{title}</h3>}
+      <WorldAnvilEditor
+        fieldIdentifier={fieldIdentifier}
+        id={article.id}
+        existingContent={article[fieldIdentifier]!}
+        onFocus={setLastFocusedEditor}
+        lastFocusedEditor={lastFocusedEditor}
+      />
+      <br />
+    </>
+  );
+
   return (
     <div>
       <h1>{article.title}</h1>
       <Tabs defaultActiveKey="body" id="character-edit-tabs" className="mb-3">
         <Tab eventKey="body" title="Body">
-          <WorldAnvilEditor
-            fieldIdentifier="content"
-            id={article.id}
-            existingContent={article.content!}
-          />
-          <br />
+          {renderEditor("content")}
           <h2>Physical Description</h2>
-          <h3>General Physical Condition</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="physique"
-            id={article.id}
-            existingContent={article.physique!}
-          />
-          <h3>Body Features</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="bodyFeatures"
-            id={article.id}
-            existingContent={article.bodyFeatures!}
-          />
-          <br />
-          <h3>Facial Features</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="facialFeatures"
-            id={article.id}
-            existingContent={article.facialFeatures!}
-          />
-          <br />
-          <h3>Identifying Characteristics</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="identifyingCharacteristics"
-            id={article.id}
-            existingContent={article.identifyingCharacteristics!}
-          />
-          <br />
-          <h3>Physical Quirks</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="quirksPhysical"
-            id={article.id}
-            existingContent={article.quirksPhysical!}
-          />
-          <br />
-          <h3>Special Abilities</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="specialAbilities"
-            id={article.id}
-            existingContent={article.specialAbilities!}
-          />
-          <br />
-          <h3>Apparel & Accessories</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="clothing"
-            id={article.id}
-            existingContent={article.clothing!}
-          />
-          <br />
-          <h3>Specialised Equipment</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="items"
-            id={article.id}
-            existingContent={article.items!}
-          />
+          {renderEditor("physique", "General Physical Condition")}
+          {renderEditor("bodyFeatures", "Body Features")}
+          {renderEditor("facialFeatures", "Facial Features")}
+          {renderEditor(
+            "identifyingCharacteristics",
+            "Identifying Characteristics"
+          )}
+          {renderEditor("quirksPhysical", "Physical Quirks")}
+          {renderEditor("specialAbilities", "Special Abilities")}
+          {renderEditor("clothing", "Apparel & Accessories")}
+          {renderEditor("items", "Specialised Equipment")}
           <h2>Mental Characteristics</h2>
-          <h3>Personal History</h3>
-          <WorldAnvilEditor
-            fieldIdentifier="history"
-            id={article.id}
-            existingContent={article.history!}
-          />
+          {renderEditor("history", "Personal History")}
         </Tab>
         <Tab eventKey="subtitle" title="Subtitle">
           <Form>
