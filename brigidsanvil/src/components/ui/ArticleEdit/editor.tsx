@@ -136,6 +136,24 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
     textAlign: "left" as "left" | "right" | "center" | "justify",
   };
   switch (element.type) {
+    case "div":
+      return (
+        <div style={style} {...attributes}>
+          {children}
+        </div>
+      );
+    case "container":
+      return (
+        <div style={style} {...attributes}>
+          {children}
+        </div>
+      );
+    case "section":
+      return (
+        <span style={style} {...attributes}>
+          {children}
+        </span>
+      );
     case "mention":
       return (
         <span className="mention" {...attributes}>
@@ -280,6 +298,8 @@ export const WorldAnvilEditor = ({
   fieldIdentifier,
   id,
   existingContent,
+  onFocus,
+  lastFocusedEditor,
 }: EditorProps) => {
   const dispatch = useDispatch();
   const editUtils = new EditUtils();
@@ -382,6 +402,7 @@ export const WorldAnvilEditor = ({
   }, []);
 
   const delayedDispatch = _.debounce((value) => {
+    console.log("toserialise: ", value);
     const serializedValue = editUtils.serializeVal(value);
     console.log("serialised: ", serializedValue);
     dispatch(
@@ -426,36 +447,44 @@ export const WorldAnvilEditor = ({
         const isAstChange = editor.operations.some(
           (op) => op.type !== "set_selection"
         );
-        if (isAstChange) {
+        if (
+          isAstChange ||
+          editor.operations.some(
+            (op) => op.type === "insert_text" || op.type === "remove_text"
+          )
+        ) {
           delayedDispatch(value);
         }
       }}
     >
-      <Container>
-        <ButtonToolbar>
-          <ButtonGroup className="me-2 flex-wrap" role="toolbar">
-            <MarkButton format="bold" icon="format_bold" />
-            <MarkButton format="italics" icon="format_italic" />
-            <MarkButton format="underline" icon="format_underlined" />
-            <MarkButton format="code" icon="code" />
-            <BlockButton format="h1" icon="format_h1" />
-            <BlockButton format="h2" icon="format_h2" />
-            <BlockButton format="h3" icon="format_h3" />
-            <BlockButton format="h4" icon="format_h4" />
-            <BlockButton format="blockquote" icon="format_quote" />
-            <BlockButton format="ol" icon="format_list_numbered" />
-            <BlockButton format="ul" icon="format_list_bulleted" />
-            <BlockButton format="left" icon="format_align_left" />
-            <BlockButton format="center" icon="format_align_center" />
-            <BlockButton format="right" icon="format_align_right" />
-            <BlockButton format="justify" icon="format_align_justify" />
-          </ButtonGroup>
-        </ButtonToolbar>
-      </Container>
+      {lastFocusedEditor === fieldIdentifier && (
+        <Container>
+          <ButtonToolbar>
+            <ButtonGroup className="me-2 flex-wrap" role="toolbar">
+              <MarkButton format="bold" icon="format_bold" />
+              <MarkButton format="italics" icon="format_italic" />
+              <MarkButton format="underline" icon="format_underlined" />
+              <MarkButton format="code" icon="code" />
+              <BlockButton format="h1" icon="format_h1" />
+              <BlockButton format="h2" icon="format_h2" />
+              <BlockButton format="h3" icon="format_h3" />
+              <BlockButton format="h4" icon="format_h4" />
+              <BlockButton format="blockquote" icon="format_quote" />
+              <BlockButton format="ol" icon="format_list_numbered" />
+              <BlockButton format="ul" icon="format_list_bulleted" />
+              <BlockButton format="left" icon="format_align_left" />
+              <BlockButton format="center" icon="format_align_center" />
+              <BlockButton format="right" icon="format_align_right" />
+              <BlockButton format="justify" icon="format_align_justify" />
+            </ButtonGroup>
+          </ButtonToolbar>
+        </Container>
+      )}
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         onKeyDown={onKeyDown}
+        onFocus={() => onFocus(fieldIdentifier)}
       />
       {target && chars.length > 0 && (
         <Portal>

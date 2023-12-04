@@ -34,7 +34,6 @@ const DebouncedDropdown = ({
   const options = currentArticles
     .filter((a) => entityClass.includes(a.entityClass))
     .map((a) => ({ value: a.id, label: a.title }));
-  console.log(currentArticles);
 
   const initialValue = options.find(
     (option) => option.value === article[fieldIdentifier]
@@ -51,8 +50,15 @@ const DebouncedDropdown = ({
     );
   }, 2000);
 
-  const handleChange = (selectedOption) => {
-    delayedDispatch(selectedOption.value);
+  interface SelectedOption {
+    value: string;
+    label: string;
+  }
+
+  const handleChange = (selectedOption: SelectedOption | null) => {
+    if (selectedOption) {
+      delayedDispatch(selectedOption.value);
+    }
   };
 
   return (
