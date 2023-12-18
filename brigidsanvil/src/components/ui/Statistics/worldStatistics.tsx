@@ -7,6 +7,9 @@ import {
 } from "@/components/store/articlesSlice";
 import { ArticlePieChart } from "./ArticlePieChart/articlePieChart";
 import TagCloud from "./TagCloud/tagCloud";
+import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
+import { Tab, Tabs } from "react-bootstrap";
+import { ArticleLengthPieChart } from "./ArticleLengthPieChart/articleLengthPieChart";
 
 export function WorldStatistics() {
   const world = useSelector(selectWorld);
@@ -96,6 +99,13 @@ export function WorldStatistics() {
             </div>
           </div>
         )}
+        {!isDetailed && (
+          <div className="article-warning">
+            {
+              "This section holds some stats that are only visible with Full Detail Mode turned on! Be sure to turn it on and Fetch All Articles to see this section!"
+            }
+          </div>
+        )}
       </div>
       <hr />
       <div className="article-stats">
@@ -107,7 +117,31 @@ export function WorldStatistics() {
             }
           </div>
         )}
-        {!displayArticleWarning && <ArticlePieChart></ArticlePieChart>}
+        {!displayArticleWarning && (
+          <div>
+            <Tabs>
+              <Tab eventKey="numberRanked" title="By Number">
+                <ArticlePieChart articles={articles}></ArticlePieChart>
+              </Tab>
+              <Tab
+                eventKey="wordRanked"
+                title="By Wordcount"
+                disabled={!isDetailed}
+              >
+                <ArticleWordPieChart articles={articles}></ArticleWordPieChart>
+              </Tab>
+              <Tab
+                eventKey="lengthRanked"
+                title="By Length"
+                disabled={!isDetailed}
+              >
+                <ArticleLengthPieChart
+                  articles={articles}
+                ></ArticleLengthPieChart>
+              </Tab>
+            </Tabs>
+          </div>
+        )}
         <hr />
         <h2>Tag Stats</h2>
         {!displayArticleWarning && <TagCloud></TagCloud>}
