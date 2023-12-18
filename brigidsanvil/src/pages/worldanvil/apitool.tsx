@@ -11,6 +11,7 @@ import WorldSelect from "@/components/ui/WorldSelect/worldselect";
 import Articles from "@/components/ui/Articles/articles";
 import { selectAuthToken } from "@/components/store/authSlice";
 import Head from "next/head";
+import { Container } from "react-bootstrap";
 
 const APITool = () => {
   const authToken = useSelector(selectAuthToken);
@@ -19,7 +20,7 @@ const APITool = () => {
   const world = useSelector(selectWorld);
 
   return (
-    <div className="container">
+    <Container className="apitool">
       <Head>
         <title>Articles Explorer</title>
       </Head>
@@ -38,7 +39,7 @@ const APITool = () => {
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
 };
 
