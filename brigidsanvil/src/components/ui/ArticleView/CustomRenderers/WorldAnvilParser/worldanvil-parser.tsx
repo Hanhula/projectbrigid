@@ -75,24 +75,6 @@ class WorldAnvilParser extends yabbcode {
       close: "</div>",
     });
 
-    this.registerTag("customDiv", {
-      type: "replace",
-      open: (attr) => {
-        const className = attr || "";
-        return `<div class="${className}">`;
-      },
-      close: "</div>",
-    });
-
-    this.registerTag("customSpan", {
-      type: "replace",
-      open: (attr) => {
-        const className = attr || "";
-        return `<span class="${className}">`;
-      },
-      close: "</span>",
-    });
-
     this.registerTag("customUrl", {
       type: "replace",
       open: (attr) => {
@@ -266,6 +248,8 @@ class WorldAnvilParser extends yabbcode {
     const redactedPattern = /\[redacted:([^\]]+)\]/g;
     const keyValuePattern = /--([^:]+)(::)(.*?)(--|$)/g;
     const colorPattern = /\[color:([^\]]+)\](.*?)\[\/color\]/g;
+    const containerPattern = /\[container:([^\]]+)\]/g;
+    const sectionPattern = /\[section:([^\]]+)\]/g;
 
     content = content
       .replace(h1Pattern, (match, anchorText) => `[h1=${anchorText}]`)
@@ -313,11 +297,17 @@ class WorldAnvilParser extends yabbcode {
         sectionPattern,
         (match, className) => `[customSpan=${className}]`
       )
-      .replace(/\[\/section\]/g, "[/customSpan]")
-      .replace(
-        linkPattern,
-        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
-      );
+      .replace(/\[\/section\]/g, "[/customSpan]");
+
+    return content;
+  }
+
+  processContentForView(content: string) {
+    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
+    content = content.replace(
+      linkPattern,
+      (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
+    );
 
     return content;
   }
@@ -372,6 +362,24 @@ class WorldAnvilParser extends yabbcode {
       },
     });
 
+    this.registerTag("customDiv", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `<div class="${className}">`;
+      },
+      close: "</div>",
+    });
+
+    this.registerTag("customSpan", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `<span class="${className}">`;
+      },
+      close: "</span>",
+    });
+
     let preprocessedContent = this.processContent(content);
     preprocessedContent = this.processContentForView(content);
     let parsedBBCode = this.parse(preprocessedContent)
@@ -395,31 +403,54 @@ class WorldAnvilParser extends yabbcode {
       open: () => "<h1>",
       close: "</h1>",
     });
+
     this.registerTag("h2", {
       type: "replace",
       open: () => "<h2>",
       close: "</h2>",
     });
+
     this.registerTag("h3", {
       type: "replace",
       open: () => "<h3>",
       close: "</h3>",
     });
+
     this.registerTag("h4", {
       type: "replace",
       open: () => "<h4>",
       close: "</h4>",
     });
+
     this.registerTag("quote", {
       type: "replace",
       open: () => "<blockquote>",
       close: "</blockquote>",
     });
 
+    this.registerTag("customDiv", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `[container:${className}]`;
+      },
+      close: "[/container]",
+    });
+
+    this.registerTag("customSpan", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `[section:${className}]`;
+      },
+      close: "[/section]]",
+    });
+
     let preprocessedContent = this.processContent(content).replace(
       /\n/g,
       "[br]"
     );
+
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "\n")

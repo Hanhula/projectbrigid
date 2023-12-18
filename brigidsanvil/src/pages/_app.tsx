@@ -23,7 +23,7 @@ function App({ Component, ...rest }: AppProps) {
         loading={<Loading></Loading>}
         persistor={persistStoreWrapper(store)}
       >
-        <div>
+        <div className="global-container">
           <NavBar />
           <Component {...pageProps} />
         </div>

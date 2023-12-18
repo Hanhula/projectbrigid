@@ -9,6 +9,7 @@ import {
 } from "@/components/store/articlesSlice";
 import { World } from "@/components/types/world";
 import { Article } from "@/components/types/article";
+import { selectStyles } from "@/components/types/component-types/select-styles";
 
 const DebouncedDropdown = ({
   entityClass,
@@ -62,7 +63,12 @@ const DebouncedDropdown = ({
   };
 
   return (
-    <Select options={options} onChange={handleChange} value={initialValue} />
+    <Select
+      options={options}
+      onChange={handleChange}
+      value={initialValue}
+      styles={selectStyles}
+    />
   );
 };
 

@@ -163,6 +163,8 @@ class EditUtils {
 
   deserializeNode: any = (el: Node, markAttributes: NodeAttributes = {}) => {
     if (el.nodeType === Node.TEXT_NODE && el.textContent) {
+      console.log("textContent:", el.textContent); // Log 1
+
       const mentionRegex = /@\[(.*?)\]\((.*?):(.*?)\)/g;
       let match;
       const nodes = [];
@@ -170,6 +172,7 @@ class EditUtils {
 
       while ((match = mentionRegex.exec(el.textContent)) !== null) {
         const [matchText, text, entityClass, id] = match;
+        console.log("match:", match); // Log 2
 
         // Add the text before the mention
         if (match.index > lastIndex) {
@@ -200,7 +203,8 @@ class EditUtils {
         );
       }
 
-      // Return the text nodes directly
+      console.log("nodes:", nodes); // Log 3
+
       return nodes;
     } else if (el.nodeType !== Node.ELEMENT_NODE) {
       return null;
