@@ -54,7 +54,7 @@ export default function EditPage() {
     <div className="editpage">
       <Container>
         <Row>
-          <Col>
+          <Col className="editor-col">
             <div>
               <Button onClick={handleResetContent}>Reset Content</Button>
               <Button onClick={handleSaveContent}>Save to WorldAnvil</Button>
