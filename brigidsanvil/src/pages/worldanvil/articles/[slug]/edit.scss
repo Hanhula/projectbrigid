@@ -1,4 +1,6 @@
 .editpage {
+  height: 100%;
+
   .blockquote {
     background: var(--dark-terror);
     padding: 1em;
@@ -10,5 +12,20 @@
     background: var(--light-terror);
     border-radius: 0.5em;
     padding: 0.2em;
+  }
+
+  .editor-col {
+    background: var(--darkest-terror);
+    padding-bottom: 1em;
+  }
+
+  .slate-editor {
+    background: var(--background-terror);
+    padding: 1em;
+    border-radius: 0.5em;
+  }
+
+  .slate-editor p:last-of-type {
+    margin-bottom: 0;
   }
 }

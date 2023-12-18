@@ -149,3 +149,8 @@ td a {
 .progress-bar {
   --bs-progress-bar-bg: var(--primary);
 }
+
+#__next,
+.global-container {
+  height: 100%;
+}

@@ -485,6 +485,7 @@ export const WorldAnvilEditor = ({
         renderLeaf={renderLeaf}
         onKeyDown={onKeyDown}
         onFocus={() => onFocus(fieldIdentifier)}
+        className="slate-editor"
       />
       {target && chars.length > 0 && (
         <Portal>

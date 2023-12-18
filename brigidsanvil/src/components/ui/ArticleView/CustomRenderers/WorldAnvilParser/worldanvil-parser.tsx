@@ -75,24 +75,6 @@ class WorldAnvilParser extends yabbcode {
       close: "</div>",
     });
 
-    this.registerTag("customDiv", {
-      type: "replace",
-      open: (attr) => {
-        const className = attr || "";
-        return `<div class="${className}">`;
-      },
-      close: "</div>",
-    });
-
-    this.registerTag("customSpan", {
-      type: "replace",
-      open: (attr) => {
-        const className = attr || "";
-        return `<span class="${className}">`;
-      },
-      close: "</span>",
-    });
-
     this.registerTag("customUrl", {
       type: "replace",
       open: (attr) => {
@@ -252,10 +234,7 @@ class WorldAnvilParser extends yabbcode {
     });
   }
 
-  processContent(content: string, parseForHTML: boolean = false) {
-    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
-    const containerPattern = /\[container:([^\]]+)\]/g;
-    const sectionPattern = /\[section:([^\]]+)\]/g;
+  processContent(content: string) {
     const h1Pattern = /\[h1\|([^\]]+)\]/g;
     const h2Pattern = /\[h2\|([^\]]+)\]/g;
     const h3Pattern = /\[h3\|([^\]]+)\]/g;
@@ -281,13 +260,21 @@ class WorldAnvilParser extends yabbcode {
       .replace(
         colorPattern,
         (match, color, content) => `[color=${color}]${content}[/color]`,
-      )
+      );
+
+    return content;
+  }
+
+  processContentForView(content: string, parseForHTML: boolean = false) {
+    const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
+    const containerPattern = /\[container:([^\]]+)\]/g;
+    const sectionPattern = /\[section:([^\]]+)\]/g;
+
+    content = content
       .replace(
         containerPattern,
         (match, className) => `[customDiv=${className}]`,
-      );
-
-    content = content
+      )
       .replace(/\[\/container\]/g, "[/customDiv]")
       .replace(
         sectionPattern,
@@ -360,7 +347,29 @@ class WorldAnvilParser extends yabbcode {
       },
     });
 
-    let preprocessedContent = this.processContent(content, parseForHTML);
+    this.registerTag("customDiv", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `<div class="${className}">`;
+      },
+      close: "</div>",
+    });
+
+    this.registerTag("customSpan", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `<span class="${className}">`;
+      },
+      close: "</span>",
+    });
+
+    let preprocessedContent = this.processContent(content);
+    preprocessedContent = this.processContentForView(
+      preprocessedContent,
+      parseForHTML,
+    );
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "<br>")
@@ -382,31 +391,53 @@ class WorldAnvilParser extends yabbcode {
       open: () => "<h1>",
       close: "</h1>",
     });
+
     this.registerTag("h2", {
       type: "replace",
       open: () => "<h2>",
       close: "</h2>",
     });
+
     this.registerTag("h3", {
       type: "replace",
       open: () => "<h3>",
       close: "</h3>",
     });
+
     this.registerTag("h4", {
       type: "replace",
       open: () => "<h4>",
       close: "</h4>",
     });
+
     this.registerTag("quote", {
       type: "replace",
       open: () => "<blockquote>",
       close: "</blockquote>",
     });
 
-    let preprocessedContent = this.processContent(content).replace(
-      /\n/g,
-      "[br]",
-    );
+    this.registerTag("customDiv", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `[container:${className}]`;
+      },
+      close: "[/container]",
+    });
+
+    this.registerTag("customSpan", {
+      type: "replace",
+      open: (attr) => {
+        const className = attr || "";
+        return `[section:${className}]`;
+      },
+      close: "[/section]",
+    });
+
+    let preprocessedContent = this.processContent(content);
+    preprocessedContent = this.processContentForView(preprocessedContent);
+    preprocessedContent = preprocessedContent.replace(/\n/g, "[br]");
+
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "\n")
