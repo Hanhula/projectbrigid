@@ -1,5 +1,6 @@
 .world-statistics-container {
   .article-type-list-count,
+  .article-date-list-count,
   .article-tags-list-count {
     display: flex;
     justify-content: space-between;
@@ -22,6 +23,12 @@
     overflow-y: scroll;
     padding: 0.5em;
     height: 35em;
+  }
+
+  .article-date-list {
+    overflow-y: scroll;
+    height: 50em;
+    padding-right: 1em;
   }
 
   .nav-tabs {
