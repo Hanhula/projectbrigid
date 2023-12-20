@@ -10,6 +10,11 @@ import TagCloud from "./TagCloud/tagCloud";
 import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
 import { Tab, Tabs } from "react-bootstrap";
 import { ArticleLengthPieChart } from "./ArticleLengthPieChart/articleLengthPieChart";
+import { ArticleCreationDatePieChart } from "./ArticleCreationDatePieChart/articleCreationDatePieChart";
+import { ArticleUpdateDatePieChart } from "./ArticleUpdateDatePieChart/articleUpdateDatePieChart";
+import { ArticlePublicationDatePieChart } from "./ArticlePublicationDatePieChart/articlePublicationDatePieChart";
+import { ArticleLikesPieChart } from "./ArticleLikesPieChart/articleLikesPieChart";
+import { ArticleViewsPieChart } from "./ArticleViewsPieChart/articleViewsPieChart";
 
 export function WorldStatistics() {
   const world = useSelector(selectWorld);
@@ -138,6 +143,51 @@ export function WorldStatistics() {
                 <ArticleLengthPieChart
                   articles={articles}
                 ></ArticleLengthPieChart>
+              </Tab>
+              <Tab
+                eventKey="createDateRanked"
+                title="By Creation Date"
+                disabled={!isDetailed}
+              >
+                <ArticleCreationDatePieChart
+                  articles={articles}
+                ></ArticleCreationDatePieChart>
+              </Tab>
+              <Tab
+                eventKey="updateDateRanked"
+                title="By Update Date"
+                disabled={!isDetailed}
+              >
+                <ArticleUpdateDatePieChart
+                  articles={articles}
+                ></ArticleUpdateDatePieChart>
+              </Tab>
+              <Tab
+                eventKey="publishDateRanked"
+                title="By Publication Date"
+                disabled={!isDetailed}
+              >
+                <ArticlePublicationDatePieChart
+                  articles={articles}
+                ></ArticlePublicationDatePieChart>
+              </Tab>
+              <Tab
+                eventKey="likesTypeRanked"
+                title="By Likes per Type"
+                disabled={!isDetailed}
+              >
+                <ArticleLikesPieChart
+                  articles={articles}
+                ></ArticleLikesPieChart>
+              </Tab>
+              <Tab
+                eventKey="viewsTypeRanked"
+                title="By Views per Type"
+                disabled={!isDetailed}
+              >
+                <ArticleViewsPieChart
+                  articles={articles}
+                ></ArticleViewsPieChart>
               </Tab>
             </Tabs>
           </div>
