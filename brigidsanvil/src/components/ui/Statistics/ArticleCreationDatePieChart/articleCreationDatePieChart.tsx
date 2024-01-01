@@ -13,25 +13,35 @@ export function ArticleCreationDatePieChart({
 
     articles.forEach((article) => {
       const { creationDate } = article;
-      const dateString = String(creationDate!.date);
-      const inputDateString = dateString.substring(0, dateString.length - 7);
-      const dateTime = DateTime.fromFormat(
-        inputDateString,
-        "yyyy-MM-dd HH:mm:ss",
-        { zone: "utc" }
-      );
-      const localDateTime = dateTime.toLocal();
-      const startOfInterval = localDateTime.startOf("quarter").toFormat("MMM");
-      const endOfInterval = localDateTime
-        .startOf("quarter")
-        .plus({ month: 2 })
-        .toFormat("MMM yy");
-      const intervalKey = `${startOfInterval} - ${endOfInterval}`;
+      if (!creationDate) {
+        if (creationDateIntervals["Null"]) {
+          creationDateIntervals["Null"]++;
+        } else {
+          creationDateIntervals["Null"] = 1;
+        }
+      } else if (creationDate) {
+        const dateString = String(creationDate!.date);
+        const inputDateString = dateString.substring(0, dateString.length - 7);
+        const dateTime = DateTime.fromFormat(
+          inputDateString,
+          "yyyy-MM-dd HH:mm:ss",
+          { zone: "utc" }
+        );
+        const localDateTime = dateTime.toLocal();
+        const startOfInterval = localDateTime
+          .startOf("quarter")
+          .toFormat("MMM");
+        const endOfInterval = localDateTime
+          .startOf("quarter")
+          .plus({ month: 2 })
+          .toFormat("MMM yy");
+        const intervalKey = `${startOfInterval} - ${endOfInterval}`;
 
-      if (creationDateIntervals[intervalKey]) {
-        creationDateIntervals[intervalKey]++;
-      } else {
-        creationDateIntervals[intervalKey] = 1;
+        if (creationDateIntervals[intervalKey]) {
+          creationDateIntervals[intervalKey]++;
+        } else {
+          creationDateIntervals[intervalKey] = 1;
+        }
       }
     });
 
