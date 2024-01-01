@@ -555,6 +555,7 @@ export function ArticleTable({
       ),
       header: "Link",
       footer: (props) => props.column.id,
+      enableColumnFilter: false,
     },
     {
       id: "editURL",
@@ -568,6 +569,7 @@ export function ArticleTable({
       ),
       header: "Edit",
       footer: (props) => props.column.id,
+      enableColumnFilter: false,
     },
     {
       id: "copyblock",
