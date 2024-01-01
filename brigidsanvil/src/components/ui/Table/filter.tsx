@@ -80,6 +80,7 @@ const selectStyles: SelectStyles = {
     ...baseStyles,
     backgroundColor: "var(--dark-terror)",
   }),
+  menuPortal: (baseStyles) => ({ ...baseStyles, zIndex: 9999 }),
 };
 
 export function Filter({
@@ -145,6 +146,7 @@ export function Filter({
           placeholder={`Select Tags`}
           className={"table-select-tags"}
           styles={selectStyles}
+          menuPortalTarget={document.body}
         />
         <div className="h-1" />
       </div>
@@ -171,6 +173,7 @@ export function Filter({
               );
             }}
             styles={selectStyles}
+            menuPortalTarget={document.body}
           />
         </div>
         <div className="h-1" />
@@ -195,7 +198,9 @@ export function Filter({
               const value = selectedOption ? selectedOption.value : undefined;
               column.setFilterValue(value);
             }}
+            menuPortalTarget={document.body}
             styles={selectStyles}
+            menuPortalTarget={document.body}
           />
         </div>
         <div className="h-1" />
@@ -238,6 +243,7 @@ export function Filter({
           placeholder={`Type`}
           className={"table-select-type"}
           styles={selectStyles}
+          menuPortalTarget={document.body}
         />
         <div className="h-1" />
       </div>
