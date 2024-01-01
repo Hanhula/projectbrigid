@@ -545,6 +545,7 @@ export function ArticleTable({
     // },
     {
       id: "url",
+      accessorFn: (row) => row.url,
       cell: (info: any) => (
         <a href={info.getValue() as string}>
           <Button className="link-url" variant="primary">
@@ -557,6 +558,7 @@ export function ArticleTable({
     },
     {
       id: "editURL",
+      accessorFn: (row) => row.editURL,
       cell: (info: any) => (
         <a href={info.getValue() as string}>
           <Button className="edit-url" variant="primary">
