@@ -21,6 +21,7 @@ interface SelectStyles {
   ) => Record<string, any>;
   placeholder: (baseStyles: Record<string, any>) => Record<string, any>;
   indicatorSeparator: (baseStyles: Record<string, any>) => Record<string, any>;
+  menuPortal: (baseStyles: Record<string, any>) => Record<string, any>;
 }
 
 const selectStyles: SelectStyles = {
@@ -200,7 +201,6 @@ export function Filter({
             }}
             menuPortalTarget={document.body}
             styles={selectStyles}
-            menuPortalTarget={document.body}
           />
         </div>
         <div className="h-1" />
