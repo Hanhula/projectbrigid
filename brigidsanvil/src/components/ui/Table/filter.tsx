@@ -225,10 +225,13 @@ export function Filter({
 
     const uniqueTypesArray: string[] = Array.from(uniqueTypesSet);
 
-    const options = uniqueTypesArray.map((type) => ({
-      label: type,
-      value: type,
-    }));
+    const options = [
+      { label: "All", value: "All" },
+      ...uniqueTypesArray.map((type) => ({
+        label: type,
+        value: type,
+      })),
+    ];
 
     return (
       <div>
@@ -238,7 +241,9 @@ export function Filter({
             options.find((option) => option.value === columnFilterValue) || null
           }
           onChange={(selectedOption) =>
-            column.setFilterValue(selectedOption?.value || "")
+            column.setFilterValue(
+              selectedOption?.value === "All" ? "" : selectedOption?.value || ""
+            )
           }
           placeholder={`Type`}
           className={"table-select-type"}

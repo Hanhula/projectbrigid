@@ -544,7 +544,6 @@ export function ArticleTable({
     //   footer: (props) => props.column.id,
     // },
     {
-      accessorFn: (row) => row.url,
       id: "url",
       cell: (info: any) => (
         <a href={info.getValue() as string}>
@@ -557,7 +556,6 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
-      accessorFn: (row) => row.editURL,
       id: "editURL",
       cell: (info: any) => (
         <a href={info.getValue() as string}>
@@ -603,13 +601,6 @@ export function ArticleTable({
       id: "wordcount",
       cell: (info) => info.getValue(),
       header: "Wordcount",
-      footer: (props) => props.column.id,
-    },
-    {
-      accessorFn: (row) => row.likes,
-      id: "likes",
-      cell: (info) => info.getValue(),
-      header: "Likes",
       footer: (props) => props.column.id,
     },
     {
@@ -706,6 +697,20 @@ export function ArticleTable({
         );
       },
       header: "Excerpt",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.likes,
+      id: "likes",
+      cell: (info) => info.getValue(),
+      header: "Likes",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => row.views,
+      id: "views",
+      cell: (info) => info.getValue(),
+      header: "Views",
       footer: (props) => props.column.id,
     },
     {
