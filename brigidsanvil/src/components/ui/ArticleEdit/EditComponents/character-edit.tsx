@@ -31,20 +31,70 @@ const CharacterEdit = ({ article }: { article: Person }) => {
       <Tabs defaultActiveKey="body" id="character-edit-tabs" className="mb-3">
         <Tab eventKey="body" title="Body">
           {renderEditor("content")}
-          <h2>Physical Description</h2>
-          {renderEditor("physique", "General Physical Condition")}
-          {renderEditor("bodyFeatures", "Body Features")}
-          {renderEditor("facialFeatures", "Facial Features")}
-          {renderEditor(
-            "identifyingCharacteristics",
-            "Identifying Characteristics"
-          )}
-          {renderEditor("quirksPhysical", "Physical Quirks")}
-          {renderEditor("specialAbilities", "Special Abilities")}
-          {renderEditor("clothing", "Apparel & Accessories")}
-          {renderEditor("items", "Specialised Equipment")}
-          <h2>Mental Characteristics</h2>
-          {renderEditor("history", "Personal History")}
+          <Tabs
+            defaultActiveKey="physDesc"
+            id="character-sub-tabs"
+            className="mb-3"
+          >
+            <Tab eventKey="divine" title="Divine Characteristics">
+              {renderEditor("domains", "Divine Domains")}
+              {renderEditor("artifacts", "Artifacts")}
+              {renderEditor("codes", "Holy Books & Codes")}
+              {renderEditor("holysymbols", "Divine Symbols & Sigils")}
+              {renderEditor("tenets", "Tenets of Faith")}
+              {renderEditor("holidays", "Holidays")}
+              {renderEditor("goals", "Divine Goals & Aspirations")}
+            </Tab>
+            <Tab eventKey="physDesc" title="Physical Description">
+              {renderEditor("physique", "General Physical Condition")}
+              {renderEditor("bodyFeatures", "Body Features")}
+              {renderEditor("facialFeatures", "Facial Features")}
+              {renderEditor(
+                "identifyingCharacteristics",
+                "Identifying Characteristics"
+              )}
+              {renderEditor("quirksPhysical", "Physical Quirks")}
+              {renderEditor("specialAbilities", "Special Abilities")}
+              {renderEditor("clothing", "Apparel & Accessories")}
+              {renderEditor("items", "Specialised Equipment")}
+            </Tab>
+            <Tab eventKey="mentalChara" title="Mental Characteristics">
+              {renderEditor("history", "Personal History")}
+              {renderEditor("genderidentity", "Gender Identity")}
+              {renderEditor("sexuality", "Sexuality")}
+              {renderEditor("education", "Education")}
+              {renderEditor("employment", "Employment")}
+              {renderEditor("achievements", "Accomplishments & Achievements")}
+              {renderEditor("failures", "Failures & Embarrassments")}
+              {renderEditor("mentalTraumas", "Mental Trauma")}
+              {renderEditor(
+                "intellectualCharacteristics",
+                "Intellectual Characteristics"
+              )}
+              {renderEditor("morality", "Morality & Philosophy")}
+              {renderEditor("taboos", "Taboos")}
+            </Tab>
+            <Tab eventKey="personChara" title="Personality Characteristics">
+              {renderEditor("motivation", "Motivation")}
+              {renderEditor("savviesIneptitudes", "Savvies & Ineptitudes")}
+              {renderEditor("likesDislikes", "Likes & Dislikes")}
+              {renderEditor("virtues", "Virtues & Personality Perks")}
+              {renderEditor("vices", "Vices & Personality Flaws")}
+              {renderEditor("quirksPersonality", "Personality Quirks")}
+              {renderEditor("hygiene", "Hygiene")}
+            </Tab>
+            <Tab eventKey="socialChara" title="Social">
+              {renderEditor("reign", "Reign")}
+              {renderEditor("relations", "Contacts & Relations")}
+              {renderEditor("family", "Family Ties")}
+              {renderEditor("religion", "Religious Views")}
+              {renderEditor("socialAptitude", "Social Aptitude")}
+              {renderEditor("mannerisms", "Mannerisms")}
+              {renderEditor("hobbies", "Hobbies & Pets")}
+              {renderEditor("speech", "Speech")}
+              {renderEditor("wealth", "Wealth & Financial State")}
+            </Tab>
+          </Tabs>
         </Tab>
         <Tab eventKey="subtitle" title="Subtitle">
           <Form>
@@ -113,9 +163,16 @@ const CharacterEdit = ({ article }: { article: Person }) => {
               fieldIdentifier={"classification"}
             />
           </Form>
-          <Form>
-            <Form.Label>Religions</Form.Label>
-          </Form>
+          {article.religions && (
+            <Form>
+              <Form.Label>Religions</Form.Label>
+              <div>
+                {
+                  "This field is added by the Organisation template's Deities field. It must be set there!"
+                }
+              </div>
+            </Form>
+          )}
           <Form>
             <Form.Label>Alignment</Form.Label>
             <DebouncedInput
@@ -146,7 +203,7 @@ const CharacterEdit = ({ article }: { article: Person }) => {
             <DebouncedDropdown
               world={world}
               article={article}
-              fieldIdentifier={"currentLocation"}
+              fieldIdentifier={"vehicle"}
               entityClass={["Vehicle"]}
             />
           </Form>
@@ -155,18 +212,38 @@ const CharacterEdit = ({ article }: { article: Person }) => {
             <DebouncedDropdown
               world={world}
               article={article}
-              fieldIdentifier={"currentLocation"}
+              fieldIdentifier={"species"}
               entityClass={["Species"]}
             />
           </Form>
           <Form>
             <Form.Label>Conditions</Form.Label>
+            <DebouncedDropdown
+              world={world}
+              article={article}
+              fieldIdentifier={"conditions"}
+              entityClass={["Condition"]}
+              isMulti={true}
+            />
           </Form>
           <Form>
             <Form.Label>Ethnicity</Form.Label>
+            <DebouncedDropdown
+              world={world}
+              article={article}
+              fieldIdentifier={"ethnicity"}
+              entityClass={["Ethnicity"]}
+            />
           </Form>
           <Form>
             <Form.Label>Other Ethnicities/Cultures</Form.Label>
+            <DebouncedDropdown
+              world={world}
+              article={article}
+              fieldIdentifier={"otherethnicities"}
+              entityClass={["Ethnicity"]}
+              isMulti={true}
+            />
           </Form>
           <Form>
             <Form.Label>Realm</Form.Label>
