@@ -3,8 +3,11 @@ import { Image } from "../image";
 import { Condition } from "./condition";
 import { Ethnicity } from "./ethnicity";
 import { Location } from "./location";
+import { Myth } from "./myth";
 import { Organisation } from "./organisation";
+import { Profession } from "./profession";
 import { Species } from "./species";
+import { Vehicle } from "./vehicle";
 
 export type Person = Article & {
   character: string | null;
@@ -116,7 +119,7 @@ export type Person = Article & {
   ggmdescangry: string | null;
   reign: string | null;
   datasheet: string | null;
-  vehicle: string | null;
+  vehicle: Vehicle | null;
   parentBiological1: Person | null;
   parentBiological2: Person | null;
   parentAdopting1: Person | null;
@@ -131,10 +134,14 @@ export type Person = Article & {
   species: Species | null;
   currentLocation: Location | null;
   conditions: Condition[] | null;
+  religions: Organisation[] | null;
+  professions: Profession[] | null;
+  myths: Myth[] | null;
+  vehicles: Vehicle[] | null;
 };
 
 export class PersonDisplay extends ArticleDisplay {
-  header: { subheading: string | null, fullName: string | null };
+  header: { subheading: string | null; fullName: string | null };
 
   body: {
     content: string | null;
@@ -230,8 +237,8 @@ export class PersonDisplay extends ArticleDisplay {
 
     this.header = {
       subheading: person.subheading ? person.subheading : null,
-      fullName: this.formatFullName(person)
-    }
+      fullName: this.formatFullName(person),
+    };
 
     this.body = {
       content: person.content ? person.content : null,
@@ -245,9 +252,13 @@ export class PersonDisplay extends ArticleDisplay {
       generalPhysicalCondition: person.physique ? person.physique : null,
       bodyFeatures: person.bodyFeatures ? person.bodyFeatures : null,
       facialFeatures: person.facialFeatures ? person.facialFeatures : null,
-      identifyingCharacteristics: person.identifyingCharacteristics ? person.identifyingCharacteristics : null,
+      identifyingCharacteristics: person.identifyingCharacteristics
+        ? person.identifyingCharacteristics
+        : null,
       physicalQuirks: person.quirksPhysical ? person.quirksPhysical : null,
-      specialAbilities: person.specialAbilities ? person.specialAbilities : null,
+      specialAbilities: person.specialAbilities
+        ? person.specialAbilities
+        : null,
       apparelAndAccessories: person.clothing ? person.clothing : null,
       specialisedEquipment: person.items ? person.items : null,
       personalHistory: person.history ? person.history : null,
@@ -255,18 +266,26 @@ export class PersonDisplay extends ArticleDisplay {
       sexuality: person.sexuality ? person.sexuality : null,
       education: person.education ? person.education : null,
       employment: person.employment ? person.employment : null,
-      accomplishmentsAndAchievements: person.achievements ? person.achievements : null,
+      accomplishmentsAndAchievements: person.achievements
+        ? person.achievements
+        : null,
       failuresAndEmbarrasments: person.failures ? person.failures : null,
       mentalTrauma: person.mentalTraumas ? person.mentalTraumas : null,
-      intellectualCharacteristics: person.intellectualCharacteristics ? person.intellectualCharacteristics : null,
+      intellectualCharacteristics: person.intellectualCharacteristics
+        ? person.intellectualCharacteristics
+        : null,
       moralityAndPhilosophy: person.morality ? person.morality : null,
       taboos: person.taboos ? person.taboos : null,
       motivation: person.motivation ? person.motivation : null,
-      savviesAndIneptitudes: person.savviesIneptitudes ? person.savviesIneptitudes : null,
+      savviesAndIneptitudes: person.savviesIneptitudes
+        ? person.savviesIneptitudes
+        : null,
       likesAndDislikes: person.likesDislikes ? person.likesDislikes : null,
       virtuesAndPersonalityPerks: person.virtues ? person.virtues : null,
       vicesAndPersonalityFlaws: person.vices ? person.vices : null,
-      personalityQuirks: person.quirksPersonality ? person.quirksPersonality : null,
+      personalityQuirks: person.quirksPersonality
+        ? person.quirksPersonality
+        : null,
       hygiene: person.hygiene ? person.hygiene : null,
       reign: person.reign ? person.reign : null,
       contactsAndRelations: person.relations ? person.relations : null,
@@ -307,11 +326,23 @@ export class PersonDisplay extends ArticleDisplay {
       dateOfDeath: person.dod ? person.dod : null,
       dateOfDeathDisplay: person.dodDisplay ? person.dodDisplay : null,
       age: person.age ? String(person.age) : null,
-      circumstancesOfBirth: person.circumstancesBirth ? person.circumstancesBirth : null,
-      circumstancesOfDeath: person.circumstancesDeath ? person.circumstancesDeath : null,
-      birthParents: this.formatParents(person.parentBiological1, person.parentBiological2),
-      adoptiveParents: this.formatParents(person.parentAdopting1, person.parentAdopting2),
-      surrogateParent: person.parentSurrogate ? this.formatMention(person.parentSurrogate) : null,
+      circumstancesOfBirth: person.circumstancesBirth
+        ? person.circumstancesBirth
+        : null,
+      circumstancesOfDeath: person.circumstancesDeath
+        ? person.circumstancesDeath
+        : null,
+      birthParents: this.formatParents(
+        person.parentBiological1,
+        person.parentBiological2
+      ),
+      adoptiveParents: this.formatParents(
+        person.parentAdopting1,
+        person.parentAdopting2
+      ),
+      surrogateParent: person.parentSurrogate
+        ? this.formatMention(person.parentSurrogate)
+        : null,
       birthplace: person.birthplace ? person.birthplace : null,
       placeOfDeath: person.deathplace ? person.deathplace : null,
       currentResidence: person.residence ? person.residence : null,
@@ -327,7 +358,9 @@ export class PersonDisplay extends ArticleDisplay {
       quotesAndCatchphrases: person.quotes ? person.quotes : null,
       beliefOrDeity: person.deity ? person.deity : null,
       knownLanguages: person.languages ? person.languages : null,
-      characterPrototype: person.characterPrototype ? person.characterPrototype : null,
+      characterPrototype: person.characterPrototype
+        ? person.characterPrototype
+        : null,
       sidepanelcontent: person.sidepanelcontent
         ? person.sidepanelcontent
         : null,
@@ -337,7 +370,10 @@ export class PersonDisplay extends ArticleDisplay {
     };
   }
 
-  formatParents(parent1: { title: string; entityClass: string; id: string } | null, parent2: { title: string; entityClass: string; id: string } | null): string | null {
+  formatParents(
+    parent1: { title: string; entityClass: string; id: string } | null,
+    parent2: { title: string; entityClass: string; id: string } | null
+  ): string | null {
     if (parent1 && parent2) {
       return `${this.formatMention(parent1)}, ${this.formatMention(parent2)}`;
     } else if (parent1) {
@@ -380,8 +416,6 @@ export class PersonDisplay extends ArticleDisplay {
       nameParts.push(`(a.k.a. ${person.nickname})`);
     }
 
-    return nameParts.join(' ');
+    return nameParts.join(" ");
   }
 }
-
-

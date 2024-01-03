@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { debounce } from "lodash";
 
 import {
-  makeSelectEditedContentByID,
   selectWorldArticlesByWorld,
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
@@ -16,19 +15,15 @@ const DebouncedDropdown = ({
   fieldIdentifier,
   world,
   article,
+  isMulti = false,
 }: {
   entityClass: string[];
   fieldIdentifier: string;
   world: World;
   article: Article;
+  isMulti?: boolean;
 }) => {
   const dispatch = useDispatch();
-  const selectEditedContentByID = makeSelectEditedContentByID(
-    world.id,
-    article.id,
-    fieldIdentifier
-  );
-  const editedContent = useSelector(selectEditedContentByID);
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
 
@@ -36,9 +31,18 @@ const DebouncedDropdown = ({
     .filter((a) => entityClass.includes(a.entityClass))
     .map((a) => ({ value: a.id, label: a.title }));
 
-  const initialValue = options.find(
-    (option) => option.value === article[fieldIdentifier]
-  );
+  let initialValue;
+
+  if (Array.isArray(article[fieldIdentifier])) {
+    for (let obj of article[fieldIdentifier]) {
+      initialValue = options.find((option) => option.value === obj.id);
+      if (initialValue) break;
+    }
+  } else {
+    initialValue = options.find(
+      (option) => option.value === article[fieldIdentifier].id
+    );
+  }
 
   const delayedDispatch = debounce((value) => {
     dispatch(
@@ -56,9 +60,27 @@ const DebouncedDropdown = ({
     label: string;
   }
 
-  const handleChange = (selectedOption: SelectedOption | null) => {
-    if (selectedOption) {
-      delayedDispatch(selectedOption.value);
+  type SelectedOptionType = SelectedOption | null;
+  type MultiSelectedOptionType = ReadonlyArray<SelectedOption>;
+
+  function isSingleOption(
+    value: SelectedOptionType | MultiSelectedOptionType
+  ): value is SelectedOptionType {
+    return !Array.isArray(value);
+  }
+
+  const handleChange = (
+    selectedOption: SelectedOptionType | MultiSelectedOptionType
+  ) => {
+    if (Array.isArray(selectedOption)) {
+      // Multi-select scenario
+      const selectedValues = selectedOption.map((option) => ({
+        id: option.value.toString(),
+      }));
+      delayedDispatch(selectedValues);
+    } else if (selectedOption && isSingleOption(selectedOption)) {
+      // Single select scenario
+      delayedDispatch({ id: selectedOption.value.toString() });
     }
   };
 
@@ -68,6 +90,7 @@ const DebouncedDropdown = ({
       onChange={handleChange}
       value={initialValue}
       styles={selectStyles}
+      isMulti={isMulti}
     />
   );
 };
