@@ -418,7 +418,6 @@ export const WorldAnvilEditor = ({
   return (
     <Slate
       editor={editor}
-      //@ts-expect-error: Slate types are weird
       initialValue={initialValue}
       onChange={(value) => {
         const { selection } = editor;
