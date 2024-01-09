@@ -419,3 +419,50 @@ export class PersonDisplay extends ArticleDisplay {
     return nameParts.join(" ");
   }
 }
+
+let test = [
+  {
+    "type": "paragraph",
+    "children": [
+      {
+        "type": "blockquote",
+        "children": [
+          {
+            "text": "opening quote|by this person"
+          }
+        ]
+      },
+    ]
+  },
+  {
+    "type": "paragraph",
+    "children": [
+      {
+        "text": "test test :( woooo.... !! aaaaaaaaa!!! "
+      },
+      {
+        "text": "YEAH ",
+        "bold": true
+      },
+      {
+        "text": "baby! "
+      },
+    ]
+  },     
+      {
+        "type": "h1",
+        "children": [
+          {
+            "text": "we are really in it now babes"
+          }
+        ]
+      },
+  {
+    "type": "paragraph",
+    "children": [
+      {
+        "text": "hell yea hell yea hell yealove it for us like that <3"
+      }
+    ]
+  }
+]

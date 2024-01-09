@@ -111,50 +111,54 @@ class EditUtils {
   };
 
   serializeVal = (value: any[]): string => {
-    return value.map((node) => this.serializeNode(node)).join("\n\n");
+    return value
+      .map((node, index) => {
+        const serializedNode = this.serializeNode(node);
+        const separator = node.type !== "paragraph" ? "\n" : "\n\n";
+        return serializedNode + (index < value.length - 1 ? separator : "");
+      })
+      .join("");
   };
 
   deserialize = (savedBBcode: string) => {
+    console.log("deserialising: ", savedBBcode);
     if (savedBBcode) {
-      const paragraphs = savedBBcode.split("\n\n");
-      const elements = paragraphs.map((paragraph) => {
-        if (paragraph.trim() === "") {
-          return { type: "paragraph", children: [{ text: "" }] };
-        }
+      const htmlString = WorldAnvilParser.parsePureBBCode(savedBBcode);
+      const document = new DOMParser().parseFromString(htmlString, "text/html");
+      const body = document.body;
+      const children = Array.from(body.childNodes).map((childNode) =>
+        this.deserializeNode(childNode)
+      );
+      const flattenedChildren = children.flatMap((child) =>
+        Array.isArray(child) ? child : [child]
+      );
 
-        const htmlString = WorldAnvilParser.parsePureBBCode(paragraph);
-        const document = new DOMParser().parseFromString(
-          htmlString,
-          "text/html"
-        );
-        const body = document.body;
-        const children = Array.from(body.childNodes).map((childNode) =>
-          this.deserializeNode(childNode)
-        );
-        const flattenedChildren = children.flatMap((child) =>
-          Array.isArray(child) ? child : [child]
-        );
+      const elements = [];
+      let currentParagraph = { type: "paragraph", children: [] };
 
-        const mergedChildren = [];
-        for (const child of flattenedChildren) {
-          if (
-            child.type === "paragraph" &&
-            mergedChildren.length > 0 &&
-            mergedChildren[mergedChildren.length - 1].type === "paragraph"
-          ) {
-            mergedChildren[mergedChildren.length - 1].children.push(
-              ...child.children
-            );
-          } else {
-            mergedChildren.push(child);
+      for (const child of flattenedChildren) {
+        if (
+          typeof child === "object" &&
+          child.hasOwnProperty("type") &&
+          (child.type === "paragraph" ||
+            child.type === "blockquote" ||
+            child.type.startsWith("h"))
+        ) {
+          if (currentParagraph.children.length > 0) {
+            elements.push(currentParagraph);
+            currentParagraph = { type: "paragraph", children: [] };
           }
+          elements.push(child);
+        } else {
+          currentParagraph.children.push(child);
         }
+      }
 
-        return {
-          type: "paragraph",
-          children: mergedChildren.length > 0 ? mergedChildren : [{ text: "" }],
-        };
-      });
+      if (currentParagraph.children.length > 0) {
+        elements.push(currentParagraph);
+      }
+      console.log("fully deserialised: ", elements);
+
       return elements;
     }
 
@@ -235,11 +239,45 @@ class EditUtils {
       children.push(jsx("text", nodeAttributes, ""));
     }
 
-    console.log("Deserialized node:", children); // Log the deserialized node
-
     switch (el.nodeName) {
-      case "BODY":
-        return jsx("fragment", {}, children);
+      case "BODY": {
+        const elements = [];
+        let currentParagraph = { type: "paragraph", children: [] };
+
+        for (const child of children) {
+          if (
+            child.type === "paragraph" ||
+            child.type === "blockquote" ||
+            child.type.startsWith("h")
+          ) {
+            if (currentParagraph.children.length > 0) {
+              elements.push(currentParagraph);
+              currentParagraph = { type: "paragraph", children: [] };
+            }
+            elements.push(child);
+          } else {
+            // Check for \n\n and split into paragraphs
+            if (child.text && child.text.includes("\n\n")) {
+              const parts = child.text.split("\n\n");
+              parts.forEach((part, i) => {
+                currentParagraph.children.push({ text: part.trim() });
+                if (i < parts.length - 1) {
+                  elements.push(currentParagraph);
+                  currentParagraph = { type: "paragraph", children: [] };
+                }
+              });
+            } else {
+              currentParagraph.children.push(child);
+            }
+          }
+        }
+
+        if (currentParagraph.children.length > 0) {
+          elements.push(currentParagraph);
+        }
+
+        return jsx("fragment", {}, elements);
+      }
       case "BR":
         return "\n";
       case "BLOCKQUOTE":
