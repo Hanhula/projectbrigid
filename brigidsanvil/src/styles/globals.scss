@@ -67,38 +67,20 @@ a {
   --create-dark: #42244d;
   --create-light: #ba6fd7;
   --info: #188599;
+
+  --secondary: #0c7790;
+  --secondary-dark: #135669;
+  --secondary-darker: #012d39;
+  --secondary-light: #0992b1;
+  --secondary-lighter: #13c0e7;
+  --secondary-lightest: #3dd9fc;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(
-      to bottom right,
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0.3)
-    );
-
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(
-      #ffffff80,
-      #ffffff40,
-      #ffffff30,
-      #ffffff20,
-      #ffffff10,
-      #ffffff10,
-      #ffffff80
-    );
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
+    --bs-link-color: var(--secondary-lighter);
+    --bs-link-hover-color: var(--secondary-lightest);
+    --bs-link-color-rgb: 9, 144, 174;
   }
 }
 
@@ -147,6 +129,11 @@ a {
   --bs-btn-active-border-color: var(--primary-dark);
   --bs-btn-disabled-bg: var(--primary);
   --bs-btn-disabled-border-color: var(--primary);
+}
+
+.pagination {
+  --bs-pagination-active-bg: var(--secondary);
+  --bs-pagination-active-border-color: var(--secondary);
 }
 
 .form-check-input:checked {

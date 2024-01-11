@@ -1,10 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
-  ButtonGroup,
   Col,
-  Form,
   FormControl,
   InputGroup,
   Modal,
@@ -18,6 +16,7 @@ import {
 import {
   IconName,
   faCheck,
+  faSearch,
   faXmark,
   fas,
 } from "@fortawesome/free-solid-svg-icons";
@@ -29,16 +28,18 @@ import {
 import { Tab, Tabs } from "react-bootstrap";
 
 import "./editable-icons.scss";
+import { rpgAwesomeIcons } from "./rpgawesome-icons";
+import { useMediaQuery } from "react-responsive";
 
 type IconsType = { type: string; icon: string };
 
-const rpgAwesomeIcons = [
-  { type: "rpgawesome", icon: "ra ra-dragon" },
-  // Add more rpgawesome icons here
-];
+const rpgAwesomeIconList = rpgAwesomeIcons.map((icon) => ({
+  type: "rpgawesome",
+  icon: `ra ra-${icon}`,
+}));
 
 const iconList = [
-  ...rpgAwesomeIcons,
+  ...rpgAwesomeIconList,
   ...Object.keys(fas).map((icon) => ({
     type: "fontawesome",
     icon: icon
@@ -77,25 +78,40 @@ function EditableIcons({
   const [faPageInput, setFAPageInput] = useState("");
   const [rpgPageInput, setRPGPageInput] = useState("");
 
-  const numIconsOnPage = 20;
+  useEffect(() => {
+    const stylePrefix = initialValue.split(" ")[0];
+    if (["fas", "far", "fal", "fad", "fat"].includes(stylePrefix)) {
+      setSelectedStyle(stylePrefix);
+    } else {
+      setSelectedStyle("fas");
+    }
+  }, []);
 
-  const handleFAPageChange = (pageNumber: number) => {
+  const isSmallScreen = useMediaQuery({ query: "(max-width: 576px)" });
+  const numIconsOnPage = 24;
+
+  const handleFAPageChange: (pageNumber: number) => void = (
+    pageNumber: number
+  ) => {
     setFAPage(pageNumber);
     setFAPageInput(pageNumber.toString());
     setRPGPage(1);
   };
 
-  const handleRPGPageChange = (pageNumber: number) => {
+  const handleRPGPageChange: (pageNumber: number) => void = (
+    pageNumber: number
+  ) => {
     setRPGPage(pageNumber);
     setRPGPageInput(pageNumber.toString());
     setFAPage(1);
   };
 
-  const handleIconSelect = (icon: IconsType) => {
+  const handleIconSelect = (icon: IconsType, style?: string) => {
     setSelectedIcon(icon);
     let newValue = "";
     if (icon.type === "fontawesome") {
-      newValue = `${selectedStyle} fa-${icon.icon}`;
+      // Use the provided style if it exists, otherwise use the current selectedStyle
+      newValue = `${style || selectedStyle} fa-${icon.icon}`;
     } else {
       newValue = icon.icon;
     }
@@ -135,20 +151,24 @@ function EditableIcons({
           show={editing}
           onHide={handleCancel}
           className="edit-icons"
-          size="lg"
+          size="xl"
         >
           <Modal.Header closeButton>
             <Modal.Title>Select Icon</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <FormControl
-              as="input"
-              placeholder="Search for icons..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-description="Search for icons"
-              className="icon-search"
-            />
+            <InputGroup className="icon-search">
+              <InputGroup.Text>
+                <FontAwesomeIcon icon={faSearch} />
+              </InputGroup.Text>
+              <FormControl
+                as="input"
+                placeholder="Search for icons..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-description="Search for icons"
+              />
+            </InputGroup>
             <Tabs defaultActiveKey="fontawesome" id="icon-tabs">
               <Tab eventKey="fontawesome" title="FontAwesome">
                 {/* FontAwesome icons */}
@@ -157,34 +177,69 @@ function EditableIcons({
                   name="fa-styles"
                   defaultValue={1}
                   className="fa-styles"
+                  value={
+                    selectedStyle === "fas"
+                      ? 1
+                      : selectedStyle === "far"
+                      ? 2
+                      : selectedStyle === "fal"
+                      ? 3
+                      : selectedStyle === "fad"
+                      ? 4
+                      : selectedStyle === "fat"
+                      ? 5
+                      : 1 // default to 'fas'
+                  }
                 >
                   <ToggleButton
-                    onClick={() => setSelectedStyle("fas")}
+                    onClick={() => {
+                      setSelectedStyle("fas");
+                      if (selectedIcon) handleIconSelect(selectedIcon, "fas");
+                    }}
                     id="fas"
                     value={1}
                   >
                     Solid
                   </ToggleButton>
                   <ToggleButton
-                    onClick={() => setSelectedStyle("far")}
+                    onClick={() => {
+                      setSelectedStyle("far");
+                      if (selectedIcon) handleIconSelect(selectedIcon, "far");
+                    }}
                     id="far"
                     value={2}
                   >
                     Regular
                   </ToggleButton>
                   <ToggleButton
-                    onClick={() => setSelectedStyle("fal")}
+                    onClick={() => {
+                      setSelectedStyle("fal");
+                      if (selectedIcon) handleIconSelect(selectedIcon, "fal");
+                    }}
                     id="fal"
                     value={3}
                   >
                     Light
                   </ToggleButton>
                   <ToggleButton
-                    onClick={() => setSelectedStyle("fad")}
+                    onClick={() => {
+                      setSelectedStyle("fad");
+                      if (selectedIcon) handleIconSelect(selectedIcon, "fad");
+                    }}
                     id="fad"
                     value={4}
                   >
                     Duotone
+                  </ToggleButton>
+                  <ToggleButton
+                    onClick={() => {
+                      setSelectedStyle("fat");
+                      if (selectedIcon) handleIconSelect(selectedIcon, "fat");
+                    }}
+                    id="fat"
+                    value={5}
+                  >
+                    Thin
                   </ToggleButton>
                 </ToggleButtonGroup>
                 <div className="icon-grid">
@@ -219,122 +274,250 @@ function EditableIcons({
                       );
                     })}
                 </div>
-                <Pagination>
-                  <Pagination.First onClick={() => handleFAPageChange(1)} />
-                  <Pagination.Prev
-                    onClick={() => handleFAPageChange(Math.max(1, faPage - 1))}
-                  />
-                  {faPage !== 1 && (
-                    <Pagination.Item onClick={() => handleFAPageChange(1)}>
-                      1
-                    </Pagination.Item>
-                  )}
-                  {faPage > 3 && <Pagination.Ellipsis />}
-                  {faPage > 2 && (
-                    <Pagination.Item
-                      onClick={() => handleFAPageChange(faPage - 2)}
-                    >
-                      {faPage - 2}
-                    </Pagination.Item>
-                  )}
-                  {faPage > 1 && (
-                    <Pagination.Item
-                      onClick={() => handleFAPageChange(faPage - 1)}
-                    >
-                      {faPage - 1}
-                    </Pagination.Item>
-                  )}
-                  <Pagination.Item active>{faPage}</Pagination.Item>
-                  {faPage < faPages && (
-                    <Pagination.Item
-                      onClick={() => handleFAPageChange(faPage + 1)}
-                    >
-                      {faPage + 1}
-                    </Pagination.Item>
-                  )}
-                  {faPage < faPages - 1 && (
-                    <Pagination.Item
-                      onClick={() => handleFAPageChange(faPage + 2)}
-                    >
-                      {faPage + 2}
-                    </Pagination.Item>
-                  )}
-                  {faPage < faPages - 2 && <Pagination.Ellipsis />}
-                  {faPage < faPages - 2 && (
-                    <Pagination.Item
-                      onClick={() =>
-                        handleFAPageChange(Math.ceil((faPage + 10) / 10) * 10)
-                      }
-                    >
-                      {Math.ceil((faPage + 10) / 10) * 10}
-                    </Pagination.Item>
-                  )}
-                  <Pagination.Next
-                    onClick={() =>
-                      handleFAPageChange(Math.min(faPages, faPage + 1))
-                    }
-                  />
-                  <Pagination.Last
-                    onClick={() => handleFAPageChange(faPages)}
-                  />
-                  <InputGroup>
-                    <InputGroup.Text id="faPageJump">Jump to</InputGroup.Text>
-                    <FormControl
-                      value={faPageInput}
-                      onChange={(e) => setFAPageInput(e.target.value)}
-                      onBlur={() => handleFAPageChange(Number(faPageInput))}
-                      aria-describedby="faPageJump"
-                    />
-                  </InputGroup>
-                </Pagination>
+                <div className="icon-pagination-container">
+                  <Row>
+                    <Col sm={12} lg={10}>
+                      <Pagination>
+                        <Pagination.First
+                          onClick={() => handleFAPageChange(1)}
+                        />
+                        <Pagination.Prev
+                          onClick={() =>
+                            handleFAPageChange(Math.max(1, faPage - 1))
+                          }
+                        />
+                        {!isSmallScreen && faPage !== 1 && (
+                          <Pagination.Item
+                            onClick={() => handleFAPageChange(1)}
+                          >
+                            1
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && faPage > 3 && (
+                          <Pagination.Ellipsis />
+                        )}
+                        {!isSmallScreen && faPage > 2 && (
+                          <Pagination.Item
+                            onClick={() => handleFAPageChange(faPage - 2)}
+                          >
+                            {faPage - 2}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && faPage > 1 && (
+                          <Pagination.Item
+                            onClick={() => handleFAPageChange(faPage - 1)}
+                          >
+                            {faPage - 1}
+                          </Pagination.Item>
+                        )}
+                        <Pagination.Item active>{faPage}</Pagination.Item>
+                        {faPage < faPages && (
+                          <Pagination.Item
+                            onClick={() => handleFAPageChange(faPage + 1)}
+                          >
+                            {faPage + 1}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && faPage < faPages - 1 && (
+                          <Pagination.Item
+                            onClick={() => handleFAPageChange(faPage + 2)}
+                          >
+                            {faPage + 2}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && faPage < faPages - 2 && (
+                          <Pagination.Ellipsis />
+                        )}
+                        {!isSmallScreen && faPage < faPages - 2 && (
+                          <Pagination.Item
+                            onClick={() =>
+                              handleFAPageChange(
+                                Math.min(
+                                  Math.ceil((faPage + 9) / 10) * 10,
+                                  faPages
+                                )
+                              )
+                            }
+                          >
+                            {Math.min(
+                              Math.ceil((faPage + 9) / 10) * 10,
+                              faPages
+                            )}
+                          </Pagination.Item>
+                        )}
+                        <Pagination.Next
+                          onClick={() =>
+                            handleFAPageChange(Math.min(faPages, faPage + 1))
+                          }
+                        />
+                        <Pagination.Last
+                          onClick={() => handleFAPageChange(faPages)}
+                        />
+                        <Pagination.Item disabled>
+                          Page {faPage} of {faPages}
+                        </Pagination.Item>
+                      </Pagination>
+                    </Col>
+                    <Col>
+                      <InputGroup>
+                        <InputGroup.Text id="faPageJump">
+                          Jump to
+                        </InputGroup.Text>
+                        <FormControl
+                          value={faPageInput}
+                          onChange={(e) => setFAPageInput(e.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              handleFAPageChange(Number(faPageInput));
+                            }
+                          }}
+                          aria-describedby="faPageJump"
+                        />
+                      </InputGroup>
+                    </Col>
+                  </Row>
+                </div>
               </Tab>
               <Tab eventKey="rpgawesome" title="RPGAwesome">
                 {/* RPGAwesome icons */}
                 <div className="icon-grid">
+                  {filterIcons(rpgIcons)
+                    .slice(
+                      (rpgPage - 1) * numIconsOnPage,
+                      rpgPage * numIconsOnPage
+                    )
+                    .map((icon, index) => {
+                      return (
+                        <div
+                          key={index}
+                          onClick={() => handleIconSelect(icon)}
+                          className={
+                            icon === selectedIcon
+                              ? "icon-grid-icon selected-icon"
+                              : "icon-grid-icon"
+                          }
+                        >
+                          <i className={`${icon.icon}`} />
+                          <div className="icon-text">{icon.icon}</div>
+                        </div>
+                      );
+                    })}
+                </div>
+                <div className="icon-pagination-container">
                   <Row>
-                    {filterIcons(rpgIcons)
-                      .slice(
-                        (rpgPage - 1) * numIconsOnPage,
-                        rpgPage * numIconsOnPage
-                      )
-                      .map((icon, index) => {
-                        return (
-                          <Col>
-                            <div
-                              key={index}
-                              onClick={() => handleIconSelect(icon)}
-                              className={
-                                icon === selectedIcon
-                                  ? "icon-grid-icon selected-icon"
-                                  : "icon-grid-icon"
-                              }
-                            >
-                              <i className={`${icon.icon}`} />
-                              <div className="icon-text">{icon.icon}</div>
-                            </div>
-                          </Col>
-                        );
-                      })}
+                    <Col sm={12} lg={10}>
+                      <Pagination>
+                        <Pagination.First
+                          onClick={() => handleRPGPageChange(1)}
+                        />
+                        <Pagination.Prev
+                          onClick={() =>
+                            handleRPGPageChange(Math.max(1, rpgPage - 1))
+                          }
+                        />
+                        {!isSmallScreen && rpgPage !== 1 && (
+                          <Pagination.Item
+                            onClick={() => handleRPGPageChange(1)}
+                          >
+                            1
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && rpgPage > 3 && (
+                          <Pagination.Ellipsis />
+                        )}
+                        {!isSmallScreen && rpgPage > 2 && (
+                          <Pagination.Item
+                            onClick={() => handleRPGPageChange(rpgPage - 2)}
+                          >
+                            {rpgPage - 2}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && rpgPage > 1 && (
+                          <Pagination.Item
+                            onClick={() => handleRPGPageChange(rpgPage - 1)}
+                          >
+                            {rpgPage - 1}
+                          </Pagination.Item>
+                        )}
+                        <Pagination.Item active>{rpgPage}</Pagination.Item>
+                        {rpgPage < rpgPages && (
+                          <Pagination.Item
+                            onClick={() => handleRPGPageChange(rpgPage + 1)}
+                          >
+                            {rpgPage + 1}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && rpgPage < rpgPages - 1 && (
+                          <Pagination.Item
+                            onClick={() => handleRPGPageChange(rpgPage + 2)}
+                          >
+                            {rpgPage + 2}
+                          </Pagination.Item>
+                        )}
+                        {!isSmallScreen && rpgPage < rpgPages - 2 && (
+                          <Pagination.Ellipsis />
+                        )}
+                        {!isSmallScreen && rpgPage < rpgPages - 2 && (
+                          <Pagination.Item
+                            onClick={() =>
+                              handleRPGPageChange(
+                                Math.min(
+                                  Math.ceil((rpgPage + 9) / 10) * 10,
+                                  rpgPages
+                                )
+                              )
+                            }
+                          >
+                            {Math.min(
+                              Math.ceil((rpgPage + 9) / 10) * 10,
+                              rpgPages
+                            )}
+                          </Pagination.Item>
+                        )}
+                        <Pagination.Next
+                          onClick={() =>
+                            handleRPGPageChange(Math.min(rpgPages, rpgPage + 1))
+                          }
+                        />
+                        <Pagination.Last
+                          onClick={() => handleRPGPageChange(rpgPages)}
+                        />
+                        <Pagination.Item disabled>
+                          Page {rpgPage} of {rpgPages}
+                        </Pagination.Item>
+                      </Pagination>
+                    </Col>
+                    <Col>
+                      <InputGroup>
+                        <InputGroup.Text id="rpgPageJump">
+                          Jump to
+                        </InputGroup.Text>
+                        <FormControl
+                          value={rpgPageInput}
+                          onChange={(e) => setRPGPageInput(e.target.value)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              handleRPGPageChange(Number(rpgPageInput));
+                            }
+                          }}
+                          aria-describedby="rpgPageJump"
+                        />
+                      </InputGroup>
+                    </Col>
                   </Row>
                 </div>
-                <Pagination>
-                  {[...Array(rpgPages)].map((_, i) => (
-                    <Pagination.Item
-                      key={i + 1}
-                      active={i + 1 === rpgPage}
-                      onClick={() => handleRPGPageChange(i + 1)}
-                    >
-                      {i + 1}
-                    </Pagination.Item>
-                  ))}
-                </Pagination>
               </Tab>
             </Tabs>
-            <FormControl
-              as="input"
-              value={editedValue}
-              onChange={(e) => setEditedValue(e.target.value)}
-            />
+            <InputGroup>
+              <InputGroup.Text id="icon-input">Icon Text</InputGroup.Text>
+              <FormControl
+                as="input"
+                className="icon-input"
+                value={editedValue}
+                onChange={(e) => setEditedValue(e.target.value)}
+                aria-describedby="icon-input"
+              />
+            </InputGroup>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={handleSave}>
@@ -357,7 +540,7 @@ function EditableIcons({
             >
               <div
                 className={
-                  isTruncated ? "excerpt-text text-truncate" : "excerpt-text"
+                  isTruncated ? "icon-text text-truncate" : "icon-text"
                 }
                 {...props}
               >
@@ -366,9 +549,7 @@ function EditableIcons({
             </OverlayTrigger>
           ) : (
             <div
-              className={
-                isTruncated ? "excerpt-text text-truncate" : "excerpt-text"
-              }
+              className={isTruncated ? "icon-text text-truncate" : "icon-text"}
               {...props}
             >
               {editedValue}

@@ -39,7 +39,8 @@
     border-radius: 5px;
     overflow-wrap: break-word;
 
-    svg {
+    svg,
+    i {
       font-size: 1.3em;
     }
 
@@ -55,9 +56,14 @@
     }
   }
 
-  .pagination {
+  .icon-pagination-container {
     .input-group {
-      margin: 0em 2em;
+      margin-left: 0.5em;
+      margin-bottom: 1em;
+    }
+
+    .form-control {
+      max-width: 4em;
     }
   }
 }

@@ -26,8 +26,10 @@ import {
   Dropdown,
   Form,
   Table as BootstrapTable,
-  OverlayTrigger,
-  Tooltip,
+  Pagination,
+  Row as BootstrapRow,
+  InputGroup,
+  Col,
 } from "react-bootstrap";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -806,56 +808,105 @@ export function ArticleTable({
         </tbody>
       </BootstrapTable>
       <div className="h-2" />
-      <div className="row">
-        <div className="pagination col-md-3 button-container">
-          <button
-            className="btn btn-primary"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<<"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {">"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            {">>"}
-          </button>
-        </div>
-        <div className="pagecount col-md">
-          <span>
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </span>
-          <span className="input-group widthSmall">
-            <span className="input-group-text">Go to page: </span>
-            <input
+      <BootstrapRow className="pagination-container">
+        <Col md={4}>
+          <Pagination>
+            <Pagination.First
+              onClick={() => table.setPageIndex(0)}
+              disabled={table.getState().pagination.pageIndex === 0}
+            />
+            <Pagination.Prev
+              onClick={() => table.previousPage()}
+              disabled={table.getState().pagination.pageIndex === 0}
+            />
+
+            {/* Show the two pages before the current page */}
+            {table.getState().pagination.pageIndex > 1 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex - 2)
+                }
+              >
+                {table.getState().pagination.pageIndex - 1}
+              </Pagination.Item>
+            )}
+            {table.getState().pagination.pageIndex > 0 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex - 1)
+                }
+              >
+                {table.getState().pagination.pageIndex}
+              </Pagination.Item>
+            )}
+
+            {/* Show the current page */}
+            <Pagination.Item active>
+              {table.getState().pagination.pageIndex + 1}
+            </Pagination.Item>
+
+            {/* Show the two pages after the current page */}
+            {table.getState().pagination.pageIndex <
+              table.getPageCount() - 2 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex + 1)
+                }
+              >
+                {table.getState().pagination.pageIndex + 2}
+              </Pagination.Item>
+            )}
+            {table.getState().pagination.pageIndex <
+              table.getPageCount() - 3 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex + 2)
+                }
+              >
+                {table.getState().pagination.pageIndex + 3}
+              </Pagination.Item>
+            )}
+
+            <Pagination.Next
+              onClick={() => table.nextPage()}
+              disabled={
+                table.getState().pagination.pageIndex ===
+                table.getPageCount() - 1
+              }
+            />
+            <Pagination.Last
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={
+                table.getState().pagination.pageIndex ===
+                table.getPageCount() - 1
+              }
+            />
+          </Pagination>
+        </Col>
+        <Col md={1}>
+          <InputGroup>
+            <InputGroup.Text id="basic-addon1">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </InputGroup.Text>
+          </InputGroup>
+        </Col>
+        <Col md={2}>
+          <InputGroup>
+            <InputGroup.Text id="basic-addon2">Go to page:</InputGroup.Text>
+            <Form.Control
               type="number"
               defaultValue={table.getState().pagination.pageIndex + 1}
               onChange={(e) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
                 table.setPageIndex(page);
               }}
-              className="form-control widthSmall"
             />
-          </span>
+          </InputGroup>
+        </Col>
+        <Col md={1}>
           <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
+            <Dropdown.Toggle variant="primary" id="dropdown-basic">
               Show {table.getState().pagination.pageSize}
             </Dropdown.Toggle>
 
@@ -872,9 +923,11 @@ export function ArticleTable({
               ))}
             </Dropdown.Menu>
           </Dropdown>
+        </Col>
+        <Col md={1}>
           <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
-        </div>
-      </div>
+        </Col>
+      </BootstrapRow>
     </div>
   );
 }
