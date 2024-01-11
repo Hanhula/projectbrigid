@@ -261,6 +261,14 @@ export const articleSlice = createSlice({
       const { world, articleID, fieldIdentifier, editedFields } =
         action.payload;
 
+      if(state.editState === undefined) {
+        state.editState = [initialEditState];
+        state.editState.push({
+          world,
+          editedArticles: [],
+        });
+      }
+
       let editState = state.editState.find(
         (editState) => editState.world.id === world.id
       );
@@ -383,7 +391,7 @@ export const selectEditState = (state: { articleState: WorldArticlesState }) =>
 // Select the edited articles for a specific world
 export const selectEditedArticlesByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const editState = state.articleState.editState.find(
+    const editState = state.articleState.editState?.find(
       (editState) => editState.world.id === worldId
     );
 
@@ -425,7 +433,7 @@ export const makeSelectEditedContentByID = (
   fieldIdentifier: string
 ) =>
   createSelector([selectEditState], (editState) => {
-    const worldEditState = editState.find(
+    const worldEditState = editState?.find(
       (editState) => editState.world.id === worldId
     );
 

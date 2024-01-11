@@ -114,8 +114,13 @@ class EditUtils {
     return value
       .map((node, index) => {
         const serializedNode = this.serializeNode(node);
-        const separator = node.type !== "paragraph" ? "\n" : "\n\n";
-        return serializedNode + (index < value.length - 1 ? separator : "");
+
+        /** It seems that for serializing, we only want a single line space between each line otherwise it seems to break and do a double space on ALL lines.
+         *  All text is taken in as a paragraph by default anyways, it seems. This makes it so that wherever return has been pressed,
+         *  there will be a single new line space.
+         * 
+         *  FORMERLY: const separator = node.type !== "paragraph" ? "\n" : "\n\n";*/
+        return serializedNode + (index < value.length - 1 ? "\n" : "");
       })
       .join("");
   };

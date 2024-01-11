@@ -39,6 +39,7 @@ const DebouncedDropdown = ({
       if (initialValue) break;
     }
   } else {
+    if(article[fieldIdentifier] === undefined || article[fieldIdentifier] === null) {return}
     initialValue = options.find(
       (option) => option.value === article[fieldIdentifier].id
     );
