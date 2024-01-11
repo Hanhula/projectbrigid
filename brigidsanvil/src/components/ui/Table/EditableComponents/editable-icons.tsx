@@ -56,8 +56,6 @@ function EditableIcons({
   setEditing,
   isTruncated,
   isDisabled,
-  showTooltip = false,
-  tooltipContent,
   ...props
 }: {
   value: string;
@@ -530,31 +528,42 @@ function EditableIcons({
         </Modal>
       ) : (
         <div>
-          {showTooltip ? (
-            <OverlayTrigger
-              overlay={
-                <Tooltip id={`tooltip`} data-bs-theme="light">
-                  {tooltipContent}
-                </Tooltip>
-              }
-            >
-              <div
-                className={
-                  isTruncated ? "icon-text text-truncate" : "icon-text"
-                }
-                {...props}
-              >
-                {editedValue}
-              </div>
-            </OverlayTrigger>
-          ) : (
+          <OverlayTrigger
+            overlay={
+              <Tooltip id={`tooltip`} data-bs-theme="light">
+                {(() => {
+                  if (editedValue && editedValue.startsWith("fa")) {
+                    let iconName = editedValue.split(" ")[1];
+                    iconName = iconName
+                      .substring(2)
+                      .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+                      .replace(/^-/, "");
+                    const isIconInList = faIcons.some(
+                      (icon) => icon.icon === iconName
+                    );
+                    if (isIconInList) {
+                      return (
+                        <FontAwesomeIcon
+                          icon={editedValue.split(" ").slice(0, 2) as IconProp}
+                        />
+                      );
+                    } else {
+                      return <FontAwesomeIcon icon={["fas", "question"]} />;
+                    }
+                  } else {
+                    return <span className={editedValue}></span>;
+                  }
+                })()}
+              </Tooltip>
+            }
+          >
             <div
               className={isTruncated ? "icon-text text-truncate" : "icon-text"}
               {...props}
             >
               {editedValue}
             </div>
-          )}
+          </OverlayTrigger>
           <Button
             variant="primary"
             className="cell-edit"

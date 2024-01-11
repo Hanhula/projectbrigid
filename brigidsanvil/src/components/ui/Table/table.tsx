@@ -470,18 +470,7 @@ export function ArticleTable({
       cell: (info) => {
         const value = info.getValue() !== null ? String(info.getValue()) : "";
         const [editing, setEditing] = useState(false);
-        let content;
         if (value !== "") {
-          const [iconType, iconName] = value.split(" ");
-          if (iconType.startsWith("ra")) {
-            content = <span className={value}></span>;
-          } else {
-            content = (
-              <FontAwesomeIcon
-                icon={[iconType as IconPrefix, iconName as IconName]}
-              />
-            );
-          }
           return (
             <div className="icon-container">
               <EditableIcons
@@ -500,8 +489,6 @@ export function ArticleTable({
                 }}
                 editing={editing}
                 setEditing={setEditing}
-                showTooltip={true}
-                tooltipContent={content}
               ></EditableIcons>
             </div>
           );
