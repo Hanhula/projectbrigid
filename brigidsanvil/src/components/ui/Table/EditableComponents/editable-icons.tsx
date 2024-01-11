@@ -543,9 +543,7 @@ function EditableIcons({
                     );
                     if (isIconInList) {
                       return (
-                        <FontAwesomeIcon
-                          icon={editedValue.split(" ").slice(0, 2) as IconProp}
-                        />
+                        <FontAwesomeIcon icon={["fas", iconName as IconName]} />
                       );
                     } else {
                       return <FontAwesomeIcon icon={["fas", "question"]} />;
