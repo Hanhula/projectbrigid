@@ -101,8 +101,8 @@ const Articles = () => {
       <div
         className={
           currentDetailState.isFullDetail
-            ? "full-detail-table"
-            : "min-detail-table"
+            ? "table-tool full-detail-table"
+            : "table-tool min-detail-table"
         }
       >
         <ArticleTable data={articles} getRowCanExpand={() => true} />

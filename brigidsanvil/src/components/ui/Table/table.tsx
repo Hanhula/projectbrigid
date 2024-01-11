@@ -19,12 +19,17 @@ import {
   CellContext,
   FilterFn,
 } from "@tanstack/react-table";
+
 import { Fragment, useState } from "react";
 import {
   Button,
   Dropdown,
   Form,
   Table as BootstrapTable,
+  Pagination,
+  Row as BootstrapRow,
+  InputGroup,
+  Col,
 } from "react-bootstrap";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -34,26 +39,30 @@ import {
   faSortDown,
   faChevronRight,
   faChevronDown,
-  faCheck,
-  faXmark,
   faExpand,
   faCompress,
   faSync,
   faFileEdit,
   faLink,
   faClipboard,
-  faFire,
-  faX,
+  IconName,
+  IconPrefix,
 } from "@fortawesome/free-solid-svg-icons";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
-import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { Filter } from "./filter";
-// import { TagsInput } from "react-tag-input-component";
 import { DateTime } from "luxon";
 
-import TagsInput from "react-tagsinput";
 import "react-tagsinput/react-tagsinput.css";
 import Link from "next/link";
+import EditableCell from "./EditableComponents/editable-cell";
+import EditableTags from "./EditableComponents/editable-tags";
+
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { fas } from "@fortawesome/free-solid-svg-icons";
+import EditableIcons from "./EditableComponents/editable-icons";
+
+// Add all solid icons to the library so you can use it in your components
+library.add(fas);
 
 export interface TagOption {
   label: string;
@@ -64,185 +73,6 @@ export type TableProps<TData> = {
   data: TData[];
   getRowCanExpand: (row: Row<TData>) => boolean;
 };
-
-function EditableCell({
-  value: initialValue,
-  onSave,
-  editing,
-  setEditing,
-  isTruncated,
-  isDisabled,
-}: {
-  value: string;
-  onSave: (newValues: string) => void;
-  editing: boolean;
-  setEditing: (value: boolean) => void;
-  isTruncated?: boolean;
-  isDisabled?: boolean;
-}) {
-  const [editedValue, setEditedValue] = React.useState(initialValue);
-
-  const handleEdit = () => {
-    setEditing(true);
-  };
-
-  const handleSave = () => {
-    onSave(editedValue);
-    setEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditedValue(initialValue);
-    setEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSave();
-    }
-  };
-
-  return (
-    <div className="editing">
-      {editing ? (
-        <div className="cell-editing">
-          <div className="input-group">
-            <textarea
-              className="cell-edit form-control"
-              value={editedValue}
-              onChange={(e) => setEditedValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              maxLength={255}
-            />
-          </div>
-          <div className="cell-edit-buttons">
-            <Button
-              variant="success"
-              className="cell-save"
-              onClick={handleSave}
-            >
-              <FontAwesomeIcon icon={faCheck} />
-            </Button>
-            <Button
-              variant="danger"
-              className="cell-cancel"
-              onClick={handleCancel}
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <div
-            className={
-              isTruncated ? "excerpt-text text-truncate" : "excerpt-text"
-            }
-          >
-            {editedValue}
-          </div>
-          <Button
-            variant="primary"
-            className="cell-edit"
-            onClick={handleEdit}
-            disabled={isDisabled}
-          >
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function EditableTags({
-  value: initialValue,
-  onSave,
-}: {
-  value: string;
-  onSave: (newValues: string) => void;
-}) {
-  const [tags, setTags] = React.useState(
-    initialValue.split(",").filter((tag) => tag.trim() !== "")
-  );
-  const [editing, setEditing] = React.useState(false);
-
-  const handleEdit = () => {
-    setEditing(true);
-  };
-
-  const handleSave = () => {
-    const newTagsString = tags.join(",");
-    onSave(newTagsString);
-    setEditing(false);
-  };
-
-  const handleCancel = () => {
-    setTags(initialValue.split(",").filter((tag) => tag.trim() !== ""));
-    setEditing(false);
-  };
-
-  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      handleSave();
-    }
-  };
-
-  return (
-    <div className="editing">
-      {editing ? (
-        <div className="cell-editing">
-          <div className="input-group">
-            <TagsInput
-              className="react-tagsinput form-control"
-              value={tags}
-              onChange={setTags}
-              inputProps={{
-                name: "tags",
-                placeholder: "Enter tags",
-                onKeyUp: handleKeyUp,
-              }}
-              addOnBlur={true}
-              addKeys={["Tab", ","]}
-              addOnPaste={true}
-              pasteSplit={(data) => {
-                return data.split(",").map((d) => d.trim());
-              }}
-            />
-          </div>
-          <div className="cell-edit-buttons">
-            <Button
-              variant="success"
-              className="cell-save"
-              onClick={handleSave}
-            >
-              <FontAwesomeIcon icon={faCheck} />
-            </Button>
-            <Button
-              variant="danger"
-              className="cell-cancel"
-              onClick={handleCancel}
-            >
-              <FontAwesomeIcon icon={faXmark} />
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          {initialValue.split(",").map((tag, index) => (
-            <span key={index} className="badge text-bg-secondary">
-              {tag}
-            </span>
-          ))}
-          <Button variant="primary" className="cell-edit" onClick={handleEdit}>
-            <FontAwesomeIcon icon={faPenToSquare} />
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function generateMention(info: CellContext<Article, unknown>) {
   const articleID = info.row.original.id;
@@ -295,10 +125,8 @@ export function ArticleTable({
   data,
   getRowCanExpand,
 }: TableProps<Article>): JSX.Element {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
   const worldAnvilAPI = useWorldAnvilAPI();
 
   let minDetailColumns: ColumnDef<Article>[] = [
@@ -472,7 +300,7 @@ export function ArticleTable({
       accessorFn: (row) => row.title,
       id: "title",
       cell: (info) => {
-        const [editing, setEditing] = React.useState(false);
+        //const [editing, setEditing] = useState(false);
 
         const titleValue = String(info.getValue());
 
@@ -637,6 +465,53 @@ export function ArticleTable({
       filterFn: csvFilter,
     },
     {
+      accessorFn: (row) => row.icon,
+      id: "icon",
+      cell: (info) => {
+        const value = info.getValue() !== null ? String(info.getValue()) : "";
+        const [editing, setEditing] = useState(false);
+        let content;
+        if (value !== "") {
+          const [iconType, iconName] = value.split(" ");
+          if (iconType.startsWith("ra")) {
+            content = <span className={value}></span>;
+          } else {
+            content = (
+              <FontAwesomeIcon
+                icon={[iconType as IconPrefix, iconName as IconName]}
+              />
+            );
+          }
+          return (
+            <div className="icon-container">
+              <EditableIcons
+                value={value}
+                onSave={async (newIcon) => {
+                  const paginationState = table.getState().pagination;
+                  const articleID = info.row.original.id;
+                  await worldAnvilAPI.updateArticleByField(
+                    articleID,
+                    "icon",
+                    newIcon
+                  );
+                  table.setPagination(paginationState);
+                  await worldAnvilAPI.getArticle(articleID, true);
+                  table.setPagination(paginationState);
+                }}
+                editing={editing}
+                setEditing={setEditing}
+                showTooltip={true}
+                tooltipContent={content}
+              ></EditableIcons>
+            </div>
+          );
+        }
+        return "";
+      },
+      header: "Icon",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => {
         if (row.category) {
           return row.category.title;
@@ -657,8 +532,8 @@ export function ArticleTable({
       accessorFn: (row) => row.excerpt,
       id: "excerpt",
       cell: (info) => {
-        const [expanded, setExpanded] = React.useState(false);
-        const [editing, setEditing] = React.useState(false);
+        const [expanded, setExpanded] = useState(false);
+        const [editing, setEditing] = useState(false);
 
         const toggleExpand = () => {
           setExpanded(!expanded);
@@ -933,56 +808,105 @@ export function ArticleTable({
         </tbody>
       </BootstrapTable>
       <div className="h-2" />
-      <div className="row">
-        <div className="pagination col-md-3 button-container">
-          <button
-            className="btn btn-primary"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<<"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            {"<"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            {">"}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            {">>"}
-          </button>
-        </div>
-        <div className="pagecount col-md">
-          <span>
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </span>
-          <span className="input-group widthSmall">
-            <span className="input-group-text">Go to page: </span>
-            <input
+      <BootstrapRow className="pagination-container">
+        <Col md={4}>
+          <Pagination>
+            <Pagination.First
+              onClick={() => table.setPageIndex(0)}
+              disabled={table.getState().pagination.pageIndex === 0}
+            />
+            <Pagination.Prev
+              onClick={() => table.previousPage()}
+              disabled={table.getState().pagination.pageIndex === 0}
+            />
+
+            {/* Show the two pages before the current page */}
+            {table.getState().pagination.pageIndex > 1 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex - 2)
+                }
+              >
+                {table.getState().pagination.pageIndex - 1}
+              </Pagination.Item>
+            )}
+            {table.getState().pagination.pageIndex > 0 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex - 1)
+                }
+              >
+                {table.getState().pagination.pageIndex}
+              </Pagination.Item>
+            )}
+
+            {/* Show the current page */}
+            <Pagination.Item active>
+              {table.getState().pagination.pageIndex + 1}
+            </Pagination.Item>
+
+            {/* Show the two pages after the current page */}
+            {table.getState().pagination.pageIndex <
+              table.getPageCount() - 2 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex + 1)
+                }
+              >
+                {table.getState().pagination.pageIndex + 2}
+              </Pagination.Item>
+            )}
+            {table.getState().pagination.pageIndex <
+              table.getPageCount() - 3 && (
+              <Pagination.Item
+                onClick={() =>
+                  table.setPageIndex(table.getState().pagination.pageIndex + 2)
+                }
+              >
+                {table.getState().pagination.pageIndex + 3}
+              </Pagination.Item>
+            )}
+
+            <Pagination.Next
+              onClick={() => table.nextPage()}
+              disabled={
+                table.getState().pagination.pageIndex ===
+                table.getPageCount() - 1
+              }
+            />
+            <Pagination.Last
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={
+                table.getState().pagination.pageIndex ===
+                table.getPageCount() - 1
+              }
+            />
+          </Pagination>
+        </Col>
+        <Col md={1}>
+          <InputGroup>
+            <InputGroup.Text id="basic-addon1">
+              Page {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </InputGroup.Text>
+          </InputGroup>
+        </Col>
+        <Col md={2}>
+          <InputGroup>
+            <InputGroup.Text id="basic-addon2">Go to page:</InputGroup.Text>
+            <Form.Control
               type="number"
               defaultValue={table.getState().pagination.pageIndex + 1}
               onChange={(e) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
                 table.setPageIndex(page);
               }}
-              className="form-control widthSmall"
             />
-          </span>
+          </InputGroup>
+        </Col>
+        <Col md={1}>
           <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
+            <Dropdown.Toggle variant="primary" id="dropdown-basic">
               Show {table.getState().pagination.pageSize}
             </Dropdown.Toggle>
 
@@ -999,9 +923,11 @@ export function ArticleTable({
               ))}
             </Dropdown.Menu>
           </Dropdown>
+        </Col>
+        <Col md={1}>
           <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
-        </div>
-      </div>
+        </Col>
+      </BootstrapRow>
     </div>
   );
 }

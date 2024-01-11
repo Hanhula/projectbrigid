@@ -30,23 +30,32 @@
   padding: 0.5em 0em;
 }
 
-.pagecount {
+.pagination-container {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   align-items: center;
+  margin-top: 0.75em;
 
-  * {
-    padding: 0.4em;
+  ul.pagination {
+    margin-bottom: 0;
+  }
+
+  .form-control {
+    width: 4em;
   }
 }
 
-.pagination button {
-  --bs-btn-padding-x: 1.3em;
-  --bs-btn-padding-y: 0.8em;
-}
-
 .table-container {
+  .table-responsive .btn-primary {
+    --bs-btn-bg: var(--secondary);
+    --bs-btn-border-color: var(--secondary);
+    --bs-btn-hover-bg: var(--secondary-light);
+    --bs-btn-hover-border-color: var(--secondary-dark);
+    --bs-btn-active-bg: var(--secondary-dark);
+    --bs-btn-active-border-color: var(--secondary-dark);
+    --bs-btn-disabled-bg: var(--secondary);
+    --bs-btn-disabled-border-color: var(--secondary);
+  }
+
   .top-button-container {
     display: flex;
     flex-direction: row;
@@ -160,6 +169,10 @@
       min-width: 6em;
     }
 
+    .col-icon {
+      min-width: 8em;
+    }
+
     .cell-likes,
     .cell-views,
     .cell-wordcount,
@@ -200,13 +213,15 @@
     }
   }
 
-  .excerpt-container {
+  .excerpt-container,
+  .icon-container {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     gap: 0.5em;
 
-    .excerpt-text {
+    .excerpt-text,
+    .icon-text {
       max-width: 10em;
       display: inline-block;
       word-wrap: break-word;
