@@ -16,6 +16,7 @@ import {
 import {
   IconName,
   faCheck,
+  faInfoCircle,
   faSearch,
   faXmark,
   fas,
@@ -239,6 +240,22 @@ function EditableIcons({
                   >
                     Thin
                   </ToggleButton>
+                  <OverlayTrigger
+                    overlay={
+                      <Tooltip id="info-tooltip">
+                        Only free FontAwesome icons are shown here! Click to go
+                        to the FontAwesome search for others!
+                      </Tooltip>
+                    }
+                  >
+                    <Button
+                      href="https://fontawesome.com/search"
+                      target="_blank"
+                      variant="secondary"
+                    >
+                      <FontAwesomeIcon icon={faInfoCircle} />
+                    </Button>
+                  </OverlayTrigger>
                 </ToggleButtonGroup>
                 <div className="icon-grid">
                   {filterIcons(faIcons)
