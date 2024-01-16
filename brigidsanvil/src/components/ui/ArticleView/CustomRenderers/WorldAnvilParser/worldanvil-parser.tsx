@@ -247,6 +247,9 @@ class WorldAnvilParser extends yabbcode {
     const containerPattern = /\[container:([^\]]+)\]/g;
     const sectionPattern = /\[section:([^\]]+)\]/g;
 
+    const tableHeadPattern = /\[th\:([^\]]+)\]/g;
+    const tableCellPattern = /\[td\:([^\]]+)\]/g;
+
     content = content
       .replace(h1Pattern, (match, anchorText) => `[h1=${anchorText}]`)
       .replace(h2Pattern, (match, anchorText) => `[h2=${anchorText}]`)
@@ -272,7 +275,9 @@ class WorldAnvilParser extends yabbcode {
         sectionPattern,
         (match, className) => `[customSpan=${className}]`
       )
-      .replace(/\[\/section\]/g, "[/customSpan]");
+      .replace(/\[\/section\]/g, "[/customSpan]")
+      .replace(tableHeadPattern, (match, width) => `[th=${width}]`)
+      .replace(tableCellPattern, (match, width) => `[td=${width}]`);
 
     return content;
   }

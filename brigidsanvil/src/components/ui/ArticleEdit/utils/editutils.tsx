@@ -114,12 +114,7 @@ class EditUtils {
     return value
       .map((node, index) => {
         const serializedNode = this.serializeNode(node);
-
-        /** It seems that for serializing, we only want a single line space between each line otherwise it seems to break and do a double space on ALL lines.
-         *  All text is taken in as a paragraph by default anyways, it seems. This makes it so that wherever return has been pressed,
-         *  there will be a single new line space.
-         * 
-         *  FORMERLY: const separator = node.type !== "paragraph" ? "\n" : "\n\n";*/
+        const separator = node.type !== "paragraph" ? "\n" : "\n\n";
         return serializedNode + (index < value.length - 1 ? "\n" : "");
       })
       .join("");
@@ -139,7 +134,7 @@ class EditUtils {
       );
 
       const elements = [];
-      let currentParagraph = { type: "paragraph", children: [] };
+      let currentParagraph = { type: "paragraph", children: Array() };
 
       for (const child of flattenedChildren) {
         if (
@@ -151,7 +146,7 @@ class EditUtils {
         ) {
           if (currentParagraph.children.length > 0) {
             elements.push(currentParagraph);
-            currentParagraph = { type: "paragraph", children: [] };
+            currentParagraph = { type: "paragraph", children: Array() };
           }
           elements.push(child);
         } else {
@@ -247,7 +242,7 @@ class EditUtils {
     switch (el.nodeName) {
       case "BODY": {
         const elements = [];
-        let currentParagraph = { type: "paragraph", children: [] };
+        let currentParagraph = { type: "paragraph", children: Array() };
 
         for (const child of children) {
           if (
@@ -257,14 +252,14 @@ class EditUtils {
           ) {
             if (currentParagraph.children.length > 0) {
               elements.push(currentParagraph);
-              currentParagraph = { type: "paragraph", children: [] };
+              currentParagraph = { type: "paragraph", children: Array() };
             }
             elements.push(child);
           } else {
             // Check for \n\n and split into paragraphs
             if (child.text && child.text.includes("\n\n")) {
               const parts = child.text.split("\n\n");
-              parts.forEach((part, i) => {
+              parts.forEach((part: string, i: number) => {
                 currentParagraph.children.push({ text: part.trim() });
                 if (i < parts.length - 1) {
                   elements.push(currentParagraph);
