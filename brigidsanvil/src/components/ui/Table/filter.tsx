@@ -2,7 +2,7 @@ import { Column, Table } from "@tanstack/react-table";
 import { useMemo } from "react";
 import Select from "react-select";
 import { DebouncedInput } from "./debouncedinput";
-import { TagOption } from "./table";
+import { TagOption } from "./table-helpers";
 
 interface SelectStyles {
   control: (
