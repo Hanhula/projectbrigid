@@ -1,5 +1,4 @@
 import { Article } from "@/components/types/article";
-import { Person } from "@/components/types/article-types/person";
 import Papa from "papaparse";
 import { Button } from "react-bootstrap";
 

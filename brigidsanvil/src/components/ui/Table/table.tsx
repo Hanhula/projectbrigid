@@ -14,10 +14,7 @@ import {
   getPaginationRowModel,
   ColumnDef,
   flexRender,
-  Row,
   ColumnFiltersState,
-  CellContext,
-  FilterFn,
 } from "@tanstack/react-table";
 
 import { Fragment, useState } from "react";
@@ -30,6 +27,7 @@ import {
   Row as BootstrapRow,
   InputGroup,
   Col,
+  Offcanvas,
 } from "react-bootstrap";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -60,66 +58,17 @@ import EditableTags from "./EditableComponents/editable-tags";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import EditableIcons from "./EditableComponents/editable-icons";
+import CSVGenerator from "../CSVGenerator/csvgenerator";
+import {
+  TableProps,
+  generateMention,
+  camelCaseToCapitalizedWords,
+  renderSubComponent,
+  csvFilter,
+} from "./table-helpers";
 
 // Add all solid icons to the library so you can use it in your components
 library.add(fas);
-
-export interface TagOption {
-  label: string;
-  value: string;
-}
-
-export type TableProps<TData> = {
-  data: TData[];
-  getRowCanExpand: (row: Row<TData>) => boolean;
-};
-
-function generateMention(info: CellContext<Article, unknown>) {
-  const articleID = info.row.original.id;
-  const articleType = info.row.original.entityClass.toLowerCase();
-  const articleTitle = info.row.original.title;
-  const mention = `@[${articleTitle}](${articleType}:${articleID})`;
-
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(mention);
-      console.log("Text copied to clipboard");
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
-
-  return (
-    <Button className="copy-block" variant="primary" onClick={copyToClipboard}>
-      <FontAwesomeIcon icon={faClipboard} />
-    </Button>
-  );
-}
-
-const renderSubComponent = ({ row }: { row: Row<Article> }) => {
-  return (
-    <pre style={{ fontSize: "10px" }}>
-      <code>{JSON.stringify(row.original, null, 2)}</code>
-    </pre>
-  );
-};
-
-export const csvFilter: FilterFn<any> = (row, columnId, filterValue) => {
-  const columnValues = String(row.getValue(columnId)).toLowerCase().split(",");
-  const trimmedFilterValue = filterValue.trim().toLowerCase();
-
-  if (trimmedFilterValue.endsWith(",")) {
-    const exactSearch = trimmedFilterValue.slice(0, -1);
-    return columnValues.includes(exactSearch);
-  } else if (trimmedFilterValue.includes(",")) {
-    const filters = trimmedFilterValue
-      .split(",")
-      .map((value: string) => value.trim());
-    return filters.every((filter: string) => columnValues.includes(filter));
-  } else {
-    return columnValues.some((tag) => tag.includes(trimmedFilterValue));
-  }
-};
 
 export function ArticleTable({
   data,
@@ -127,7 +76,13 @@ export function ArticleTable({
 }: TableProps<Article>): JSX.Element {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [useSelectFilter, setUseSelectFilter] = useState(false);
+  const [columnVisibility, setColumnVisibility] = useState({});
   const worldAnvilAPI = useWorldAnvilAPI();
+
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   let minDetailColumns: ColumnDef<Article>[] = [
     {
@@ -647,14 +602,12 @@ export function ArticleTable({
     },
   ];
 
-  const [useSelectFilter, setUseSelectFilter] = useState(false); // Add state for the checkbox
-
   const world = useSelector(selectWorld);
   const currentDetailState = useSelector(
     selectCurrentDetailStateByWorld(world.id)
   );
-  const isDetailed = currentDetailState.isFullDetail;
 
+  const isDetailed = currentDetailState.isFullDetail;
   let columns = isDetailed ? fullDetailColumns : minDetailColumns;
 
   const table = useReactTable<Article>({
@@ -666,7 +619,9 @@ export function ArticleTable({
     state: {
       columnFilters,
       globalFilter,
+      columnVisibility,
     },
+    onColumnVisibilityChange: setColumnVisibility,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getRowCanExpand,
@@ -679,7 +634,35 @@ export function ArticleTable({
 
   return (
     <div className="p-2">
-      <div className="h-2" />
+      <Button variant="primary" onClick={handleShow}>
+        Toggle Columns
+      </Button>{" "}
+      <CSVGenerator articles={data}></CSVGenerator>
+      <Offcanvas show={show} onHide={handleClose}>
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Toggle Columns</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Form>
+            <Form.Check
+              type="checkbox"
+              label="Toggle All"
+              checked={table.getIsAllColumnsVisible()}
+              onChange={table.getToggleAllColumnsVisibilityHandler()}
+            />
+            <hr />
+            {table.getAllLeafColumns().map((column) => (
+              <Form.Check
+                key={column.id}
+                type="checkbox"
+                label={camelCaseToCapitalizedWords(column.id)}
+                checked={column.getIsVisible()}
+                onChange={column.getToggleVisibilityHandler()}
+              />
+            ))}
+          </Form>
+        </Offcanvas.Body>
+      </Offcanvas>
       <BootstrapTable striped hover responsive size="sm">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -794,7 +777,6 @@ export function ArticleTable({
           })}
         </tbody>
       </BootstrapTable>
-      <div className="h-2" />
       <BootstrapRow className="pagination-container">
         <Col md={4}>
           <Pagination>

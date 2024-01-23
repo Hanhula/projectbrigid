@@ -94,10 +94,6 @@ const Articles = () => {
         </div>
       </div>
 
-      <div className="exporter">
-        <CSVGenerator articles={articles}></CSVGenerator>
-      </div>
-
       <div
         className={
           currentDetailState.isFullDetail
