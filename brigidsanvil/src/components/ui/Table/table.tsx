@@ -582,6 +582,13 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => (row.author ? row.author.title : ""),
+      id: "author",
+      cell: (info) => info.getValue() || "",
+      header: "Author",
+      footer: (props) => props.column.id,
+    },
+    {
       id: "Sync",
       cell: (info) => {
         const handleSync = async () => {
