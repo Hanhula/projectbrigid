@@ -66,6 +66,7 @@ import {
   renderSubComponent,
   csvFilter,
 } from "./table-helpers";
+import EditableToggle from "./EditableComponents/editable-toggle";
 
 // Add all solid icons to the library so you can use it in your components
 library.add(fas);
@@ -365,21 +366,93 @@ export function ArticleTable({
     {
       accessorFn: (row) => row.state,
       id: "state",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const articleState = String(info.getValue());
+
+        return (
+          <EditableToggle
+            value={articleState}
+            onSave={async (newState) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "state",
+                newState
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            options={[
+              { value: "public", label: "Public" },
+              { value: "private", label: "Private" },
+            ]}
+          ></EditableToggle>
+        );
+      },
       header: "State",
       footer: (props) => props.column.id,
     },
     {
       accessorFn: (row) => row.isWip,
       id: "isWip",
-      cell: (info) => String(info.getValue()),
+      cell: (info) => {
+        const isWip = String(info.getValue());
+
+        return (
+          <EditableToggle
+            value={isWip}
+            onSave={async (newState) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "isWip",
+                newState === "true" // Convert string to boolean
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            options={[
+              { value: "true", label: "true" },
+              { value: "false", label: "false" },
+            ]}
+          ></EditableToggle>
+        );
+      },
       header: "Is WIP?",
       footer: (props) => props.column.id,
     },
     {
       accessorFn: (row) => row.isDraft,
       id: "isDraft",
-      cell: (info) => String(info.getValue()),
+      cell: (info) => {
+        const isDraft = String(info.getValue());
+
+        return (
+          <EditableToggle
+            value={isDraft}
+            onSave={async (newState) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "isDraft",
+                newState === "true" // Convert string to boolean
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            options={[
+              { value: "true", label: "true" },
+              { value: "false", label: "false" },
+            ]}
+          ></EditableToggle>
+        );
+      },
       header: "Is Draft?",
       footer: (props) => props.column.id,
     },
