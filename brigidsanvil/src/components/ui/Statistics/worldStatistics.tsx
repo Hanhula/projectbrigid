@@ -8,13 +8,14 @@ import {
 import { ArticlePieChart } from "./ArticlePieChart/articlePieChart";
 import TagCloud from "./TagCloud/tagCloud";
 import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
-import { Tab, Tabs } from "react-bootstrap";
+import { Col, Row, Tab, Tabs } from "react-bootstrap";
 import { ArticleLengthPieChart } from "./ArticleLengthPieChart/articleLengthPieChart";
 import { ArticleCreationDatePieChart } from "./ArticleCreationDatePieChart/articleCreationDatePieChart";
 import { ArticleUpdateDatePieChart } from "./ArticleUpdateDatePieChart/articleUpdateDatePieChart";
 import { ArticlePublicationDatePieChart } from "./ArticlePublicationDatePieChart/articlePublicationDatePieChart";
 import { ArticleLikesPieChart } from "./ArticleLikesPieChart/articleLikesPieChart";
 import { ArticleViewsPieChart } from "./ArticleViewsPieChart/articleViewsPieChart";
+import { Article } from "@/components/types/article";
 
 export function WorldStatistics() {
   const world = useSelector(selectWorld);
@@ -27,7 +28,7 @@ export function WorldStatistics() {
 
   let displayArticleWarning = articles.length > 1 ? false : true;
 
-  const calculateTotalAndAverage = (arr: any[], property: string) => {
+  const calculateTotalAndAverage = (arr: Article[], property: string) => {
     const total = arr.reduce(
       (acc: any, item: { [x: string]: any }) =>
         item[property] ? acc + item[property] : acc,
@@ -39,12 +40,54 @@ export function WorldStatistics() {
     return { total, average: roundedAverage };
   };
 
+  const calculateTopFans = (articles: Article[]) => {
+    const fanCounts: { [title: string]: number } = {};
+
+    articles.forEach((article) => {
+      if (article.fans) {
+        article.fans.forEach((fan: { title: string }) => {
+          if (fanCounts[fan.title]) {
+            fanCounts[fan.title]++;
+          } else {
+            fanCounts[fan.title] = 1;
+          }
+        });
+      }
+    });
+
+    // Step 2: Convert to array, sort and take top 10
+    const topFans = Object.entries(fanCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
+
+    return topFans;
+  };
+
+  const calculateTotalAndAverageComments = (articles: any[]) => {
+    let totalComments = 0;
+
+    articles.forEach((article) => {
+      if (article.comments) {
+        totalComments += article.comments.length;
+      }
+    });
+
+    const averageComments =
+      articles.length > 0 ? (totalComments / articles.length).toFixed(2) : 0;
+
+    return { totalComments, averageComments };
+  };
+
   const { total: totalWordCount, average: averageWordCount } =
     calculateTotalAndAverage(articles, "wordcount");
   const { total: totalLikes, average: averageLikeCount } =
     calculateTotalAndAverage(articles, "likes");
   const { total: totalViews, average: averageViewCount } =
     calculateTotalAndAverage(articles, "views");
+
+  const topFans = calculateTopFans(articles);
+  const { totalComments, averageComments } =
+    calculateTotalAndAverageComments(articles);
 
   return (
     <div className="world-statistics-container">
@@ -76,32 +119,56 @@ export function WorldStatistics() {
         {isDetailed && (
           <div className="advanced-stats">
             <h4>Detailed Statistics</h4>
-            <div className="row">
-              <div className="col">
-                <dt>Total Wordcount</dt>
-                <dd>{totalWordCount}</dd>
-              </div>
-              <div className="col">
-                <dt>Average Wordcount</dt>
-                <dd>{averageWordCount}</dd>
-              </div>
-              <div className="col">
-                <dt>Total Likes</dt>
-                <dd>{totalLikes}</dd>
-              </div>
-              <div className="col">
-                <dt>Average Likes</dt>
-                <dd>{averageLikeCount}</dd>
-              </div>
-              <div className="col">
-                <dt>Total Views</dt>
-                <dd>{totalViews}</dd>
-              </div>
-              <div className="col">
-                <dt>Average Views</dt>
-                <dd>{averageViewCount}</dd>
-              </div>
-            </div>
+            <Row>
+              <Col md={2}>
+                <h4>Top 10 Fans</h4>
+                <ol>
+                  {topFans.map((fan, index) => (
+                    <li key={index}>
+                      {fan[0]}: {fan[1]}
+                    </li>
+                  ))}
+                </ol>
+              </Col>
+              <Col>
+                <div className="row">
+                  <div className="col">
+                    <dt>Total Wordcount</dt>
+                    <dd>{totalWordCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Average Wordcount</dt>
+                    <dd>{averageWordCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Total Likes</dt>
+                    <dd>{totalLikes}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Average Likes</dt>
+                    <dd>{averageLikeCount}</dd>
+                  </div>
+                </div>
+                <Row>
+                  <div className="col">
+                    <dt>Total Views</dt>
+                    <dd>{totalViews}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Average Views</dt>
+                    <dd>{averageViewCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Total Comments</dt>
+                    <dd>{totalComments}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Average Comments</dt>
+                    <dd>{averageComments}</dd>
+                  </div>
+                </Row>
+              </Col>
+            </Row>
           </div>
         )}
         {!isDetailed && (
