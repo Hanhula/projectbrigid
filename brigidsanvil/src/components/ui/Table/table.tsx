@@ -608,6 +608,13 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => (row.comments ? row.comments.length : 0),
+      id: "comments",
+      cell: (info) => info.getValue(),
+      header: "Comments",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => row.updateDate.date,
       id: "date",
       cell: (info) => {

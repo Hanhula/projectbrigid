@@ -166,7 +166,8 @@
     }
 
     .col-wordcount,
-    .col-author {
+    .col-author,
+    .col-comments {
       min-width: 6em;
     }
 
@@ -183,7 +184,8 @@
     .cell-url,
     .cell-editURL,
     .cell-copyblock,
-    .cell-worldEmber {
+    .cell-worldEmber,
+    .cell-comments {
       text-align: center;
     }
 
