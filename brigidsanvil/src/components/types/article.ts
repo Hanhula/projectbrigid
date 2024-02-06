@@ -12,6 +12,7 @@ import { Timeline } from "./timeline";
 import { User } from "./user";
 import { World } from "./world";
 import { Image } from "./image";
+import { Comment } from "./comment";
 import _ from "lodash";
 
 export type WorldArticles = {
@@ -113,6 +114,7 @@ export type Article = {
     thirdUp: Article | Category | World;
   };
   foundInFields?: string[];
+  comments?: Comment[];
 };
 
 export type ApiResponse = {
@@ -165,14 +167,14 @@ export class ArticleDisplay {
     sidepanelcontenttop: string | null;
     sidepanelcontent: string | null;
     sidebarcontentbottom: string | null;
-  }
+  };
   footer: {
     fullfooter: string | null;
     footnotes: string | null;
     authorNotes: string | null;
     scrapbook: string | null;
     credits: string | null;
-  }
+  };
 
   constructor(article: Article) {
     this.id = article.id;
@@ -181,19 +183,25 @@ export class ArticleDisplay {
     this.tags = article.tags;
 
     this.header = {
-      subheading: article.subheading ? article.subheading : null
-    }
+      subheading: article.subheading ? article.subheading : null,
+    };
 
     this.body = {
-      content: article.content ? article.content : null
-    }
+      content: article.content ? article.content : null,
+    };
 
     this.sidebar = {
       sidebarcontent: article.sidebarcontent ? article.sidebarcontent : null,
-      sidepanelcontenttop: article.sidepanelcontenttop ? article.sidepanelcontenttop : null,
-      sidepanelcontent: article.sidepanelcontent ? article.sidepanelcontent : null,
-      sidebarcontentbottom: article.sidebarcontentbottom ? article.sidebarcontentbottom : null,
-    }
+      sidepanelcontenttop: article.sidepanelcontenttop
+        ? article.sidepanelcontenttop
+        : null,
+      sidepanelcontent: article.sidepanelcontent
+        ? article.sidepanelcontent
+        : null,
+      sidebarcontentbottom: article.sidebarcontentbottom
+        ? article.sidebarcontentbottom
+        : null,
+    };
 
     this.footer = {
       fullfooter: article.fullfooter ? article.fullfooter : null,
@@ -201,16 +209,24 @@ export class ArticleDisplay {
       authorNotes: article.authornotes ? article.authornotes : null,
       scrapbook: article.scrapbook ? article.scrapbook : null,
       credits: article.credits ? article.credits : null,
-    }
+    };
   }
 
-  formatMention(entity: { title: string; entityClass: string; id: string }): string {
+  formatMention(entity: {
+    title: string;
+    entityClass: string;
+    id: string;
+  }): string {
     return `@[${entity.title}](${entity.entityClass}:${entity.id})`;
   }
 
-  formatMentions(entities: Array<{ title: string; entityClass: string; id: string }> | undefined): string | null {
+  formatMentions(
+    entities:
+      | Array<{ title: string; entityClass: string; id: string }>
+      | undefined
+  ): string | null {
     if (entities && entities.length > 0) {
-      return entities.map(this.formatMention).join(', ');
+      return entities.map(this.formatMention).join(", ");
     } else {
       return null;
     }
@@ -220,9 +236,11 @@ export class ArticleDisplay {
     return `[url:${entity.url}] ${entity.title} [/url]`;
   }
 
-  formatLinks(entities: Array<{ title: string; url: string; id: string }> | undefined): string | null {
+  formatLinks(
+    entities: Array<{ title: string; url: string; id: string }> | undefined
+  ): string | null {
     if (entities && entities.length > 0) {
-      return entities.map(this.formatLink).join(', ');
+      return entities.map(this.formatLink).join(", ");
     } else {
       return null;
     }
@@ -230,7 +248,7 @@ export class ArticleDisplay {
 
   formatTitles(entities: Array<{ title: string; id: string }> | undefined) {
     if (entities && entities.length > 0) {
-      return entities.map(entities => entities.title).join(', ');
+      return entities.map((entities) => entities.title).join(", ");
     } else {
       return null;
     }

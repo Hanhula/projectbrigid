@@ -12,7 +12,7 @@ import WorldSelect from "../WorldSelect/worldselect";
 import { selectAuthToken } from "@/components/store/authSlice";
 import IdentityForm from "../Identity/identity";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
-import { faCloud, fas } from "@fortawesome/free-solid-svg-icons";
+import { faCloud, faCoins, fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Container, Navbar, NavbarToggle } from "react-bootstrap";
 
@@ -120,6 +120,12 @@ const NavBar = () => {
                     </Nav.Link>
                   </Nav.Item>
                 )}
+                <Nav.Item className="nav-dev-updates">
+                  <Nav.Link href="https://ko-fi.com/hanhula">
+                    <FontAwesomeIcon icon={faCoins} />
+                    Support Me!
+                  </Nav.Link>
+                </Nav.Item>
                 {identity.success && (
                   <Nav.Item className="nav-current-user">
                     <div className="current-user">
