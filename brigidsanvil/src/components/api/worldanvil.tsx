@@ -235,7 +235,7 @@ export function useWorldAnvilAPI() {
   async function updateArticleByField(
     articleID: string,
     fieldToUpdate: string,
-    dataToUpdate: string
+    dataToUpdate: any
   ) {
     try {
       const data = await updateArticleField(

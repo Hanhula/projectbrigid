@@ -96,7 +96,7 @@ export async function updateArticleField(
   authToken: string,
   articleID: string,
   fieldToUpdate: string,
-  dataToUpdate: string
+  dataToUpdate: any
 ) {
   const params = {
     id: articleID,
