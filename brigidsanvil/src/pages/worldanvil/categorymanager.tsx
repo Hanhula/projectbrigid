@@ -1,112 +1,142 @@
-import { selectWorld } from "@/components/store/apiSlice";
+import {
+  selectIsLoadingCategories,
+  selectWorld,
+} from "@/components/store/apiSlice";
 import Head from "next/head";
-import React from "react";
-import { Button, Card, Container, Form, InputGroup } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import React, { ReactNode } from "react";
+import {
+  Accordion,
+  Button,
+  Card,
+  Container,
+  Form,
+  Spinner,
+} from "react-bootstrap";
+import { useAccordionButton } from "react-bootstrap/AccordionButton";
+import { useDispatch, useSelector } from "react-redux";
 import "./search.scss";
 import { Category } from "@/components/types/category";
+import {
+  selectCurrentCategoryDetailStateByWorld,
+  selectWorldCategoriesByWorld,
+  setCategoryDetailState,
+} from "@/components/store/categoriesSlice";
+import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 
-const categories: Category[] = [
-  {
-    id: "493a0753-3f5e-48f7-8c99-2c4ef9a87610",
-    title: "Aletheian Culture",
-    slug: "aletheian-traditions-category",
-    state: "public",
-    isWip: null,
-    isDraft: null,
-    entityClass: "Category",
-    icon: "fa-solid fa-folder",
-    url: "http://www.worldanvil.com/w/istralar-hanhula/c/aletheian-traditions-category",
-    subscribergroups: [],
-    folderId: null,
-    tags: null,
-    updateDate: null,
-    description: null,
-    excerpt: null,
-    isBook: false,
-    displayBookTitle: true,
-    isCollapsed: false,
-    position: null,
-    creationDate: {
-      date: "2021-06-15 18:17:04.000000",
-      timezone_type: 3,
-      timezone: "UTC",
-    },
-    views: 189,
-    custom1: null,
-    custom2: null,
-    custom3: null,
-    custom4: null,
-    custom5: null,
-    cssClasses: null,
-    systemMeta:
-      '{"catCol1":["custom1"],"catCol2":["custom2","toc"],"catCol3":["custom3","articleBlocks","featuresArticles"],"catCol4":["custom4","maps","timelines"],"catCol5":["custom5"]}',
-    pagecover: null,
-    bookcover: null,
-    defaultarticlecover: null,
-    parent: {
-      id: "7f40f25f-5bbb-476e-b483-03707ddf6102",
-      title: "Aletheian Inhabitants",
-      slug: "aletheian-inhabitants-category",
-      state: "public",
-      isWip: null,
-      isDraft: null,
-      entityClass: "Category",
-      icon: "fa-solid fa-folder",
-      url: "http://www.worldanvil.com/w/istralar-hanhula/c/aletheian-inhabitants-category",
-      subscribergroups: [],
-      folderId: null,
-      tags: null,
-      updateDate: null,
-    },
-    world: {
-      id: "06a063ad-0a66-43da-ab88-7ff2941b854a",
-      title: "Istralar",
-      slug: "istralar-hanhula",
-      state: "public",
-      isWip: null,
-      isDraft: null,
-      entityClass: "World",
-      icon: "fa-solid fa-globe-stand",
-      url: "http://www.worldanvil.com/w/istralar-hanhula",
-      subscribergroups: [],
-      folderId: "-1",
-      tags: "",
-      updateDate: {
-        date: "2024-01-26 05:09:20.000000",
-        timezone_type: 3,
-        timezone: "UTC",
-      },
-    },
-    articleRedirect: null,
-    articles: [],
-    editURL:
-      "http://www.worldanvil.com/world/category/493a0753-3f5e-48f7-8c99-2c4ef9a87610/edit",
-    isEditable: true,
-    success: true,
-  },
-  {
-    id: "7f40f25f-5bbb-476e-b483-03707ddf6102",
-    title: "Aletheian Inhabitants",
-    slug: "aletheian-inhabitants-category",
-    state: "public",
-    isWip: null,
-    isDraft: null,
-    entityClass: "Category",
-    icon: "fa-solid fa-folder",
-    url: "http://www.worldanvil.com/w/istralar-hanhula/c/aletheian-inhabitants-category",
-    subscribergroups: [],
-    folderId: null,
-    tags: null,
-    updateDate: null,
-  },
-];
+import "./categorymanager.scss";
+
+interface NestedCategory extends Category {
+  children: NestedCategory[];
+}
+
+interface CustomToggleProps {
+  children: ReactNode;
+  eventKey: string;
+}
+
+function CustomToggle({ children, eventKey }: CustomToggleProps) {
+  const decoratedOnClick = useAccordionButton(eventKey);
+
+  return (
+    <Button variant="link" onClick={decoratedOnClick}>
+      {children}
+    </Button>
+  );
+}
 
 function CategoryManager() {
   const world = useSelector(selectWorld);
+  const isLoadingCategories = useSelector(selectIsLoadingCategories);
+  const worldCategories = useSelector(selectWorldCategoriesByWorld(world.id));
+  const categories = worldCategories!.categories;
+  const worldAnvilAPI = useWorldAnvilAPI();
+  const dispatch = useDispatch();
+  const currentCategoryDetailState = useSelector(
+    selectCurrentCategoryDetailStateByWorld(world.id)
+  );
+
+  const setCategoryDetailLevel = (checked: boolean) => {
+    dispatch(setCategoryDetailState({ world: world, isFullDetail: checked }));
+  };
+
+  // Modify the createNestedStructure function to use NestedCategory
+  function createNestedStructure(categories: Category[]): NestedCategory[] {
+    const map = new Map<string, NestedCategory>();
+    const root: NestedCategory[] = [];
+
+    categories.forEach((category) => {
+      map.set(category.id, { ...category, children: [] });
+    });
+
+    map.forEach((category) => {
+      if (category.parent) {
+        const parent = map.get(category.parent.id);
+        if (parent) {
+          parent.children.push(category);
+          // Sort the children based on the position parameter
+          parent.children.sort((a, b) => (b.position || 0) - (a.position || 0));
+        } else {
+          root.push(category);
+        }
+      } else {
+        root.push(category);
+      }
+    });
+
+    // Sort the root categories based on the position parameter
+    root.sort((a, b) => (b.position || 0) - (a.position || 0));
+
+    return root;
+  }
+
+  // Modify the CategoryItem component to use NestedCategory
+  function CategoryItem({ category }: { category: NestedCategory }) {
+    return (
+      <Card>
+        <Card.Header>
+          <CustomToggle eventKey={category.id.toString()}>
+            {category.title}
+          </CustomToggle>
+
+          {category.position !== undefined && (
+            <span className="m-2">Position: {category.position}</span>
+          )}
+          <span className="m-2">
+            Child Categories: {category.children.length}
+          </span>
+          <span className="m-2">
+            Child Articles: {category.articles ? category.articles.length : 0}
+          </span>
+        </Card.Header>
+        <Accordion.Collapse eventKey={category.id.toString()}>
+          <Card.Body>
+            {category.children.length > 0 && (
+              <Accordion alwaysOpen>
+                {category.children.map((child) => (
+                  <CategoryItem key={child.id} category={child} />
+                ))}
+              </Accordion>
+            )}
+            {category.articles && category.articles.length > 0 && (
+              <ul>
+                {category.articles.map((article, index) => (
+                  <li key={index} className="category-list-item list-article">
+                    {article.title}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    );
+  }
+
+  // Usage in CategoryManager component
+  const nestedCategories = createNestedStructure(categories);
 
   return (
-    <Container fluid>
+    <Container className="category-manager">
       <Head>
         <title>WorldAnvil Category Manager</title>
       </Head>
@@ -115,6 +145,38 @@ function CategoryManager() {
           <h1>Category Manager </h1>
           <p>Organise your categories!</p>
           <hr />
+          <div className="button-container top-button-container">
+            <Button
+              variant="primary"
+              className="fetch-button"
+              onClick={() => {
+                worldAnvilAPI.getCategories(50, 0, 0);
+              }}
+            >
+              Fetch All Categories
+            </Button>
+            {isLoadingCategories && (
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            )}
+            <Form>
+              <Form.Check
+                type="switch"
+                id="custom-switch"
+                label="Request full detail?"
+                checked={currentCategoryDetailState.isFullDetail}
+                onChange={(e) => setCategoryDetailLevel(e.target.checked)}
+              />
+            </Form>
+          </div>
+          {nestedCategories && (
+            <Accordion alwaysOpen>
+              {nestedCategories.map((category) => (
+                <CategoryItem key={category.id} category={category} />
+              ))}
+            </Accordion>
+          )}
         </div>
       </div>
     </Container>

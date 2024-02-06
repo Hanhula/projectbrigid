@@ -1,23 +1,21 @@
-import { useDispatch, useSelector } from "react-redux";
 import { Article, WorldArticle, WorldArticles } from "../types/article";
+import _ from "lodash";
 import {
-  selectIdentity,
-  setIdentity,
-  setWorld,
-  setWorlds,
-  selectWorld,
-  setLoadingArticles,
-} from "@/components/store/apiSlice";
-import { selectAuthToken } from "../store/authSlice";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-  setWorldArticles,
-  updateArticleById,
-} from "../store/articlesSlice";
-import _, { concat } from "lodash";
+  fetchArticle,
+  fetchArticles,
+  fetchCategories,
+  fetchCategory,
+  fetchIdentity,
+  fetchWorld,
+  fetchWorlds,
+  updateArticleField,
+  updateCategoryField,
+} from "./apicalls";
+import { useWorldAnvilState } from "./statelogic";
+import { checkArticleState, checkCategoryState } from "./apiutils";
+import { Category, WorldCategories, WorldCategory } from "../types/category";
 
-const CallType = {
+export const CallType = {
   GET: "GET",
   POST: "POST",
   PUT: "PUT",
@@ -25,106 +23,68 @@ const CallType = {
 };
 
 export function useWorldAnvilAPI() {
-  const dispatch = useDispatch();
-  const identity = useSelector(selectIdentity);
-  const authToken = useSelector(selectAuthToken);
-  const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
-  const currentArticles = worldArticles!.articles;
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
-  );
+  const {
+    dispatch,
+    identity,
+    authToken,
+    world,
+    currentArticles,
+    currentCategories,
+    currentDetailState,
+    currentCategoryDetailState,
+    setIdentity,
+    setWorld,
+    setWorlds,
+    setLoadingArticles,
+    setLoadingCategories,
+    setWorldArticles,
+    setWorldCategories,
+    updateArticleById,
+    updateCategoryById,
+  } = useWorldAnvilState();
 
   let articleFetch: Article[] = [];
+  let categoryFetch: Category[] = [];
 
-  async function callWorldAnvil(
-    endpoint: string,
-    callType: string,
-    body?: string
-  ) {
-    let options: {};
-    if (body) {
-      options = {
-        method: callType,
-        headers: {
-          authorization: authToken,
-        },
-        body: body,
-      };
-    } else {
-      options = {
-        method: callType,
-        headers: {
-          authorization: authToken,
-        },
-      };
-    }
+  function dispatchUpdateArticle(data: Article) {
+    let worldArticle: WorldArticle = {
+      world: world,
+      article: data,
+    };
+    dispatch(updateArticleById(worldArticle));
+  }
 
-    try {
-      const response = await fetch(`/api${endpoint}`, options);
-      if (!response.ok) {
-        if (!response.ok) {
-          const errorMessage = `API request failed with status ${response.status} (${response.statusText}) for URL: ${response.url}`;
-          throw new Error(errorMessage);
-        }
-      }
-
-      const data = await response.json();
-
-      return data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+  function dispatchUpdateCategory(data: Category) {
+    let worldCategory: WorldCategory = {
+      world: world,
+      category: data,
+    };
+    dispatch(updateCategoryById(worldCategory));
   }
 
   async function verifyIdentity() {
-    const endpoint = `/identity`;
-    const data = await callWorldAnvil(endpoint, CallType.GET);
+    const data = await fetchIdentity(authToken);
     dispatch(setIdentity(data));
     return data;
   }
 
   async function getWorlds(worldId: string) {
-    let params = {
-      id: worldId ? worldId : identity.id,
-      granularity: 0,
-    };
-    const endpoint = `/user/worlds?id=${params.id}`;
-    await callWorldAnvil(endpoint, CallType.POST).then((data) => {
-      dispatch(setWorlds(data));
-    });
-  }
-
-  async function testCall() {
-    try {
-      const response = await fetch("/api/hello");
-      if (!response.ok) {
-        throw new Error("API request failed");
-      }
-
-      const data = await response.json();
-
-      return data;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    const data = await fetchWorlds(authToken, worldId, identity.id);
+    dispatch(setWorlds(data));
   }
 
   async function getWorld(worldID: string) {
-    let params = {
-      id: worldID,
-      granularity: 0,
-    };
-    const endpoint = `/world?id=${params.id}&granularity=${params.granularity}`;
-    await callWorldAnvil(endpoint, CallType.GET).then((data) => {
-      dispatch(setWorld(data));
-    });
+    const data = await fetchWorld(authToken, worldID);
+    dispatch(setWorld(data));
   }
 
   async function testFinishArticles(articlesFetched: Article[]) {
-    articleFetch = await checkArticleState(articlesFetched);
+    articleFetch = await checkArticleState(
+      articlesFetched,
+      getArticle,
+      currentArticles,
+      currentDetailState
+    );
 
     let fetchedArticles: WorldArticles = {
       world: world,
@@ -135,6 +95,23 @@ export function useWorldAnvilAPI() {
     dispatch(setLoadingArticles(false));
   }
 
+  async function testFinishCategories(categoriesFetched: Category[]) {
+    categoryFetch = await checkCategoryState(
+      categoriesFetched,
+      getCategory,
+      currentCategories,
+      currentCategoryDetailState
+    );
+
+    let fetchedCategories: WorldCategories = {
+      world: world,
+      categories: categoryFetch,
+    };
+
+    dispatch(setWorldCategories(fetchedCategories));
+    dispatch(setLoadingCategories(false));
+  }
+
   async function getArticles(
     limit: number,
     offset: number,
@@ -143,8 +120,6 @@ export function useWorldAnvilAPI() {
   ) {
     dispatch(setLoadingArticles(true));
 
-    const endpoint = `/world/articles?id=${world.id}`;
-
     let trueLimit: number;
     if (articleCount && numLoop === 0 && articleCount >= limit) {
       trueLimit = Math.min(articleCount, 50);
@@ -152,12 +127,12 @@ export function useWorldAnvilAPI() {
       trueLimit = limit;
     }
 
-    const body = JSON.stringify({
-      limit: trueLimit,
-      offset: offset,
-    });
-
-    const articles = await callWorldAnvil(endpoint, CallType.POST, body);
+    const articles = await fetchArticles(
+      authToken,
+      world.id,
+      trueLimit,
+      offset
+    );
 
     if (articles.entities) {
       if (articleCount) {
@@ -188,105 +163,71 @@ export function useWorldAnvilAPI() {
     }
   }
 
-  async function checkArticleState(articles: Article[]) {
-    const currentArticleMap = new Map(
-      currentArticles.map((article) => [article.id, article])
+  async function getCategories(limit: number, offset: number, numLoop: number) {
+    dispatch(setLoadingCategories(true));
+
+    let trueLimit: number = limit;
+
+    const categories = await fetchCategories(
+      authToken,
+      world.id,
+      trueLimit,
+      offset
     );
 
-    let articleArray: Article[] = [];
-    const articlesToUpdate: Article[] = [];
-
-    for (const article of articles) {
-      const matchingArticle = currentArticleMap.get(article.id);
-      const shouldUpdate = shouldArticleUpdate(article, matchingArticle);
-
-      if (shouldUpdate) {
-        articlesToUpdate.push(article);
+    if (categories.entities) {
+      let newCategories;
+      if (numLoop === 0) {
+        newCategories = categories.entities;
+        categoryFetch = newCategories;
       } else {
-        articleArray.push(matchingArticle || article);
+        newCategories = categories.entities;
+        categoryFetch = categoryFetch.concat(newCategories);
+      }
+
+      if (newCategories.length !== 0) {
+        let nextFetchLimit = Math.min(50, newCategories.length);
+        await getCategories(
+          nextFetchLimit,
+          offset + newCategories.length,
+          numLoop + 1
+        );
+      } else {
+        testFinishCategories(categoryFetch);
       }
     }
-
-    if (currentDetailState && currentDetailState.isFullDetail) {
-      if (articlesToUpdate.length > 0) {
-        const updatedArticles = await getFullArticles(articlesToUpdate);
-        articleArray.push(...updatedArticles);
-      }
-    } else {
-      articleArray = articleArray.concat(articlesToUpdate);
-    }
-
-    return articleArray;
-  }
-
-  function shouldArticleUpdate(
-    newArticle: Article,
-    existingArticle: Article | undefined
-  ) {
-    if (!existingArticle) {
-      return true;
-    }
-
-    if (currentDetailState && currentDetailState.isFullDetail) {
-      return (
-        newArticle.updateDate.date > existingArticle.updateDate.date ||
-        existingArticle.wordcount === undefined ||
-        existingArticle.wordcount === null
-      );
-    }
-
-    return newArticle.updateDate.date > existingArticle.updateDate.date;
-  }
-
-  const throttleDelay = 200;
-
-  async function getFullArticles(articles: Article[]) {
-    const articleIds = articles.map((article) => article.id);
-    let updatedArticles: Article[] = [];
-
-    const articleQueue = articleIds.slice();
-
-    async function processQueue() {
-      while (articleQueue.length > 0) {
-        const articleId = articleQueue.shift();
-        try {
-          let updatedArticle = await getArticle(articleId!, false);
-          updatedArticles.push(updatedArticle);
-        } catch (error) {
-          console.error("Error getting article: ", error);
-        }
-        await new Promise((resolve) => setTimeout(resolve, throttleDelay));
-      }
-    }
-
-    await processQueue();
-
-    return updatedArticles;
   }
 
   async function getArticle(
     articleId: string,
     shouldDispatch: boolean
   ): Promise<Article> {
-    let params = {
-      id: articleId,
-      granularity: 2,
-    };
-    const endpoint = `/article?id=${params.id}&granularity=${params.granularity}`;
-
     try {
-      const data = await callWorldAnvil(endpoint, CallType.GET);
+      const data = await fetchArticle(authToken, articleId);
       console.log("Article to update: ", data);
       if (shouldDispatch) {
-        let worldArticle: WorldArticle = {
-          world: world,
-          article: data,
-        };
-        dispatch(updateArticleById(worldArticle));
+        dispatchUpdateArticle(data);
       }
       return data;
     } catch (error) {
       console.error("Error getting article:", error);
+      throw error;
+    }
+  }
+
+  async function getCategory(
+    categoryID: string,
+    shouldDispatch: boolean
+  ): Promise<Category> {
+    try {
+      const data = await fetchCategory(authToken, categoryID);
+      console.log("Category to update: ", data);
+      if (shouldDispatch) {
+        dispatchUpdateCategory(data);
+      }
+      return data;
+    } catch (error) {
+      console.error("Error getting category:", error);
       throw error;
     }
   }
@@ -296,27 +237,15 @@ export function useWorldAnvilAPI() {
     fieldToUpdate: string,
     dataToUpdate: string
   ) {
-    const params = {
-      id: articleID,
-    };
-    const endpoint = `/article?id=${params.id}`;
-
-    const updateBody: Record<string, any> = {};
-    updateBody[fieldToUpdate] = dataToUpdate;
-
     try {
-      const data = await callWorldAnvil(
-        endpoint,
-        CallType.PATCH,
-        JSON.stringify(updateBody)
+      const data = await updateArticleField(
+        authToken,
+        articleID,
+        fieldToUpdate,
+        dataToUpdate
       );
       console.log("Article to update: ", data);
-
-      let worldArticle: WorldArticle = {
-        world: world,
-        article: data,
-      };
-      dispatch(updateArticleById(worldArticle));
+      dispatchUpdateArticle(data);
       return data;
     } catch (error) {
       console.error("Error getting article:", error);
@@ -324,43 +253,36 @@ export function useWorldAnvilAPI() {
     }
   }
 
+  async function updateCategoryByField(
+    categoryID: string,
+    fieldToUpdate: string,
+    dataToUpdate: string
+  ) {
+    try {
+      const data = await updateCategoryField(
+        authToken,
+        categoryID,
+        fieldToUpdate,
+        dataToUpdate
+      );
+      console.log("Category to update: ", data);
+      dispatchUpdateCategory(data);
+      return data;
+    } catch (error) {
+      console.error("Error getting category:", error);
+      throw error;
+    }
+  }
+
   return {
-    callWorldAnvil: async (
-      url: string,
-      callType: string,
-      body: string | undefined
-    ) => {
-      return await callWorldAnvil(url, callType, body);
-    },
-    verifyIdentity: async () => {
-      return await verifyIdentity();
-    },
-    getWorlds: async (worldId: any) => {
-      return await getWorlds(worldId);
-    },
-    testCall: async () => {
-      return await testCall();
-    },
-    getWorld: async (id: string) => {
-      return await getWorld(id);
-    },
-    getArticles: async (
-      limit: number,
-      offset: number,
-      numLoop: number,
-      articleCount: number
-    ) => {
-      return await getArticles(limit, offset, numLoop, articleCount);
-    },
-    getArticle: async (id: string, shouldDispatch: boolean) => {
-      return await getArticle(id, shouldDispatch);
-    },
-    updateArticleByField: async (
-      articleID: string,
-      fieldToUpdate: string,
-      dataToUpdate: any
-    ) => {
-      return await updateArticleByField(articleID, fieldToUpdate, dataToUpdate);
-    },
+    verifyIdentity,
+    getWorlds,
+    getWorld,
+    getArticles,
+    getCategories,
+    getArticle,
+    getCategory,
+    updateArticleByField,
+    updateCategoryByField,
   };
 }

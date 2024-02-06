@@ -1,6 +1,17 @@
 import { Article } from "./article";
+import { WorldAnvilDate } from "./date";
 import { SubscriberGroup } from "./subscribergroup";
 import { World } from "./world";
+
+export type WorldCategories = {
+  world: World;
+  categories: Category[];
+};
+
+export type WorldCategory = {
+  world: World;
+  category: Category;
+};
 
 export type Category = {
   id: string;
@@ -15,17 +26,13 @@ export type Category = {
   subscribergroups: SubscriberGroup[];
   folderId: string | null;
   tags: string | null;
-  updateDate: {
-    date: string;
-    timezone_type: number;
-    timezone: string;
-  } | null;
+  updateDate: WorldAnvilDate | null;
   description?: string | null;
   excerpt?: string | null;
   isBook?: boolean;
   displayBookTitle?: boolean;
   isCollapsed?: boolean;
-  position?: string | null;
+  position?: number | null;
   creationDate?: {
     date: string;
     timezone_type: number;

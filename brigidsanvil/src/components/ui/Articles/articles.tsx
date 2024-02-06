@@ -11,7 +11,6 @@ import {
   selectWorldArticlesByWorld,
   setDetailState,
 } from "@/components/store/articlesSlice";
-import CSVGenerator from "../CSVGenerator/csvgenerator";
 
 const Articles = () => {
   const isLoadingArticles = useSelector(selectIsLoadingArticles);
@@ -48,7 +47,7 @@ const Articles = () => {
   const stubs = stubMurder();
   const drafts = DRAFTY();
 
-  const articleCount = world.countArticles;
+  const articleCount = world.countArticles ? world.countArticles : 0;
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
 

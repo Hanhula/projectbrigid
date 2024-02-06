@@ -11,6 +11,7 @@ export type AnvilAppState = {
   worlds: { success: boolean; entities: World[] };
   articles: Article[];
   isLoadingArticles: boolean;
+  isLoadingCategories: boolean;
 };
 
 // Initial state
@@ -20,6 +21,7 @@ const initialState = {
   world: {},
   worlds: { success: false },
   isLoadingArticles: false,
+  isLoadingCategories: false,
 };
 
 // Actual Slice
@@ -42,6 +44,9 @@ export const apiSlice = createSlice({
     setLoadingArticles(state, action) {
       state.isLoadingArticles = action.payload;
     },
+    setLoadingCategories(state, action) {
+      state.isLoadingCategories = action.payload;
+    },
   },
   extraReducers(builder) {
     builder.addCase(HYDRATE, (state, action) => {
@@ -59,6 +64,7 @@ export const {
   setWorld,
   setWorlds,
   setLoadingArticles,
+  setLoadingCategories,
 } = apiSlice.actions;
 
 export const selectAPIResponse = (state: { apiState: AnvilAppState }) =>
@@ -71,5 +77,7 @@ export const selectWorlds = (state: { apiState: AnvilAppState }) =>
   state.apiState.worlds;
 export const selectIsLoadingArticles = (state: { apiState: AnvilAppState }) =>
   state.apiState.isLoadingArticles;
+export const selectIsLoadingCategories = (state: { apiState: AnvilAppState }) =>
+  state.apiState.isLoadingCategories;
 
 export default apiSlice.reducer;
