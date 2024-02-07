@@ -6,6 +6,7 @@ import Head from "next/head";
 import React, { ReactNode } from "react";
 import {
   Accordion,
+  Badge,
   Button,
   Card,
   Container,
@@ -99,14 +100,16 @@ function CategoryManager() {
           </CustomToggle>
 
           {category.position !== undefined && (
-            <span className="m-2">Position: {category.position}</span>
+            <Badge bg="primary" className="m-1">
+              Position: {category.position}
+            </Badge>
           )}
-          <span className="m-2">
-            Child Categories: {category.children.length}
-          </span>
-          <span className="m-2">
-            Child Articles: {category.articles ? category.articles.length : 0}
-          </span>
+          <Badge bg="secondary" className="m-1">
+            Child categories: {category.children.length}
+          </Badge>
+          <Badge bg="secondary" className="m-1">
+            Child articles: {category.articles ? category.articles.length : 0}
+          </Badge>
         </Card.Header>
         <Accordion.Collapse eventKey={category.id.toString()}>
           <Card.Body>
