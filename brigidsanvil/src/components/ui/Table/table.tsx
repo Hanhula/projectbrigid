@@ -669,6 +669,37 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => (row.allowComments ? row.allowComments : false),
+      id: "allowComments",
+      cell: (info) => {
+        const allowComments = String(info.getValue()) || "false";
+
+        return (
+          <EditableToggle
+            value={allowComments}
+            onSave={async (newState) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "allowComments",
+                newState === "true" // Convert string to boolean
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            options={[
+              { value: "true", label: "true" },
+              { value: "false", label: "false" },
+            ]}
+          ></EditableToggle>
+        );
+      },
+      header: "Allow Comments?",
+      footer: (props) => props.column.id,
+    },
+    {
       id: "Sync",
       cell: (info) => {
         const handleSync = async () => {
