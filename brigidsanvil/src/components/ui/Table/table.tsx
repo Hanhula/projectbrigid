@@ -662,6 +662,34 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) =>
+        row.publicationDate ? row.publicationDate.date : "",
+      id: "publicationDate",
+      cell: (info) => {
+        if (info.getValue() === "") {
+          return "";
+        } else {
+          const dateString = String(info.getValue());
+          const inputDateString = dateString.substring(
+            0,
+            dateString.length - 7
+          );
+          const dateTime = DateTime.fromFormat(
+            inputDateString,
+            "yyyy-MM-dd HH:mm:ss",
+            { zone: "utc" }
+          );
+          const localDateTime = dateTime.toLocal();
+          const formattedDateTime = localDateTime.toFormat(
+            "yyyy-MM-dd 'at' HH:mm:ss"
+          );
+          return formattedDateTime;
+        }
+      },
+      header: "Published",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => (row.author ? row.author.title : ""),
       id: "author",
       cell: (info) => info.getValue() || "",
