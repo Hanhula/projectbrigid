@@ -61,6 +61,16 @@ const NavBar = () => {
                   <Nav.Link
                     as={Link}
                     eventKey="1"
+                    href="/worldanvil/categorymanager"
+                    disabled={!world.success && articles.length > 1}
+                  >
+                    Category Manager
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
                     href="/worldanvil/statistics"
                     disabled={!world.success && articles.length > 1}
                   >

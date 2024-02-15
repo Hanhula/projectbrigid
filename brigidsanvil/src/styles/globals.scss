@@ -59,10 +59,13 @@ a {
   --off-white: #dadada;
   --default: #279093;
   --default-hover: #197477;
+
   --primary: #6b327b;
   --primary-light: #985ba9;
   --primary-dark: #4e2959;
   --primary-hover: #562865;
+  --primary-rgb: 107, 50, 123;
+
   --create: #79478b;
   --create-dark: #42244d;
   --create-light: #ba6fd7;
@@ -74,6 +77,7 @@ a {
   --secondary-light: #0992b1;
   --secondary-lighter: #13c0e7;
   --secondary-lightest: #3dd9fc;
+  --secondary-rgb: 12, 122, 146;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -81,6 +85,9 @@ a {
     --bs-link-color: var(--secondary-lighter);
     --bs-link-hover-color: var(--secondary-lightest);
     --bs-link-color-rgb: 9, 144, 174;
+
+    --bs-primary-rgb: var(--primary-rgb);
+    --bs-secondary-rgb: var(--secondary-rgb);
   }
 }
 
