@@ -662,10 +662,69 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) =>
+        row.publicationDate ? row.publicationDate.date : "",
+      id: "publicationDate",
+      cell: (info) => {
+        if (info.getValue() === "") {
+          return "";
+        } else {
+          const dateString = String(info.getValue());
+          const inputDateString = dateString.substring(
+            0,
+            dateString.length - 7
+          );
+          const dateTime = DateTime.fromFormat(
+            inputDateString,
+            "yyyy-MM-dd HH:mm:ss",
+            { zone: "utc" }
+          );
+          const localDateTime = dateTime.toLocal();
+          const formattedDateTime = localDateTime.toFormat(
+            "yyyy-MM-dd 'at' HH:mm:ss"
+          );
+          return formattedDateTime;
+        }
+      },
+      header: "Published",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => (row.author ? row.author.title : ""),
       id: "author",
       cell: (info) => info.getValue() || "",
       header: "Author",
+      footer: (props) => props.column.id,
+    },
+    {
+      accessorFn: (row) => (row.allowComments ? row.allowComments : false),
+      id: "allowComments",
+      cell: (info) => {
+        const allowComments = String(info.getValue()) || "false";
+
+        return (
+          <EditableToggle
+            value={allowComments}
+            onSave={async (newState) => {
+              const paginationState = table.getState().pagination;
+              const articleID = info.row.original.id;
+              await worldAnvilAPI.updateArticleByField(
+                articleID,
+                "allowComments",
+                newState === "true" // Convert string to boolean
+              );
+              table.setPagination(paginationState);
+              await worldAnvilAPI.getArticle(articleID, true);
+              table.setPagination(paginationState);
+            }}
+            options={[
+              { value: "true", label: "true" },
+              { value: "false", label: "false" },
+            ]}
+          ></EditableToggle>
+        );
+      },
+      header: "Allow Comments?",
       footer: (props) => props.column.id,
     },
     {
