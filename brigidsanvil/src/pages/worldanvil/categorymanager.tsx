@@ -3,20 +3,11 @@ import {
   selectWorld,
 } from "@/components/store/apiSlice";
 import Head from "next/head";
-import React, { ReactNode } from "react";
-import {
-  Accordion,
-  Badge,
-  Button,
-  Card,
-  Container,
-  Form,
-  Spinner,
-} from "react-bootstrap";
-import { useAccordionButton } from "react-bootstrap/AccordionButton";
+import React from "react";
+import { Accordion, Button, Container, Form, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import "./search.scss";
-import { Category } from "@/components/types/category";
+import { Category, NestedCategory } from "@/components/types/category";
 import {
   selectCurrentCategoryDetailStateByWorld,
   selectWorldCategoriesByWorld,
@@ -25,25 +16,9 @@ import {
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 
 import "./categorymanager.scss";
+import { CategoryItem } from "@/components/ui/Categories/category-item";
 
-interface NestedCategory extends Category {
-  children: NestedCategory[];
-}
-
-interface CustomToggleProps {
-  children: ReactNode;
-  eventKey: string;
-}
-
-function CustomToggle({ children, eventKey }: CustomToggleProps) {
-  const decoratedOnClick = useAccordionButton(eventKey);
-
-  return (
-    <Button variant="link" onClick={decoratedOnClick}>
-      {children}
-    </Button>
-  );
-}
+// Modify the CategoryItem component to use NestedCategory
 
 function CategoryManager() {
   const world = useSelector(selectWorld);
@@ -90,51 +65,6 @@ function CategoryManager() {
     return root;
   }
 
-  // Modify the CategoryItem component to use NestedCategory
-  function CategoryItem({ category }: { category: NestedCategory }) {
-    return (
-      <Card>
-        <Card.Header>
-          <CustomToggle eventKey={category.id.toString()}>
-            {category.title}
-          </CustomToggle>
-
-          {category.position !== undefined && (
-            <Badge bg="primary" className="m-1">
-              Position: {category.position}
-            </Badge>
-          )}
-          <Badge bg="secondary" className="m-1">
-            Child categories: {category.children.length}
-          </Badge>
-          <Badge bg="secondary" className="m-1">
-            Child articles: {category.articles ? category.articles.length : 0}
-          </Badge>
-        </Card.Header>
-        <Accordion.Collapse eventKey={category.id.toString()}>
-          <Card.Body>
-            {category.children.length > 0 && (
-              <Accordion alwaysOpen>
-                {category.children.map((child) => (
-                  <CategoryItem key={child.id} category={child} />
-                ))}
-              </Accordion>
-            )}
-            {category.articles && category.articles.length > 0 && (
-              <ul>
-                {category.articles.map((article, index) => (
-                  <li key={index} className="category-list-item list-article">
-                    {article.title}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    );
-  }
-
   // Usage in CategoryManager component
   const nestedCategories = createNestedStructure(categories);
 
@@ -171,6 +101,12 @@ function CategoryManager() {
                 checked={currentCategoryDetailState.isFullDetail}
                 onChange={(e) => setCategoryDetailLevel(e.target.checked)}
               />
+              <Form.Text>
+                Please be aware that WorldAnvil does not have an easy way to
+                fetch the full detail of only recently-updated categories. It
+                will always reload every category from scratch. Please do not
+                press this excessively.
+              </Form.Text>
             </Form>
           </div>
           {nestedCategories && (

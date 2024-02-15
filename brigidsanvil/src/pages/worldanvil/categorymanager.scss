@@ -10,4 +10,46 @@
       border-bottom: none;
     }
   }
+
+  .category-position {
+    .input-group {
+      display: inline-flex;
+      flex-direction: row;
+      flex-wrap: inherit;
+    }
+
+    .input-group-text {
+      font-size: inherit;
+      font-weight: inherit;
+      border: none;
+      background-color: inherit;
+      padding: inherit;
+      margin-right: 0.5em;
+    }
+
+    .form-control {
+      display: inline-block;
+      width: 5em;
+      flex: inherit;
+      padding: 0em 0.75em;
+
+      text-align: center;
+
+      border: none;
+      background-color: var(--primary-dark);
+      border-top-left-radius: var(--bs-border-radius) !important;
+      border-bottom-left-radius: var(--bs-border-radius) !important;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+  }
 }

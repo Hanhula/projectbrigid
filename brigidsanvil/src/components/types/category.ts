@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Article } from "./article";
 import { WorldAnvilDate } from "./date";
 import { SubscriberGroup } from "./subscribergroup";
@@ -57,3 +58,7 @@ export type Category = {
   isEditable?: boolean;
   success?: boolean;
 };
+
+export interface NestedCategory extends Category {
+  children: NestedCategory[];
+}
