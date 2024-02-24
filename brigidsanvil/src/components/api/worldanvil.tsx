@@ -115,7 +115,7 @@ export function useWorldAnvilAPI() {
   async function getWorld(worldID: string) {
     let params = {
       id: worldID,
-      granularity: 0,
+      granularity: 1,
     };
     const endpoint = `/world?id=${params.id}&granularity=${params.granularity}`;
     await callWorldAnvil(endpoint, CallType.GET).then((data) => {

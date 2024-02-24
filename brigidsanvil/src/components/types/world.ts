@@ -1,47 +1,75 @@
+import { WorldAnvilDate } from "./date";
 import { Image } from "./image";
 import { SubscriberGroup } from "./subscribergroup";
 import { User } from "./user";
 
 export type World = {
-    id: string,
-    title: string,
-    slug: string,
-    state: string,
-    isWip: boolean,
-    isDraft: boolean,
-    entityClass: string,
-    icon: string,
-    url: string,
-    subscribergroups: SubscriberGroup[],
-    folderId: string,
-    tags: string,
-    updateDate: {
-        date: string;
-        timezone_type: number;
-        timezone: string;
-      },
-    descriptionParsed: string,
-    owner: User;
-    countFollowers: number,
-    countArticles: number,
-    countMaps: number,
-    countTimelines: number,
-    subtitle: string,
-    locale: string,
-    description: string,
-    excerpt: string,
-    isStored: boolean,
-    displayCss: string,
-    displayPanelCss: string,
-    copyright: string,
-    worldSidebarContent: string,
-    globalAnnouncement: string,
-    globalHeader: string,
-    globalSidebarFooter: string,
-    globalArticleIntroduction: string,
-    cover: Image,
-    genre: null,
-    theme: string,
-    isEditable: boolean,
-    success: boolean
-  }
+  id: string;
+  title: string;
+  slug: string;
+  state: string;
+  isWip: boolean;
+  isDraft: boolean;
+  entityClass: string;
+  icon: string;
+  url: string;
+  subscribergroups: SubscriberGroup[];
+  folderId: string;
+  tags: string;
+  updateDate: {
+    date: string;
+    timezone_type: number;
+    timezone: string;
+  };
+  descriptionParsed: string;
+  owner: User;
+  countFollowers: number;
+  countArticles: number;
+  countMaps: number;
+  countTimelines: number;
+  subtitle: string;
+  locale: string;
+  description: string;
+  excerpt: string;
+  isStored: boolean;
+  displayCss: string;
+  displayPanelCss: string;
+  copyright: string;
+  worldSidebarContent: string;
+  globalAnnouncement: string;
+  globalHeader: string;
+  globalSidebarFooter: string;
+  globalArticleIntroduction: string;
+  cover: Image;
+  genre: null;
+  theme: string;
+  isEditable: boolean;
+  success: boolean;
+  // Granularity 1
+  activationDescription?: string;
+  weight?: number;
+  creationDate?: WorldAnvilDate;
+  timeNeg?: string;
+  timePos?: string;
+  timeNegAbbr?: string;
+  timePosAbbr?: string;
+  timeCurrentYear?: string;
+  timeCurrentMonth?: number;
+  timeCurrentDay?: number;
+  timeCurrentDescription?: string;
+  worldDateFormat?: string;
+  displayRecentArticles?: boolean;
+  displayOtherArticles?: boolean;
+  displayArticleTooltips?: boolean;
+  displaySharingButtons?: boolean;
+  displayCommunityFeatures?: boolean;
+  displayCampaigns?: boolean;
+  displayHeroes?: boolean;
+  displayBlockHeaders?: boolean;
+  displaySecureLinks?: boolean;
+  placementToc?: string;
+  placementMaps?: string;
+  placementTimelines?: string;
+  views?: number;
+  goalWords?: number;
+};

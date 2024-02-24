@@ -16,9 +16,12 @@ import { ArticlePublicationDatePieChart } from "./ArticlePublicationDatePieChart
 import { ArticleLikesPieChart } from "./ArticleLikesPieChart/articleLikesPieChart";
 import { ArticleViewsPieChart } from "./ArticleViewsPieChart/articleViewsPieChart";
 import { Article } from "@/components/types/article";
+import { World } from "@/components/types/world";
+import { WorldAnvilDate } from "@/components/types/date";
+import { DateTime } from "luxon";
 
 export function WorldStatistics() {
-  const world = useSelector(selectWorld);
+  const world: World = useSelector(selectWorld);
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentDetailState = useSelector(
     selectCurrentDetailStateByWorld(world.id)
@@ -78,6 +81,21 @@ export function WorldStatistics() {
     return { totalComments, averageComments };
   };
 
+  const convertToDateString = (date: WorldAnvilDate) => {
+    const dateString = String(date.date);
+    const inputDateString = dateString.substring(0, dateString.length - 7);
+    const dateTime = DateTime.fromFormat(
+      inputDateString,
+      "yyyy-MM-dd HH:mm:ss",
+      { zone: "utc" }
+    );
+    const localDateTime = dateTime.toLocal();
+    const formattedDateTime = localDateTime.toFormat(
+      "yyyy-MM-dd 'at' HH:mm:ss"
+    );
+    return formattedDateTime;
+  };
+
   const { total: totalWordCount, average: averageWordCount } =
     calculateTotalAndAverage(articles, "wordcount");
   const { total: totalLikes, average: averageLikeCount } =
@@ -89,32 +107,50 @@ export function WorldStatistics() {
   const { totalComments, averageComments } =
     calculateTotalAndAverageComments(articles);
 
+  const creationDate = world.creationDate
+    ? convertToDateString(world.creationDate)
+    : "Update your world to see this date!";
+
   return (
     <div className="world-statistics-container">
       <div className="world-stats">
         <h2>World Statistics</h2>
-        <div className="row">
-          <div className="col">
+        <Row>
+          <Col>
             <dt>Current World</dt>
             <dd>{world.title}</dd>
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
             <dt>Followers</dt>
             <dd>{world.countFollowers}</dd>
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
+            <dt>World Creation Date</dt>
+            <dd>{creationDate}</dd>
+          </Col>
+          <Col>
+            <dt>Word Goal</dt>
+            <dd>{world.goalWords}</dd>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <dt>World Views</dt>
+            <dd>{world.views}</dd>
+          </Col>
+          <Col>
             <dt>Number of Articles</dt>
             <dd>{articles.length}</dd>
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
             <dt>Number of Maps</dt>
             <dd>{world.countMaps}</dd>
-          </div>
-          <div className="col">
+          </Col>
+          <Col>
             <dt>Number of Timelines</dt>
             <dd>{world.countTimelines}</dd>
-          </div>
-        </div>
+          </Col>
+        </Row>
         <hr />
         {isDetailed && (
           <div className="advanced-stats">
