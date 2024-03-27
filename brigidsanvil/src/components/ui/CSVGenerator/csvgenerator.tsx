@@ -65,7 +65,10 @@ const CSVGenerator: React.FC<CSVGeneratorProps> = ({ articles }) => {
     delimiter: ",",
   });
 
-  const csvDataUri = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+  const csvData = "\ufeff" + csv;
+  const csvDataUri = `data:text/csv;charset=utf-8,${encodeURIComponent(
+    csvData
+  )}`;
 
   return (
     <Button variant="primary">
