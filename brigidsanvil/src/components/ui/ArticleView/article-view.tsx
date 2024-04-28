@@ -79,9 +79,50 @@ import {
   Vehicle,
   VehicleDisplay,
 } from "@/components/types/article-types/vehicle";
+import { renderToStaticMarkup } from "react-dom/server";
 
 interface ArticleViewProps {
   article: Article;
+  generateHTML?: boolean;
+}
+
+function getArticleHtml(article: Article) {
+  // Render the ArticleView component to a static HTML string
+  const html = renderToStaticMarkup(
+    <ArticleView article={article} generateHTML={true} />
+  );
+
+  // Wrap the HTML string in a complete HTML document structure
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${article.title}</title>
+      </head>
+      <body>
+        ${html}
+      </body>
+    </html>
+  `;
+}
+
+function downloadHtml(html: string, filename: string) {
+  // Create a Blob from the HTML string
+  const blob = new Blob([html], { type: "text/html" });
+
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
+
+  // Create a link with this URL
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+
+  // Programmatically click the link to start the download
+  link.click();
+
+  // Release the reference to the file by revoking the URL
+  URL.revokeObjectURL(url);
 }
 
 function titleFormatting(title: string) {
@@ -92,8 +133,13 @@ function titleFormatting(title: string) {
     .replace(/\bOr\b/g, "/"); // Replace "Or" with "/"
 }
 
-const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
+const ArticleView: React.FC<ArticleViewProps> = ({ article, generateHTML }) => {
   let display;
+
+  function handleDownload() {
+    const html = getArticleHtml(article);
+    downloadHtml(html, `${article.title}.html`);
+  }
 
   switch (article.entityClass) {
     case ArticleTypes.Condition:
@@ -184,10 +230,10 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
         parsedHeaderFields.push(
           <div key={fieldName} className={fieldName}>
             {fieldName === "subheading" && (
-              <h4>{WorldAnvilParser.parseField(field)}</h4>
+              <h4>{WorldAnvilParser.parseField(field, generateHTML)}</h4>
             )}
             {fieldName !== "subheading" && (
-              <h3>{WorldAnvilParser.parseField(field)}</h3>
+              <h3>{WorldAnvilParser.parseField(field, generateHTML)}</h3>
             )}
           </div>
         );
@@ -201,7 +247,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
         parsedBodyFields.push(
           <div key={fieldName} className={fieldName}>
             {fieldName !== "content" && <h3>{titleFormatting(fieldName)}</h3>}
-            {WorldAnvilParser.parseField(field)}
+            {WorldAnvilParser.parseField(field, generateHTML)}
           </div>
         );
       }
@@ -221,7 +267,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
               fieldName !== "disbanded" && (
                 <dt>{titleFormatting(fieldName)}</dt>
               )}
-            <dd>{WorldAnvilParser.parseField(field)}</dd>
+            <dd>{WorldAnvilParser.parseField(field, generateHTML)}</dd>
           </div>
         );
       }
@@ -236,7 +282,7 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
             {fieldName !== "fullfooter" && (
               <h5>{titleFormatting(fieldName)}</h5>
             )}
-            <div>{WorldAnvilParser.parseField(field)}</div>
+            <div>{WorldAnvilParser.parseField(field, generateHTML)}</div>
           </div>
         );
       }
@@ -250,23 +296,32 @@ const ArticleView: React.FC<ArticleViewProps> = ({ article }) => {
           <Image src={article.cover.url} fluid />
         )}
       </div>
-      <div className="article-buttons">
-        <Link href={article.url}>
-          <Button className="article-link">{"View on WorldAnvil"}</Button>
-        </Link>
-        <Link href={article.editURL ? article.editURL : ""}>
+      {!generateHTML && (
+        <div className="article-buttons">
+          <Link href={article.url}>
+            <Button className="article-link">{"View on WorldAnvil"}</Button>
+          </Link>
+          <Link href={article.editURL ? article.editURL : ""}>
+            <Button
+              className="article-link"
+              variant={article.editURL ? "primary" : "disabled"}
+              disabled={!article.editURL}
+            >
+              {"Edit on WorldAnvil"}
+            </Button>
+          </Link>
+          <Button className="article-link" variant="primary disabled">
+            {"Edit on Brigid"}
+          </Button>
           <Button
             className="article-link"
-            variant={article.editURL ? "primary" : "disabled"}
-            disabled={!article.editURL}
+            variant="primary"
+            onClick={handleDownload}
           >
-            {"Edit on WorldAnvil"}
+            {"Download HTML (Beta)"}
           </Button>
-        </Link>
-        <Button className="article-link" variant="primary disabled">
-          {"Edit on Brigid"}
-        </Button>
-      </div>
+        </div>
+      )}
       <h1>{article.title}</h1>
       {parsedHeaderFields.map((parsedField, index) => (
         <div key={index}>{parsedField}</div>

@@ -295,7 +295,7 @@ class WorldAnvilParser extends yabbcode {
     });
   }
 
-  processContent(content: string) {
+  processContent(content: string, parseForHTML: boolean = false) {
     const linkPattern = /@\[([^\]]+)\]\(([^:]+):([^)]+)\)/g;
     const containerPattern = /\[container:([^\]]+)\]/g;
     const sectionPattern = /\[section:([^\]]+)\]/g;
@@ -327,10 +327,6 @@ class WorldAnvilParser extends yabbcode {
       .replace(h4Pattern, (match, anchorText) => `[h4=${anchorText}]`)
       .replace(h5Pattern, (match, anchorText) => `[h5=${anchorText}]`)
       .replace(urlPattern, (match, href) => `[url=${href}]`)
-      .replace(
-        linkPattern,
-        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
-      )
       .replace(redactedPattern, (match, number) => `[redacted=${number}]`)
       .replace(
         keyValuePattern,
@@ -341,11 +337,24 @@ class WorldAnvilParser extends yabbcode {
         (match, color, content) => `[color=${color}]${content}[/color]`
       );
 
+    if (parseForHTML) {
+      console.log("aaaaaaaaaaaaaaaaaaaaaa");
+      content = content.replace(
+        linkPattern,
+        (match, name, type, id) => `[customUrl=${name}]${name}[/customUrl]`
+      );
+    } else {
+      content = content.replace(
+        linkPattern,
+        (match, name, type, id) => `[customUrl=${id}]${name}[/customUrl]`
+      );
+    }
+
     return content;
   }
 
-  parseField(content: string) {
-    let preprocessedContent = this.processContent(content);
+  parseField(content: string, parseForHTML: boolean = false) {
+    let preprocessedContent = this.processContent(content, parseForHTML);
     let parsedBBCode = this.parse(preprocessedContent)
       .replace(/(?<!<br\s*\/?>)(<br\s*\/?>)(?!<br\s*\/?>)/g, "")
       .replace(/<ber>/g, "<br>")
