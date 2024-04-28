@@ -79,50 +79,11 @@ import {
   Vehicle,
   VehicleDisplay,
 } from "@/components/types/article-types/vehicle";
-import { renderToStaticMarkup } from "react-dom/server";
+import { getArticleHtml, downloadHtml } from "./article-export-helpers";
 
 interface ArticleViewProps {
   article: Article;
   generateHTML?: boolean;
-}
-
-function getArticleHtml(article: Article) {
-  // Render the ArticleView component to a static HTML string
-  const html = renderToStaticMarkup(
-    <ArticleView article={article} generateHTML={true} />
-  );
-
-  // Wrap the HTML string in a complete HTML document structure
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>${article.title}</title>
-      </head>
-      <body>
-        ${html}
-      </body>
-    </html>
-  `;
-}
-
-function downloadHtml(html: string, filename: string) {
-  // Create a Blob from the HTML string
-  const blob = new Blob([html], { type: "text/html" });
-
-  // Create a URL for the Blob
-  const url = URL.createObjectURL(blob);
-
-  // Create a link with this URL
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-
-  // Programmatically click the link to start the download
-  link.click();
-
-  // Release the reference to the file by revoking the URL
-  URL.revokeObjectURL(url);
 }
 
 function titleFormatting(title: string) {
