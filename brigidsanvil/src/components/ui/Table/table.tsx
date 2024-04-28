@@ -67,6 +67,7 @@ import {
   csvFilter,
 } from "./table-helpers";
 import EditableToggle from "./EditableComponents/editable-toggle";
+import { downloadAllArticlesHtml } from "../ArticleView/article-export-helpers";
 
 // Add all solid icons to the library so you can use it in your components
 library.add(fas);
@@ -783,7 +784,10 @@ export function ArticleTable({
       <Button variant="primary" onClick={handleShow}>
         Toggle Columns
       </Button>{" "}
-      <CSVGenerator articles={data}></CSVGenerator>
+      <CSVGenerator articles={data}></CSVGenerator>{" "}
+      <Button variant="primary" onClick={() => downloadAllArticlesHtml(data)}>
+        Export Articles to HTML [BETA]
+      </Button>
       <Offcanvas show={show} onHide={handleClose}>
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>Toggle Columns</Offcanvas.Title>

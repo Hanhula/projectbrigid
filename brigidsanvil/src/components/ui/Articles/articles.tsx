@@ -11,7 +11,6 @@ import {
   selectWorldArticlesByWorld,
   setDetailState,
 } from "@/components/store/articlesSlice";
-import CSVGenerator from "../CSVGenerator/csvgenerator";
 
 const Articles = () => {
   const isLoadingArticles = useSelector(selectIsLoadingArticles);

@@ -8,7 +8,7 @@ export type Report = Article & {
     date: string | null;
     timezone_type: number;
     timezone: string | null;
-  };
+  } | null;
   rewards: string | null;
   quests: string | null;
   interactions: string | null;
@@ -53,22 +53,39 @@ export class ReportDisplay extends ArticleDisplay {
       content: report.content ? report.content : null,
       rewardsGranted: report.rewards ? report.rewards : null,
       missionsOrQuestsCompleted: report.quests ? report.quests : null,
-      charactersInteractedWith: report.interactions ? report.interactions : null,
+      charactersInteractedWith: report.interactions
+        ? report.interactions
+        : null,
       createdContent: report.createdContent ? report.createdContent : null,
       relatedReports: report.relatedReports ? report.relatedReports : null,
       notes: report.reportNotes ? report.reportNotes : null,
     };
-    
+
     this.sidebar = {
       sidebarcontent: report.sidebarcontent ? report.sidebarcontent : null,
-      sidepanelcontenttop: report.sidepanelcontenttop ? report.sidepanelcontenttop : null,
-      reportDate: report.reportDate.date ? report.reportDate.date : null,
-      primaryLocation: report.primarygeographicLocation ? this.formatMention(report.primarygeographicLocation) : null,
-      secondaryLocation: report.secondarygeographicLocation ? this.formatMention(report.secondarygeographicLocation) : null,
+      sidepanelcontenttop: report.sidepanelcontenttop
+        ? report.sidepanelcontenttop
+        : null,
+      reportDate:
+        report.reportDate && report.reportDate.date
+          ? report.reportDate.date
+          : null,
+      primaryLocation: report.primarygeographicLocation
+        ? this.formatMention(report.primarygeographicLocation)
+        : null,
+      secondaryLocation: report.secondarygeographicLocation
+        ? this.formatMention(report.secondarygeographicLocation)
+        : null,
       relatedPlots: report.plots ? this.formatMentions(report.plots) : null,
-      relatedCharacters: report.relatedPersons ? this.formatMentions(report.relatedPersons) : null,
-      sidepanelcontent: report.sidepanelcontent ? report.sidepanelcontent : null,
-      sidebarcontentbottom: report.sidebarcontentbottom ? report.sidebarcontentbottom : null,
+      relatedCharacters: report.relatedPersons
+        ? this.formatMentions(report.relatedPersons)
+        : null,
+      sidepanelcontent: report.sidepanelcontent
+        ? report.sidepanelcontent
+        : null,
+      sidebarcontentbottom: report.sidebarcontentbottom
+        ? report.sidebarcontentbottom
+        : null,
     };
   }
 }
