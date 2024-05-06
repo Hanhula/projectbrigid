@@ -48,14 +48,10 @@ export const customTransform = (domNode: DOMNode) => {
 
     if (iconNameClass) {
       const iconName = iconNameClass.replace("fa-", "");
-
-      console.log(iconName);
       const iconDefinition = findIconDefinition({
         prefix: "fas",
         iconName: iconName as IconName,
       });
-
-      console.log(iconDefinition);
 
       if (iconDefinition) {
         return <FontAwesomeIcon icon={iconDefinition} />;

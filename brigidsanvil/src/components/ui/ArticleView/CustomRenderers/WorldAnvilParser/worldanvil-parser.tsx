@@ -338,7 +338,6 @@ class WorldAnvilParser extends yabbcode {
       );
 
     if (parseForHTML) {
-      console.log("aaaaaaaaaaaaaaaaaaaaaa");
       content = content.replace(
         linkPattern,
         (match, name, type, id) => `[customUrl=${name}]${name}[/customUrl]`
