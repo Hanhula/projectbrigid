@@ -404,7 +404,8 @@ export const WorldAnvilEditor = ({
   const delayedDispatch = _.debounce((value) => {
     console.log("toserialise: ", value);
     const serializedValue = editUtils.serializeVal(value);
-    console.log("serialised: ", serializedValue);
+    //console.log("serialised: ", serializedValue);
+    console.log("serialising: ", serializedValue.replace(/\n/g, "\\n"));
     dispatch(
       setEditedContentByID({
         world: world,

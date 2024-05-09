@@ -76,7 +76,7 @@ class EditUtils {
   };
 
   serializeNode = (node: SlateNode): string => {
-    console.log("problem child: ", node);
+    //console.log("problem child: ", node);
     if (Text.isText(node)) {
       let text = node.text;
       for (const [tag, bbcode] of Object.entries(this.markBBCodeTags)) {
@@ -121,7 +121,8 @@ class EditUtils {
   };
 
   deserialize = (savedBBcode: string) => {
-    console.log("deserialising: ", savedBBcode);
+    //console.log("deserialising: ", savedBBcode);
+    console.log("deserialising: ", savedBBcode.replace(/\n/g, "\\n"));
     if (savedBBcode) {
       const htmlString = WorldAnvilParser.parsePureBBCode(savedBBcode);
       const document = new DOMParser().parseFromString(htmlString, "text/html");
@@ -134,7 +135,10 @@ class EditUtils {
       );
 
       const elements = [];
-      let currentParagraph = { type: "paragraph", children: [] };
+      let currentParagraph = {
+        type: "paragraph",
+        children: [] as CustomElement[],
+      };
 
       for (const child of flattenedChildren) {
         if (
@@ -160,14 +164,14 @@ class EditUtils {
       console.log("fully deserialised: ", elements);
 
       return elements;
+    } else {
+      return this.defaultInitialValue;
     }
-
-    return this.defaultInitialValue;
   };
 
   deserializeNode: any = (el: Node, markAttributes: NodeAttributes = {}) => {
     if (el.nodeType === Node.TEXT_NODE && el.textContent) {
-      console.log("textContent:", el.textContent); // Log 1
+      //console.log("textContent:", el.textContent); // Log 1
 
       const mentionRegex = /@\[(.*?)\]\((.*?):(.*?)\)/g;
       let match;
@@ -176,7 +180,7 @@ class EditUtils {
 
       while ((match = mentionRegex.exec(el.textContent)) !== null) {
         const [matchText, text, entityClass, id] = match;
-        console.log("match:", match); // Log 2
+        //console.log("match:", match); // Log 2
 
         // Add the text before the mention
         if (match.index > lastIndex) {
@@ -207,7 +211,7 @@ class EditUtils {
         );
       }
 
-      console.log("nodes:", nodes); // Log 3
+      //console.log("nodes:", nodes); // Log 3
 
       return nodes;
     } else if (el.nodeType !== Node.ELEMENT_NODE) {
@@ -242,7 +246,10 @@ class EditUtils {
     switch (el.nodeName) {
       case "BODY": {
         const elements = [];
-        let currentParagraph = { type: "paragraph", children: [] };
+        let currentParagraph = {
+          type: "paragraph",
+          children: [] as CustomText[],
+        };
 
         for (const child of children) {
           if (
@@ -259,7 +266,7 @@ class EditUtils {
             // Check for \n\n and split into paragraphs
             if (child.text && child.text.includes("\n\n")) {
               const parts = child.text.split("\n\n");
-              parts.forEach((part, i) => {
+              parts.forEach((part: string, i: number) => {
                 currentParagraph.children.push({ text: part.trim() });
                 if (i < parts.length - 1) {
                   elements.push(currentParagraph);
