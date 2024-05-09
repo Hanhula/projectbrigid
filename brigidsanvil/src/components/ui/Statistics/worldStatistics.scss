@@ -34,4 +34,15 @@
   .nav-tabs {
     margin-bottom: 1em;
   }
+
+  .progress-container {
+    .alert {
+      margin-top: 0.5em;
+    }
+
+    .progress {
+      --bs-progress-height: 2em;
+      --bs-progress-font-size: 1em;
+    }
+  }
 }

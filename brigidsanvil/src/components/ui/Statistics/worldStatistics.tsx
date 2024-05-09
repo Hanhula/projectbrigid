@@ -8,7 +8,15 @@ import {
 import { ArticlePieChart } from "./ArticlePieChart/articlePieChart";
 import TagCloud from "./TagCloud/tagCloud";
 import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
-import { Col, Row, Tab, Tabs } from "react-bootstrap";
+import {
+  Alert,
+  Col,
+  Container,
+  ProgressBar,
+  Row,
+  Tab,
+  Tabs,
+} from "react-bootstrap";
 import { ArticleLengthPieChart } from "./ArticleLengthPieChart/articleLengthPieChart";
 import { ArticleCreationDatePieChart } from "./ArticleCreationDatePieChart/articleCreationDatePieChart";
 import { ArticleUpdateDatePieChart } from "./ArticleUpdateDatePieChart/articleUpdateDatePieChart";
@@ -111,6 +119,10 @@ export function WorldStatistics() {
     ? convertToDateString(world.creationDate)
     : "Update your world to see this date!";
 
+  const progressPercentage = world.goalWords
+    ? Math.round((totalWordCount / world.goalWords) * 100)
+    : 0;
+
   return (
     <div className="world-statistics-container">
       <div className="world-stats">
@@ -205,6 +217,28 @@ export function WorldStatistics() {
                 </Row>
               </Col>
             </Row>
+            {world.goalWords && (
+              <Row>
+                <Col>
+                  <Container className="progress-container">
+                    <h5>Wordcount Progress</h5>
+                    <ProgressBar
+                      striped
+                      variant="success"
+                      max={world.goalWords}
+                      now={totalWordCount}
+                      label={`${progressPercentage}%`}
+                    ></ProgressBar>
+                    {totalWordCount > world.goalWords && (
+                      <Alert variant="success">
+                        {`Congratulations! You have exceeded your word goal by 
+                        ${totalWordCount - world.goalWords} words!`}
+                      </Alert>
+                    )}
+                  </Container>
+                </Col>
+              </Row>
+            )}
           </div>
         )}
         {!isDetailed && (
