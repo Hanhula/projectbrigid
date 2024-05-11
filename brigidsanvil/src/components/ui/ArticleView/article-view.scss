@@ -38,4 +38,12 @@
   h3 {
     margin-top: 0.5em;
   }
+
+  a {
+    color: var(--primary-light);
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
 }

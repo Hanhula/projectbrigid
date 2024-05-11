@@ -22,7 +22,9 @@ import {
 
 function WorldAnvilSearch() {
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const worldArticles = useSelector((state) =>
+    selectWorldArticlesByWorld(state, world.id)
+  );
   const articles = worldArticles?.articles || [];
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 

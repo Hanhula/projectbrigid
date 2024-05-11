@@ -8,6 +8,15 @@ import TextStyle, { TextStyleOptions } from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Button, ButtonGroup, ButtonToolbar } from "react-bootstrap";
 import "@material-symbols/font-400";
+import { useDispatch, useSelector } from "react-redux";
+import { selectWorld } from "@/components/store/apiSlice";
+import {
+  selectCurrentArticles,
+  makeSelectEditedContentByID,
+  setEditedContentByID,
+} from "@/components/store/articlesSlice";
+import { useEffect } from "react";
+import _ from "lodash";
 
 const MenuBar = () => {
   const { editor } = useCurrentEditor();
@@ -219,18 +228,55 @@ display: none;
 </blockquote>
 `;
 
-export const WorldAnvilEditor = (
-  htmlContent: string,
-  placeholderContent: string
-) => {
-  const content = htmlContent ? htmlContent : placeholderContent;
+export const WorldAnvilEditor = ({
+  worldID,
+  articleID,
+  fieldIdentifier,
+  htmlContent,
+  placeholderContent,
+}: {
+  worldID: string;
+  articleID: string;
+  fieldIdentifier: string;
+  htmlContent: any;
+  placeholderContent: string;
+}) => {
+  const selectEditedContentByID = makeSelectEditedContentByID(
+    worldID,
+    articleID,
+    fieldIdentifier
+  );
+  const editedContent = useSelector(selectEditedContentByID);
+  const content = editedContent
+    ? editedContent
+    : htmlContent
+    ? htmlContent
+    : placeholderContent;
+
   const defaultContent = content ? content : "";
+  const dispatch = useDispatch();
+
+  const delayedDispatch = _.debounce((value) => {
+    console.log("Edited Content: ", value);
+    // dispatch(
+    //   setEditedContentByID({
+    //     world: worldID,
+    //     articleID: articleID,
+    //     fieldIdentifier,
+    //     editedFields: value,
+    //   })
+    // );
+  }, 2000);
 
   return (
     <EditorProvider
       slotBefore={<MenuBar />}
       extensions={extensions}
       content={defaultContent}
+      onUpdate={(event) => {
+        const html = event.editor.getHTML();
+        delayedDispatch(html);
+      }}
     ></EditorProvider>
   );
 };

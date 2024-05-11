@@ -62,7 +62,7 @@ export default function EditPage() {
                 <Button>View on WorldAnvil</Button>
               </Link>
             </div>
-            {/* <CharacterEdit article={article as Person}></CharacterEdit> */}
+            <CharacterEdit article={article as Person}></CharacterEdit>
           </Col>
         </Row>
       </Container>

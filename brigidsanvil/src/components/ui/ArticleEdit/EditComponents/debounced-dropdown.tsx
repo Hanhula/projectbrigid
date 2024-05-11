@@ -24,7 +24,9 @@ const DebouncedDropdown = ({
   isMulti?: boolean;
 }) => {
   const dispatch = useDispatch();
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const worldArticles = useSelector((state) =>
+    selectWorldArticlesByWorld(state, world.id)
+  );
   const currentArticles = worldArticles!.articles;
 
   const options = currentArticles
@@ -39,9 +41,13 @@ const DebouncedDropdown = ({
       if (initialValue) break;
     }
   } else {
-    initialValue = options.find(
-      (option) => option.value === article[fieldIdentifier].id
-    );
+    if (article[fieldIdentifier]) {
+      initialValue = options.find(
+        (option) => option.value === article[fieldIdentifier].id
+      );
+    } else {
+      console.error("Help!");
+    }
   }
 
   const delayedDispatch = debounce((value) => {

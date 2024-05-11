@@ -5,18 +5,39 @@ import { selectWorld } from "@/components/store/apiSlice";
 import { useSelector } from "react-redux";
 import DebouncedInput from "./debounced-input";
 import DebouncedDropdown from "./debounced-dropdown";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
+import { renderToStaticMarkup } from "react-dom/server";
 
 const CharacterEdit = ({ article }: { article: Person }) => {
   const world = useSelector(selectWorld);
 
-  const renderEditor = (fieldIdentifier: string, title?: string) => (
-    <>
-      {title && <h3>{title}</h3>}
-      <WorldAnvilEditor content={article[fieldIdentifier]!} />
-      <br />
-    </>
-  );
+  const renderEditor = useMemo(() => {
+    return (fieldIdentifier: string, title?: string) => {
+      // get article field by field identifier
+      const articleField = article[fieldIdentifier];
+      console.log("Field to parse ", articleField);
+      // use WorldAnvilParser.parseField to parse the field
+      const parsedField = WorldAnvilParser.parseField(articleField, true);
+      const htmlField = renderToStaticMarkup(<>{parsedField}</>);
+      console.log("Parsed field ", parsedField);
+      console.log("HTML field ", htmlField);
+      // pass the parsed field into the editor
+      return (
+        <>
+          {title && <h3>{title}</h3>}
+          <WorldAnvilEditor
+            worldID={world.id}
+            articleID={article.id}
+            fieldIdentifier={fieldIdentifier}
+            htmlContent={htmlField}
+            placeholderContent="Enter text here..."
+          />
+          <br />
+        </>
+      );
+    };
+  }, [article]);
 
   return (
     <div>

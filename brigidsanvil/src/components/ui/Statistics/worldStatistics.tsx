@@ -30,7 +30,9 @@ import { DateTime } from "luxon";
 
 export function WorldStatistics() {
   const world: World = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const worldArticles = useSelector((state) =>
+    selectWorldArticlesByWorld(state, world.id)
+  );
   const currentDetailState = useSelector(
     selectCurrentDetailStateByWorld(world.id)
   );

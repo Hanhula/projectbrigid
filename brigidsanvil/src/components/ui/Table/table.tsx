@@ -784,7 +784,7 @@ export function ArticleTable({
       <Button variant="primary" onClick={handleShow}>
         Toggle Columns
       </Button>{" "}
-      <CSVGenerator articles={data}></CSVGenerator>{" "}
+      <CSVGenerator />{" "}
       <Button variant="primary" onClick={() => downloadAllArticlesHtml(data)}>
         Export Articles to HTML [BETA]
       </Button>

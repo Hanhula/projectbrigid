@@ -357,9 +357,14 @@ export const selectIsLoadingWorldArticles = (state: {
   articleState: WorldArticlesState;
 }) => state.articleState.isLoadingWorldArticles;
 
-export const selectWorldArticlesByWorld =
-  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const worldArticle = state.articleState.worldArticles.find(
+export const selectWorldArticlesByWorld = createSelector(
+  [
+    (state: { articleState: WorldArticlesState }) =>
+      state.articleState.worldArticles,
+    (state, worldId: string) => worldId,
+  ],
+  (worldArticles, worldId) => {
+    const worldArticle = worldArticles.find(
       (worldArticle) => worldArticle.world.id === worldId
     );
 
@@ -369,7 +374,8 @@ export const selectWorldArticlesByWorld =
     };
 
     return worldArticle || placeholderArticle;
-  };
+  }
+);
 
 export const selectCurrentDetailStateByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
