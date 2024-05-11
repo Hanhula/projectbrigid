@@ -9,18 +9,11 @@ import { useState } from "react";
 
 const CharacterEdit = ({ article }: { article: Person }) => {
   const world = useSelector(selectWorld);
-  const [lastFocusedEditor, setLastFocusedEditor] = useState("");
 
   const renderEditor = (fieldIdentifier: string, title?: string) => (
     <>
       {title && <h3>{title}</h3>}
-      <WorldAnvilEditor
-        fieldIdentifier={fieldIdentifier}
-        id={article.id}
-        existingContent={article[fieldIdentifier]!}
-        onFocus={setLastFocusedEditor}
-        lastFocusedEditor={lastFocusedEditor}
-      />
+      <WorldAnvilEditor content={article[fieldIdentifier]!} />
       <br />
     </>
   );
