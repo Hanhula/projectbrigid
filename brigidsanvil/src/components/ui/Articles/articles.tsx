@@ -15,9 +15,7 @@ import {
 const Articles = () => {
   const isLoadingArticles = useSelector(selectIsLoadingArticles);
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();

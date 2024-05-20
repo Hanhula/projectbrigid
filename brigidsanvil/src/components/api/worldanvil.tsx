@@ -32,9 +32,7 @@ export function useWorldAnvilAPI() {
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
   const currentDetailState = useSelector(
     selectCurrentDetailStateByWorld(world.id)

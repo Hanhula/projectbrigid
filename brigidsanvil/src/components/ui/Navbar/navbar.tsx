@@ -24,9 +24,7 @@ import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 const NavBar = () => {
   const world = useSelector(selectWorld);
   const worlds = useSelector(selectWorlds);
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);

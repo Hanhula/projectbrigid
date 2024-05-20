@@ -9,9 +9,7 @@ import { useSelector } from "react-redux";
 
 const CSVGenerator = () => {
   const world: World = useSelector(selectWorld);
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
   const [csvDataUri, setCsvDataUri] = useState<string | null>(null);
 

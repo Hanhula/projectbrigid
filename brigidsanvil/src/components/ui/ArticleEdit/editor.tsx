@@ -17,6 +17,7 @@ import {
 } from "@/components/store/articlesSlice";
 import { useEffect } from "react";
 import _ from "lodash";
+import { WorldAnvilHTMLParser } from "./utils/htmlparser";
 
 const MenuBar = () => {
   const { editor } = useCurrentEditor();
@@ -255,9 +256,13 @@ export const WorldAnvilEditor = ({
 
   const defaultContent = content ? content : "";
   const dispatch = useDispatch();
+  const HTMLParser = new WorldAnvilHTMLParser();
 
   const delayedDispatch = _.debounce((value) => {
-    console.log("Edited Content: ", value);
+    console.log("[Editor] Edited Content: ", value);
+    let parsedBBCode = HTMLParser.parseHTML(value);
+    console.log("[Editor] Parsed BBCode ", parsedBBCode);
+
     // dispatch(
     //   setEditedContentByID({
     //     world: worldID,

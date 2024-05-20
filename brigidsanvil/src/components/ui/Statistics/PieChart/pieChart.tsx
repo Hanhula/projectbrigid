@@ -1,6 +1,3 @@
-import { selectWorld } from "@/components/store/apiSlice";
-import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
-import { useSelector } from "react-redux";
 import { useMediaQuery } from "react-responsive";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 

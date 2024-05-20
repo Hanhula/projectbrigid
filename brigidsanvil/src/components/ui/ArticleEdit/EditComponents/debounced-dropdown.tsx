@@ -24,9 +24,7 @@ const DebouncedDropdown = ({
   isMulti?: boolean;
 }) => {
   const dispatch = useDispatch();
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
 
   const options = currentArticles

@@ -24,9 +24,7 @@ const ArticlePage: React.FC = () => {
   const identity = useSelector(selectIdentity);
 
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector((state) =>
-    selectWorldArticlesByWorld(state, world.id)
-  );
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
 
   const article = currentArticles.find(

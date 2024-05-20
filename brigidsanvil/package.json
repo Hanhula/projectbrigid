@@ -40,6 +40,7 @@
     "@visx/text": "^3.3.0",
     "@visx/wordcloud": "^3.3.0",
     "bootstrap": "^5.2.3",
+    "bulletin-board-code": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "eslint-config-next": "^13.3.2",
