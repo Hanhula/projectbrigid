@@ -14,7 +14,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button, Card, Form, InputGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import "./search.scss";
-import { Document } from "flexsearch-ts";
+import {
+  Document,
+  SimpleDocumentSearchResultSetUnit,
+  StoreOption,
+} from "flexsearch-ts";
 import {
   createSearchObject,
   searchableFields,
@@ -27,9 +31,14 @@ function WorldAnvilSearch() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isIndexing, setIsIndexing] = useState(true); // Track the indexing process
-  //@ts-expect-error: Document type is weird in flexsearch
-  const [searchIndex, setSearchIndex] = useState<Document | null>(null);
-  const [searchResults, setSearchResults] = useState<string[]>([]);
+
+  const [searchIndex, setSearchIndex] = useState<Document<
+    unknown,
+    StoreOption
+  > | null>(null);
+  const [searchResults, setSearchResults] = useState<
+    SimpleDocumentSearchResultSetUnit[]
+  >([]);
   const [isSearching, setIsSearching] = useState(false);
   const [foundArticles, setFoundArticles] = useState<Article[]>([]);
 
@@ -43,7 +52,7 @@ function WorldAnvilSearch() {
         },
       });
 
-      articles.forEach((article) => {
+      const addDocumentPromises = articles.map((article) => {
         const searchObject = createSearchObject(article);
         const document = {
           id: article.id,
@@ -51,8 +60,10 @@ function WorldAnvilSearch() {
           content: article.content,
           ...searchObject,
         };
-        index.add(document);
+        return index.addAsync(document.id, document);
       });
+
+      await Promise.all(addDocumentPromises);
 
       setSearchIndex(index);
       setIsIndexing(false);
@@ -64,42 +75,46 @@ function WorldAnvilSearch() {
   const performSearch = () => {
     if (searchIndex) {
       const query = searchInputRef.current?.value || "";
-      const results = searchIndex.search(query);
+      const searchResultArray = searchIndex.searchAsync(query);
 
-      const matchingArticles: Article[] = results
-        .map((result: any) => {
-          const articleIds = result.result;
-          return articles.filter((article) => articleIds.includes(article.id));
-        })
-        .flat();
+      searchResultArray.then((results) => {
+        const matchingArticles: Article[] = results
+          .map((result: any) => {
+            const articleIds = result.result;
+            return articles.filter((article) =>
+              articleIds.includes(article.id)
+            );
+          })
+          .flat();
 
-      const uniqueArticleIds = new Set();
-      const filteredMatchingArticles = matchingArticles.filter((article) => {
-        if (!uniqueArticleIds.has(article.id)) {
-          uniqueArticleIds.add(article.id);
-          return true;
-        }
-        return false;
-      });
+        const uniqueArticleIds = new Set();
+        const filteredMatchingArticles = matchingArticles.filter((article) => {
+          if (!uniqueArticleIds.has(article.id)) {
+            uniqueArticleIds.add(article.id);
+            return true;
+          }
+          return false;
+        });
 
-      const articlesWithFieldInfo = filteredMatchingArticles.map((article) => {
-        const fieldsInfo = results.filter((result: any) =>
-          result.result.includes(article.id)
+        const articlesWithFieldInfo = filteredMatchingArticles.map(
+          (article) => {
+            const fieldsInfo = results.filter((result: any) =>
+              result.result.includes(article.id)
+            );
+            const foundInFields = fieldsInfo.map(
+              (fieldInfo: any) => fieldInfo.field
+            );
+            return {
+              ...article,
+              foundInFields: foundInFields,
+            };
+          }
         );
-        const foundInFields = fieldsInfo.map(
-          (fieldInfo: any) => fieldInfo.field
-        );
-        return {
-          ...article,
-          foundInFields: foundInFields,
-        };
+
+        setFoundArticles(articlesWithFieldInfo);
+        setSearchResults(results);
+        setIsSearching(true);
       });
-
-      console.log(articlesWithFieldInfo);
-
-      setFoundArticles(articlesWithFieldInfo);
-      setSearchResults(results);
-      setIsSearching(true);
     }
   };
 
