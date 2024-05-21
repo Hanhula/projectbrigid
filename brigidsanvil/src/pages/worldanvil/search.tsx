@@ -1,7 +1,6 @@
 import { selectWorld } from "@/components/store/apiSlice";
-import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
-import { Article, ArticleTypes } from "@/components/types/article";
+import { Article } from "@/components/types/article";
 import {
   faFileEdit,
   faLink,
