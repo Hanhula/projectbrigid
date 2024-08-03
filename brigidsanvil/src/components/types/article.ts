@@ -108,7 +108,7 @@ export type Article = {
   secrets?: Secret[];
   histories?: History[];
   editURL?: string;
-  competitionEntries: CompetitionEntry[] | null;
+  competitionEntries?: CompetitionEntry[] | null;
   // granularity 3
   ancestry?: {
     firstUp: Article | Category | World;
