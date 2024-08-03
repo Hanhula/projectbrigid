@@ -329,6 +329,28 @@ export function ArticleTable({
     //   footer: (props) => props.column.id,
     // },
     {
+      accessorFn: (row) => {
+        if (Array.isArray(row.competitionEntries)) {
+          return row.competitionEntries.some(
+            (entry) => entry.entityClass === "CompetitionEntry"
+          );
+        }
+        return false;
+      },
+      id: "competition",
+      cell: (info) => {
+        const value = info.getValue();
+        return value ? (
+          <FontAwesomeIcon icon="check" />
+        ) : (
+          <FontAwesomeIcon icon="times" />
+        );
+      },
+      header: "Comp Entry",
+      footer: (props) => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
       id: "url",
       accessorFn: (row) => row.url,
       cell: (info: any) => (

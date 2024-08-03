@@ -14,6 +14,7 @@ import { World } from "./world";
 import { Image } from "./image";
 import { Comment } from "./comment";
 import _ from "lodash";
+import { CompetitionEntry } from "./competition-entry";
 
 export type WorldArticles = {
   world: World;
@@ -107,6 +108,7 @@ export type Article = {
   secrets?: Secret[];
   histories?: History[];
   editURL?: string;
+  competitionEntries: CompetitionEntry[] | null;
   // granularity 3
   ancestry?: {
     firstUp: Article | Category | World;

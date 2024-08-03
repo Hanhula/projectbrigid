@@ -185,7 +185,8 @@
     .cell-editURL,
     .cell-copyblock,
     .cell-worldEmber,
-    .cell-comments {
+    .cell-comments,
+    .cell-competition {
       text-align: center;
     }
 
@@ -193,6 +194,14 @@
       max-width: 10em;
       width: 10em;
       min-width: 10em;
+    }
+
+    .col-competition {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-width: 5em;
     }
 
     .col-isDraft,
