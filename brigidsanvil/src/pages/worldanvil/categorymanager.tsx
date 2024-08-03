@@ -3,7 +3,7 @@ import {
   selectWorld,
 } from "@/components/store/apiSlice";
 import Head from "next/head";
-import React from "react";
+import React, { useState } from "react";
 import { Accordion, Button, Container, Form, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import "./search.scss";
@@ -35,6 +35,8 @@ function CategoryManager() {
     dispatch(setCategoryDetailState({ world: world, isFullDetail: checked }));
   };
 
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+
   // Modify the createNestedStructure function to use NestedCategory
   function createNestedStructure(categories: Category[]): NestedCategory[] {
     const map = new Map<string, NestedCategory>();
@@ -65,6 +67,23 @@ function CategoryManager() {
     return root;
   }
 
+  function updateCategories() {
+    const now = new Date();
+    const lastUpdate = localStorage.getItem("lastUpdate");
+    if (
+      lastUpdate &&
+      now.getTime() - new Date(lastUpdate).getTime() < 60 * 60 * 1000
+    ) {
+      alert(
+        "To prevent overload on WorldAnvil's API, you can only update your full list of categories once every hour. Please be patient and use the individual sync buttons if you need to update more frequently."
+      );
+      return;
+    }
+
+    localStorage.setItem("lastUpdate", now.toString());
+    worldAnvilAPI.getCategories(50, 0, 0);
+  }
+
   // Usage in CategoryManager component
   const nestedCategories = createNestedStructure(categories);
 
@@ -83,7 +102,7 @@ function CategoryManager() {
               variant="primary"
               className="fetch-button"
               onClick={() => {
-                worldAnvilAPI.getCategories(50, 0, 0);
+                updateCategories();
               }}
             >
               Fetch All Categories
