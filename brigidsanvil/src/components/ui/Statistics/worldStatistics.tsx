@@ -39,22 +39,35 @@ export function WorldStatistics() {
 
   let displayArticleWarning = articles.length > 1 ? false : true;
 
-  const calculateTotalAndAverage = (arr: Article[], property: string) => {
-    const total = arr.reduce(
-      (acc: any, item: { [x: string]: any }) =>
-        item[property] ? acc + item[property] : acc,
-      0
-    );
-    const average = arr.length > 0 ? total / arr.length : 0;
-    const roundedAverage = average.toFixed(2);
-
-    return { total, average: roundedAverage };
-  };
-
-  const calculateTopFans = (articles: Article[]) => {
-    const fanCounts: { [title: string]: number } = {};
+  const calculateArticleStats = (articles: Article[]) => {
+    let publishedCount = 0;
+    let draftCount = 0;
+    let privateCount = 0;
+    let publicCount = 0;
+    let totalWordCount = 0;
+    let totalLikes = 0;
+    let totalViews = 0;
+    let totalComments = 0;
+    let fanCounts: { [title: string]: number } = {};
 
     articles.forEach((article) => {
+      if (article.isDraft) {
+        draftCount++;
+      } else {
+        publishedCount++;
+      }
+
+      if (article.state === "private") {
+        privateCount++;
+      } else if (article.state === "public") {
+        publicCount++;
+      }
+
+      totalWordCount += article.wordcount ? article.wordcount : 0;
+      totalLikes += article.likes ? article.likes : 0;
+      totalViews += article.views ? article.views : 0;
+      totalComments += article.comments ? article.comments.length : 0;
+
       if (article.fans) {
         article.fans.forEach((fan: { title: string }) => {
           if (fanCounts[fan.title]) {
@@ -66,28 +79,51 @@ export function WorldStatistics() {
       }
     });
 
-    // Step 2: Convert to array, sort and take top 10
+    const averageWordCount =
+      articles.length > 0 ? (totalWordCount / articles.length).toFixed(2) : 0;
+    const averageLikes =
+      articles.length > 0 ? (totalLikes / articles.length).toFixed(2) : 0;
+    const averageViews =
+      articles.length > 0 ? (totalViews / articles.length).toFixed(2) : 0;
+    const averageComments =
+      articles.length > 0 ? (totalComments / articles.length).toFixed(2) : 0;
+
     const topFans = Object.entries(fanCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
-    return topFans;
+    return {
+      publishedCount,
+      draftCount,
+      privateCount,
+      publicCount,
+      totalWordCount,
+      averageWordCount,
+      totalLikes,
+      averageLikes,
+      totalViews,
+      averageViews,
+      totalComments,
+      averageComments,
+      topFans,
+    };
   };
 
-  const calculateTotalAndAverageComments = (articles: any[]) => {
-    let totalComments = 0;
-
-    articles.forEach((article) => {
-      if (article.comments) {
-        totalComments += article.comments.length;
-      }
-    });
-
-    const averageComments =
-      articles.length > 0 ? (totalComments / articles.length).toFixed(2) : 0;
-
-    return { totalComments, averageComments };
-  };
+  const {
+    publishedCount,
+    draftCount,
+    privateCount,
+    publicCount,
+    totalWordCount,
+    averageWordCount,
+    totalLikes,
+    averageLikes,
+    totalViews,
+    averageViews,
+    totalComments,
+    averageComments,
+    topFans,
+  } = calculateArticleStats(articles);
 
   const convertToDateString = (date: WorldAnvilDate) => {
     const dateString = String(date.date);
@@ -103,17 +139,6 @@ export function WorldStatistics() {
     );
     return formattedDateTime;
   };
-
-  const { total: totalWordCount, average: averageWordCount } =
-    calculateTotalAndAverage(articles, "wordcount");
-  const { total: totalLikes, average: averageLikeCount } =
-    calculateTotalAndAverage(articles, "likes");
-  const { total: totalViews, average: averageViewCount } =
-    calculateTotalAndAverage(articles, "views");
-
-  const topFans = calculateTopFans(articles);
-  const { totalComments, averageComments } =
-    calculateTotalAndAverageComments(articles);
 
   const creationDate = world.creationDate
     ? convertToDateString(world.creationDate)
@@ -194,7 +219,7 @@ export function WorldStatistics() {
                   </div>
                   <div className="col">
                     <dt>Average Likes</dt>
-                    <dd>{averageLikeCount}</dd>
+                    <dd>{averageLikes}</dd>
                   </div>
                 </div>
                 <Row>
@@ -204,7 +229,7 @@ export function WorldStatistics() {
                   </div>
                   <div className="col">
                     <dt>Average Views</dt>
-                    <dd>{averageViewCount}</dd>
+                    <dd>{averageViews}</dd>
                   </div>
                   <div className="col">
                     <dt>Total Comments</dt>
@@ -213,6 +238,24 @@ export function WorldStatistics() {
                   <div className="col">
                     <dt>Average Comments</dt>
                     <dd>{averageComments}</dd>
+                  </div>
+                </Row>
+                <Row>
+                  <div className="col">
+                    <dt>Published Articles</dt>
+                    <dd>{publishedCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Draft Articles</dt>
+                    <dd>{draftCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Public Articles</dt>
+                    <dd>{publicCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Private Articles</dt>
+                    <dd>{privateCount}</dd>
                   </div>
                 </Row>
               </Col>
