@@ -27,6 +27,8 @@ import { Article } from "@/components/types/article";
 import { World } from "@/components/types/world";
 import { WorldAnvilDate } from "@/components/types/date";
 import { DateTime } from "luxon";
+import { ArticleAuthorPieChart } from "./ArticleAuthorPieChart/articleAuthorPieChart";
+import { ArticleAuthorTypePieChart } from "./ArticleAuthorTypePieChart/articleAuthorTypePieChart";
 
 export function WorldStatistics() {
   const world: World = useSelector(selectWorld);
@@ -368,6 +370,24 @@ export function WorldStatistics() {
                 <ArticleViewsPieChart
                   articles={articles}
                 ></ArticleViewsPieChart>
+              </Tab>
+              <Tab
+                eventKey="authorName"
+                title="By Author Name"
+                disabled={!isDetailed}
+              >
+                <ArticleAuthorPieChart
+                  articles={articles}
+                ></ArticleAuthorPieChart>
+              </Tab>
+              <Tab
+                eventKey="authorType"
+                title="By Type Per Author"
+                disabled={!isDetailed}
+              >
+                <ArticleAuthorTypePieChart
+                  articles={articles}
+                ></ArticleAuthorTypePieChart>
               </Tab>
             </Tabs>
           </div>
