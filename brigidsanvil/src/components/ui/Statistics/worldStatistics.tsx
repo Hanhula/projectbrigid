@@ -30,6 +30,17 @@ import { DateTime } from "luxon";
 import { ArticleAuthorPieChart } from "./ArticleAuthorPieChart/articleAuthorPieChart";
 import { ArticleAuthorTypePieChart } from "./ArticleAuthorTypePieChart/articleAuthorTypePieChart";
 
+const convertToDateString = (date: WorldAnvilDate) => {
+  const dateString = String(date.date);
+  const inputDateString = dateString.substring(0, dateString.length - 7);
+  const dateTime = DateTime.fromFormat(inputDateString, "yyyy-MM-dd HH:mm:ss", {
+    zone: "utc",
+  });
+  const localDateTime = dateTime.toLocal();
+  const formattedDateTime = localDateTime.toFormat("yyyy-MM-dd 'at' HH:mm:ss");
+  return formattedDateTime;
+};
+
 export function WorldStatistics() {
   const world: World = useSelector(selectWorld);
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
@@ -38,6 +49,7 @@ export function WorldStatistics() {
   );
   const articles = worldArticles!.articles;
   const isDetailed = currentDetailState.isFullDetail;
+  const currentDate = DateTime.now();
 
   let displayArticleWarning = articles.length > 1 ? false : true;
 
@@ -50,7 +62,11 @@ export function WorldStatistics() {
     let totalLikes = 0;
     let totalViews = 0;
     let totalComments = 0;
+    let activityCounts: { [monthYear: string]: number } = {};
     let fanCounts: { [title: string]: number } = {};
+    let updateFrequencySum = 0;
+    let activeArticles = 0;
+    let staleArticles = 0;
 
     articles.forEach((article) => {
       if (article.isDraft) {
@@ -79,6 +95,44 @@ export function WorldStatistics() {
           }
         });
       }
+
+      if (article.updateDate) {
+        const articleUpdateDateTime = DateTime.fromFormat(
+          convertToDateString(article.updateDate),
+          "yyyy-MM-dd 'at' HH:mm:ss"
+        );
+        const monthYear = articleUpdateDateTime.toFormat("yyyy-MM");
+        activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
+
+        if (article.creationDate) {
+          const articleCreationDateTime = DateTime.fromFormat(
+            convertToDateString(article.creationDate),
+            "yyyy-MM-dd 'at' HH:mm:ss"
+          );
+
+          updateFrequencySum += articleUpdateDateTime.diff(
+            articleCreationDateTime,
+            "days"
+          ).days;
+        }
+
+        if (currentDate.diff(articleUpdateDateTime, "months").months < 1) {
+          activeArticles++;
+        }
+
+        if (currentDate.diff(articleUpdateDateTime, "months").months > 6) {
+          staleArticles++;
+        }
+      }
+
+      if (article.publicationDate) {
+        const articlePublicationDateTime = DateTime.fromFormat(
+          convertToDateString(article.publicationDate),
+          "yyyy-MM-dd 'at' HH:mm:ss"
+        );
+        const monthYear = articlePublicationDateTime.toFormat("yyyy-MM");
+        activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
+      }
     });
 
     const averageWordCount =
@@ -90,9 +144,27 @@ export function WorldStatistics() {
     const averageComments =
       articles.length > 0 ? (totalComments / articles.length).toFixed(2) : 0;
 
+    let mostActiveMonth = "";
+    if (Object.keys(activityCounts).length !== 0) {
+      mostActiveMonth = Object.keys(activityCounts).reduce((a, b) =>
+        activityCounts[a] > activityCounts[b] ? a : b
+      );
+    } else {
+      mostActiveMonth = "Unknown!";
+    }
+
+    const mostActiveMonthArticleCount = activityCounts[mostActiveMonth]
+      ? activityCounts[mostActiveMonth]
+      : "Unknown!";
+
     const topFans = Object.entries(fanCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
+
+    const averageUpdateFrequency =
+      articles.length > 0
+        ? (updateFrequencySum / articles.length).toFixed(2)
+        : 0;
 
     return {
       publishedCount,
@@ -108,6 +180,11 @@ export function WorldStatistics() {
       totalComments,
       averageComments,
       topFans,
+      mostActiveMonth,
+      mostActiveMonthArticleCount,
+      averageUpdateFrequency,
+      activeArticles,
+      staleArticles,
     };
   };
 
@@ -125,22 +202,12 @@ export function WorldStatistics() {
     totalComments,
     averageComments,
     topFans,
+    mostActiveMonth,
+    mostActiveMonthArticleCount,
+    averageUpdateFrequency,
+    activeArticles,
+    staleArticles,
   } = calculateArticleStats(articles);
-
-  const convertToDateString = (date: WorldAnvilDate) => {
-    const dateString = String(date.date);
-    const inputDateString = dateString.substring(0, dateString.length - 7);
-    const dateTime = DateTime.fromFormat(
-      inputDateString,
-      "yyyy-MM-dd HH:mm:ss",
-      { zone: "utc" }
-    );
-    const localDateTime = dateTime.toLocal();
-    const formattedDateTime = localDateTime.toFormat(
-      "yyyy-MM-dd 'at' HH:mm:ss"
-    );
-    return formattedDateTime;
-  };
 
   const creationDate = world.creationDate
     ? convertToDateString(world.creationDate)
@@ -149,6 +216,24 @@ export function WorldStatistics() {
   const progressPercentage = world.goalWords
     ? Math.round((totalWordCount / world.goalWords) * 100)
     : 0;
+
+  let wordsPerMonth = 0;
+  let updatedArticlesPerMonth: number | string = 0;
+  let createdArticlesPerMonth: number | string = 0;
+  let publishedArticlesPerMonth: number | string = 0;
+  if (world.creationDate) {
+    const creationDateTime = DateTime.fromFormat(
+      convertToDateString(world.creationDate),
+      "yyyy-MM-dd 'at' HH:mm:ss"
+    );
+    const monthsDiff = Math.max(
+      1,
+      currentDate.diff(creationDateTime, "months").months
+    );
+    wordsPerMonth = Math.round(totalWordCount / monthsDiff);
+    updatedArticlesPerMonth = (articles.length / monthsDiff).toFixed(2);
+    publishedArticlesPerMonth = (publishedCount / monthsDiff).toFixed(2);
+  }
 
   return (
     <div className="world-statistics-container">
@@ -259,6 +344,44 @@ export function WorldStatistics() {
                     <dt>Private Articles</dt>
                     <dd>{privateCount}</dd>
                   </div>
+                </Row>
+                <Row>
+                  <center>
+                    <p>{`These statistics are an average calculation based on the time between your world's creation and now!`}</p>
+                  </center>
+                </Row>
+                <Row>
+                  <div className="col">
+                    <dt>Avg Words / Month</dt>
+                    <dd>{wordsPerMonth}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Avg Updated Articles / Month</dt>
+                    <dd>{updatedArticlesPerMonth}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Avg Published Articles / Month</dt>
+                    <dd>{publishedArticlesPerMonth}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>{`# Not Updated in > 6 Months`}</dt>
+                    <dd>{staleArticles}</dd>
+                  </div>
+                </Row>
+                <Row>
+                  <div className="col">
+                    <dt>Most Active Month (MAM)</dt>
+                    <dd>{mostActiveMonth}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>Articles Changed in MAM</dt>
+                    <dd>{mostActiveMonthArticleCount}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>{`# Updated Last Month`}</dt>
+                    <dd>{activeArticles}</dd>
+                  </div>
+                  <div className="col"></div>
                 </Row>
               </Col>
             </Row>
