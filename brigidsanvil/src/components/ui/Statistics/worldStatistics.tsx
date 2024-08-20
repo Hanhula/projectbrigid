@@ -374,7 +374,7 @@ export function WorldStatistics() {
                   </div>
                   <div className="col">
                     <dt>Average Update Frequency</dt>
-                    <dd>{averageUpdateFrequency}</dd>
+                    <dd>{averageUpdateFrequency + " days between updates"}</dd>
                   </div>
                 </Row>
                 <Row>
