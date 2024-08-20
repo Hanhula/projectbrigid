@@ -67,6 +67,7 @@ export function WorldStatistics() {
     let updateFrequencySum = 0;
     let activeArticles = 0;
     let staleArticles = 0;
+    let articlesUpdatedThisMonth = 0;
 
     articles.forEach((article) => {
       if (article.isDraft) {
@@ -117,6 +118,13 @@ export function WorldStatistics() {
         }
 
         if (currentDate.diff(articleUpdateDateTime, "months").months < 1) {
+          articlesUpdatedThisMonth++;
+        }
+
+        if (
+          currentDate.diff(articleUpdateDateTime, "months").months >= 1 &&
+          currentDate.diff(articleUpdateDateTime, "months").months < 2
+        ) {
           activeArticles++;
         }
 
@@ -185,6 +193,7 @@ export function WorldStatistics() {
       averageUpdateFrequency,
       activeArticles,
       staleArticles,
+      articlesUpdatedThisMonth,
     };
   };
 
@@ -207,6 +216,7 @@ export function WorldStatistics() {
     averageUpdateFrequency,
     activeArticles,
     staleArticles,
+    articlesUpdatedThisMonth,
   } = calculateArticleStats(articles);
 
   const creationDate = world.creationDate
@@ -219,7 +229,6 @@ export function WorldStatistics() {
 
   let wordsPerMonth = 0;
   let updatedArticlesPerMonth: number | string = 0;
-  let createdArticlesPerMonth: number | string = 0;
   let publishedArticlesPerMonth: number | string = 0;
   if (world.creationDate) {
     const creationDateTime = DateTime.fromFormat(
@@ -364,8 +373,8 @@ export function WorldStatistics() {
                     <dd>{publishedArticlesPerMonth}</dd>
                   </div>
                   <div className="col">
-                    <dt>{`# Not Updated in > 6 Months`}</dt>
-                    <dd>{staleArticles}</dd>
+                    <dt>Average Update Frequency</dt>
+                    <dd>{averageUpdateFrequency}</dd>
                   </div>
                 </Row>
                 <Row>
@@ -381,7 +390,16 @@ export function WorldStatistics() {
                     <dt>{`# Updated Last Month`}</dt>
                     <dd>{activeArticles}</dd>
                   </div>
-                  <div className="col"></div>
+                  <div className="col">
+                    <dt>{`# Updated This Month`}</dt>
+                    <dd>{articlesUpdatedThisMonth}</dd>
+                  </div>
+                </Row>
+                <Row>
+                  <div className="col">
+                    <dt>{`# Not Updated in > 6 Months`}</dt>
+                    <dd>{staleArticles}</dd>
+                  </div>
                 </Row>
               </Col>
             </Row>
