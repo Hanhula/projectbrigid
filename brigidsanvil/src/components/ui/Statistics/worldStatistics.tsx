@@ -121,7 +121,7 @@ export function WorldStatistics() {
         }
 
         if (currentDate.diff(articleUpdateDateTime, "months").months > 12) {
-          staleArticles++;
+          extraStaleArticles++;
         }
       }
 
