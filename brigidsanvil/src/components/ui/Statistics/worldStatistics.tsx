@@ -64,9 +64,9 @@ export function WorldStatistics() {
     let totalComments = 0;
     let activityCounts: { [monthYear: string]: number } = {};
     let fanCounts: { [title: string]: number } = {};
-    let updateFrequencySum = 0;
     let activeArticles = 0;
     let staleArticles = 0;
+    let extraStaleArticles = 0;
     let articlesUpdatedThisMonth = 0;
 
     articles.forEach((article) => {
@@ -105,18 +105,6 @@ export function WorldStatistics() {
         const monthYear = articleUpdateDateTime.toFormat("yyyy-MM");
         activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
 
-        if (article.creationDate) {
-          const articleCreationDateTime = DateTime.fromFormat(
-            convertToDateString(article.creationDate),
-            "yyyy-MM-dd 'at' HH:mm:ss"
-          );
-
-          updateFrequencySum += articleUpdateDateTime.diff(
-            articleCreationDateTime,
-            "days"
-          ).days;
-        }
-
         if (currentDate.diff(articleUpdateDateTime, "months").months < 1) {
           articlesUpdatedThisMonth++;
         }
@@ -129,6 +117,10 @@ export function WorldStatistics() {
         }
 
         if (currentDate.diff(articleUpdateDateTime, "months").months > 6) {
+          staleArticles++;
+        }
+
+        if (currentDate.diff(articleUpdateDateTime, "months").months > 12) {
           staleArticles++;
         }
       }
@@ -169,11 +161,6 @@ export function WorldStatistics() {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10);
 
-    const averageUpdateFrequency =
-      articles.length > 0
-        ? (updateFrequencySum / articles.length).toFixed(2)
-        : 0;
-
     return {
       publishedCount,
       draftCount,
@@ -190,9 +177,9 @@ export function WorldStatistics() {
       topFans,
       mostActiveMonth,
       mostActiveMonthArticleCount,
-      averageUpdateFrequency,
       activeArticles,
       staleArticles,
+      extraStaleArticles,
       articlesUpdatedThisMonth,
     };
   };
@@ -213,9 +200,9 @@ export function WorldStatistics() {
     topFans,
     mostActiveMonth,
     mostActiveMonthArticleCount,
-    averageUpdateFrequency,
     activeArticles,
     staleArticles,
+    extraStaleArticles,
     articlesUpdatedThisMonth,
   } = calculateArticleStats(articles);
 
@@ -228,7 +215,6 @@ export function WorldStatistics() {
     : 0;
 
   let wordsPerMonth = 0;
-  let updatedArticlesPerMonth: number | string = 0;
   let publishedArticlesPerMonth: number | string = 0;
   if (world.creationDate) {
     const creationDateTime = DateTime.fromFormat(
@@ -240,7 +226,6 @@ export function WorldStatistics() {
       currentDate.diff(creationDateTime, "months").months
     );
     wordsPerMonth = Math.round(totalWordCount / monthsDiff);
-    updatedArticlesPerMonth = (articles.length / monthsDiff).toFixed(2);
     publishedArticlesPerMonth = (publishedCount / monthsDiff).toFixed(2);
   }
 
@@ -356,7 +341,12 @@ export function WorldStatistics() {
                 </Row>
                 <Row>
                   <center>
-                    <p>{`These statistics are an average calculation based on the time between your world's creation and now!`}</p>
+                    <p>
+                      {`These statistics are an average calculation based on the time between your world's creation and now!`}
+                      <br></br>
+                      {`Brigid only remembers your last update, so they may seem
+                      off if you've updated a lot recently.`}
+                    </p>
                   </center>
                 </Row>
                 <Row>
@@ -365,16 +355,16 @@ export function WorldStatistics() {
                     <dd>{wordsPerMonth}</dd>
                   </div>
                   <div className="col">
-                    <dt>Avg Updated Articles / Month</dt>
-                    <dd>{updatedArticlesPerMonth}</dd>
-                  </div>
-                  <div className="col">
                     <dt>Avg Published Articles / Month</dt>
                     <dd>{publishedArticlesPerMonth}</dd>
                   </div>
                   <div className="col">
-                    <dt>Average Update Frequency</dt>
-                    <dd>{averageUpdateFrequency + " days between updates"}</dd>
+                    <dt>{`# Not Updated in > 6 Months`}</dt>
+                    <dd>{staleArticles}</dd>
+                  </div>
+                  <div className="col">
+                    <dt>{`# Not Updated in > 12 Months`}</dt>
+                    <dd>{extraStaleArticles}</dd>
                   </div>
                 </Row>
                 <Row>
@@ -393,12 +383,6 @@ export function WorldStatistics() {
                   <div className="col">
                     <dt>{`# Updated This Month`}</dt>
                     <dd>{articlesUpdatedThisMonth}</dd>
-                  </div>
-                </Row>
-                <Row>
-                  <div className="col">
-                    <dt>{`# Not Updated in > 6 Months`}</dt>
-                    <dd>{staleArticles}</dd>
                   </div>
                 </Row>
               </Col>
