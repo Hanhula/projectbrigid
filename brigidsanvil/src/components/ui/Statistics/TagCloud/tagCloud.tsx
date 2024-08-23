@@ -2,10 +2,16 @@ import React from "react";
 import { Text } from "@visx/text";
 import { scaleLog } from "@visx/scale";
 import Wordcloud from "@visx/wordcloud/lib/Wordcloud";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectWorld } from "@/components/store/apiSlice";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 import { ParentSize } from "@visx/responsive";
+import {
+  setStatsSearch,
+  setStatsSearchAsync,
+} from "@/components/store/statsSlice";
+import { useRouter } from "next/router";
+import { ThunkDispatch } from "@reduxjs/toolkit";
 
 export interface WordData {
   text: string;
@@ -81,9 +87,18 @@ function WordCloud({ words, width, height }: WordCloudProps) {
 }
 
 export default function TagCloud() {
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const router = useRouter();
   const world = useSelector(selectWorld);
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const articles = worldArticles!.articles;
+
+  const openTagDetails = async (tag: string) => {
+    console.log(tag);
+    await dispatch(setStatsSearchAsync({ field: "tags", value: tag }));
+    console.log("hi");
+    router.push("/worldanvil/apitool");
+  };
 
   const tagCountMap: { [key: string]: number } = {};
 
@@ -157,7 +172,7 @@ export default function TagCloud() {
             <dl className="article-tags-list">
               {sortedTagData.map(({ text, value }) => (
                 <div key={text} className="article-tags-list-count">
-                  <dt>{text}:</dt>
+                  <dt onClick={() => openTagDetails(text)}>{text}:</dt>
                   <dd>{value}</dd>
                 </div>
               ))}

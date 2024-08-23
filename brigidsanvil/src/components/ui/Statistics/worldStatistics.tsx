@@ -5,9 +5,7 @@ import {
   selectCurrentDetailStateByWorld,
   selectWorldArticlesByWorld,
 } from "@/components/store/articlesSlice";
-import { ArticlePieChart } from "./ArticlePieChart/articlePieChart";
 import TagCloud from "./TagCloud/tagCloud";
-import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
 import {
   Alert,
   Col,
@@ -17,28 +15,55 @@ import {
   Tab,
   Tabs,
 } from "react-bootstrap";
-import { ArticleLengthPieChart } from "./ArticleLengthPieChart/articleLengthPieChart";
-import { ArticleCreationDatePieChart } from "./ArticleCreationDatePieChart/articleCreationDatePieChart";
-import { ArticleUpdateDatePieChart } from "./ArticleUpdateDatePieChart/articleUpdateDatePieChart";
-import { ArticlePublicationDatePieChart } from "./ArticlePublicationDatePieChart/articlePublicationDatePieChart";
-import { ArticleLikesPieChart } from "./ArticleLikesPieChart/articleLikesPieChart";
-import { ArticleViewsPieChart } from "./ArticleViewsPieChart/articleViewsPieChart";
 import { Article } from "@/components/types/article";
 import { World } from "@/components/types/world";
 import { WorldAnvilDate } from "@/components/types/date";
 import { DateTime } from "luxon";
-import { ArticleAuthorPieChart } from "./ArticleAuthorPieChart/articleAuthorPieChart";
-import { ArticleAuthorTypePieChart } from "./ArticleAuthorTypePieChart/articleAuthorTypePieChart";
+
+import dynamic from "next/dynamic";
+
+const ArticlePieChart = dynamic(
+  () => import("./ArticlePieChart/articlePieChart")
+);
+const ArticleWordPieChart = dynamic(
+  () => import("./ArticleWordPieChart/articleWordPieChart")
+);
+const ArticleLengthPieChart = dynamic(
+  () => import("./ArticleLengthPieChart/articleLengthPieChart")
+);
+const ArticleCreationDatePieChart = dynamic(
+  () => import("./ArticleCreationDatePieChart/articleCreationDatePieChart")
+);
+const ArticleUpdateDatePieChart = dynamic(
+  () => import("./ArticleUpdateDatePieChart/articleUpdateDatePieChart")
+);
+const ArticlePublicationDatePieChart = dynamic(
+  () =>
+    import("./ArticlePublicationDatePieChart/articlePublicationDatePieChart")
+);
+const ArticleLikesPieChart = dynamic(
+  () => import("./ArticleLikesPieChart/articleLikesPieChart")
+);
+const ArticleViewsPieChart = dynamic(
+  () => import("./ArticleViewsPieChart/articleViewsPieChart")
+);
+const ArticleAuthorPieChart = dynamic(
+  () => import("./ArticleAuthorPieChart/articleAuthorPieChart")
+);
+const ArticleAuthorTypePieChart = dynamic(
+  () => import("./ArticleAuthorTypePieChart/articleAuthorTypePieChart")
+);
+
+const convertToFormattedString = (date: WorldAnvilDate) => {
+  return convertToDateString(date).toFormat("yyyy-MM-dd 'at' HH:mm:ss");
+};
 
 const convertToDateString = (date: WorldAnvilDate) => {
   const dateString = String(date.date);
   const inputDateString = dateString.substring(0, dateString.length - 7);
-  const dateTime = DateTime.fromFormat(inputDateString, "yyyy-MM-dd HH:mm:ss", {
+  return DateTime.fromFormat(inputDateString, "yyyy-MM-dd HH:mm:ss", {
     zone: "utc",
-  });
-  const localDateTime = dateTime.toLocal();
-  const formattedDateTime = localDateTime.toFormat("yyyy-MM-dd 'at' HH:mm:ss");
-  return formattedDateTime;
+  }).toLocal();
 };
 
 export function WorldStatistics() {
@@ -98,37 +123,34 @@ export function WorldStatistics() {
       }
 
       if (article.updateDate) {
-        const articleUpdateDateTime = DateTime.fromFormat(
-          convertToDateString(article.updateDate),
-          "yyyy-MM-dd 'at' HH:mm:ss"
-        );
+        const articleUpdateDateTime = convertToDateString(article.updateDate);
         const monthYear = articleUpdateDateTime.toFormat("yyyy-MM");
         activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months < 1) {
+        const diffMonths = currentDate.diff(
+          articleUpdateDateTime,
+          "months"
+        ).months;
+        if (diffMonths < 1) {
           articlesUpdatedThisMonth++;
         }
 
-        if (
-          currentDate.diff(articleUpdateDateTime, "months").months >= 1 &&
-          currentDate.diff(articleUpdateDateTime, "months").months < 2
-        ) {
+        if (diffMonths >= 1 && diffMonths < 2) {
           activeArticles++;
         }
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months > 6) {
+        if (diffMonths > 6) {
           staleArticles++;
         }
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months > 12) {
+        if (diffMonths > 12) {
           extraStaleArticles++;
         }
       }
 
       if (article.publicationDate) {
-        const articlePublicationDateTime = DateTime.fromFormat(
-          convertToDateString(article.publicationDate),
-          "yyyy-MM-dd 'at' HH:mm:ss"
+        const articlePublicationDateTime = convertToDateString(
+          article.publicationDate
         );
         const monthYear = articlePublicationDateTime.toFormat("yyyy-MM");
         activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
@@ -207,7 +229,7 @@ export function WorldStatistics() {
   } = calculateArticleStats(articles);
 
   const creationDate = world.creationDate
-    ? convertToDateString(world.creationDate)
+    ? convertToFormattedString(world.creationDate)
     : "Update your world to see this date!";
 
   const progressPercentage = world.goalWords
@@ -217,10 +239,7 @@ export function WorldStatistics() {
   let wordsPerMonth = 0;
   let publishedArticlesPerMonth: number | string = 0;
   if (world.creationDate) {
-    const creationDateTime = DateTime.fromFormat(
-      convertToDateString(world.creationDate),
-      "yyyy-MM-dd 'at' HH:mm:ss"
-    );
+    const creationDateTime = convertToDateString(world.creationDate);
     const monthsDiff = Math.max(
       1,
       currentDate.diff(creationDateTime, "months").months

@@ -2,7 +2,7 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
-export function ArticleAuthorTypePieChart({
+export default function ArticleAuthorTypePieChart({
   articles,
 }: {
   articles: Article[];

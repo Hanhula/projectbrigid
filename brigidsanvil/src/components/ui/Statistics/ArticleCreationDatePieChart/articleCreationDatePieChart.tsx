@@ -3,7 +3,7 @@ import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 import { DateTime } from "luxon";
 
-export function ArticleCreationDatePieChart({
+export default function ArticleCreationDatePieChart({
   articles,
 }: {
   articles: Article[];

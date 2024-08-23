@@ -10,6 +10,7 @@ import { authSlice } from "./authSlice";
 import { articleSlice } from "./articlesSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
+import { statsSlice } from "./statsSlice";
 
 // Used to prevent the loading state from persisting across refreshes.
 const apiTransform = createTransform(
@@ -32,6 +33,7 @@ const reducers = combineReducers({
   [apiSlice.name]: apiSlice.reducer,
   [authSlice.name]: authSlice.reducer,
   [articleSlice.name]: articleSlice.reducer,
+  [statsSlice.name]: statsSlice.reducer,
 });
 
 // this is a commit to reupdate the branch
@@ -42,7 +44,7 @@ const persistConfig = {
     : defaultStorage,
   serialize: false, // Data serialization is not required and disabling it allows you to inspect storage value in DevTools; Available since redux-persist@5.4.0
   deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
-  blacklist: ["authState"],
+  blacklist: ["authState", "statsState"],
   transforms: [apiTransform],
 };
 

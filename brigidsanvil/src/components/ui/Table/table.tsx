@@ -2,7 +2,7 @@ import * as React from "react";
 import { Article } from "@/components/types/article";
 
 import { selectCurrentDetailStateByWorld } from "@/components/store/articlesSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectWorld } from "@/components/store/apiSlice";
 
 import {
@@ -17,7 +17,7 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   Button,
   Dropdown,
@@ -68,6 +68,13 @@ import {
 } from "./table-helpers";
 import EditableToggle from "./EditableComponents/editable-toggle";
 import { downloadAllArticlesHtml } from "../ArticleView/article-export-helpers";
+import {
+  selectStatsSearch,
+  setStatsSearch,
+  setStatsSearchAsync,
+} from "@/components/store/statsSlice";
+import { ThunkDispatch } from "@reduxjs/toolkit";
+import { useRouter } from "next/router";
 
 // Add all solid icons to the library so you can use it in your components
 library.add(fas);
@@ -81,6 +88,26 @@ export function ArticleTable({
   const [useSelectFilter, setUseSelectFilter] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState({});
   const worldAnvilAPI = useWorldAnvilAPI();
+
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const router = useRouter();
+  const statsSearch = useSelector(selectStatsSearch);
+  const columnsFiltered = useRef(false);
+
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (statsSearch.field !== "") {
+        dispatch(setStatsSearchAsync({ field: "", value: "" }));
+        columnsFiltered.current = false;
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChange);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [dispatch, router]);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -828,6 +855,18 @@ export function ArticleTable({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  useEffect(() => {
+    console.log("aaaa 1", statsSearch.value);
+    if (!columnsFiltered.current && table && statsSearch.field) {
+      console.log("aaaa 2", statsSearch.value);
+      const column = table.getColumn(statsSearch.field);
+      if (column) {
+        column.setFilterValue(statsSearch.value);
+        columnsFiltered.current = true;
+      }
+    }
+  }, [table, statsSearch.field]);
 
   return (
     <div className="p-2">

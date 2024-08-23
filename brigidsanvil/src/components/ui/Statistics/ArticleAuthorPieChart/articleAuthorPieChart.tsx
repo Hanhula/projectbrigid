@@ -2,7 +2,11 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
-export function ArticleAuthorPieChart({ articles }: { articles: Article[] }) {
+export default function ArticleAuthorPieChart({
+  articles,
+}: {
+  articles: Article[];
+}) {
   const countArticlesByAuthor = () => {
     const authorArticleCounts: Record<string, number> = {};
 
