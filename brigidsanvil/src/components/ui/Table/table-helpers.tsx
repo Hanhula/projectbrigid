@@ -70,3 +70,10 @@ export const csvFilter: FilterFn<any> = (row, columnId, filterValue) => {
     return columnValues.some((tag) => tag.includes(trimmedFilterValue));
   }
 };
+
+export const boolFilter: FilterFn<any> = (row, columnId, filterValue) => {
+  const displayCss = row.getValue(columnId);
+  const columnValue = displayCss ? "true" : "false";
+
+  return columnValue === filterValue.trim().toLowerCase();
+};

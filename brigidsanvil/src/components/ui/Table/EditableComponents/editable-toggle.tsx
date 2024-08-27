@@ -6,10 +6,12 @@ function EditableToggle({
   value: initialValue,
   onSave,
   options,
+  isDisabled = false,
 }: {
   value: string;
   onSave: (newValues: string) => void;
   options: { value: string; label: string }[];
+  isDisabled?: boolean;
 }) {
   const [selectedValue, setSelectedValue] = useState(
     options.find((option) => option.value === initialValue)
@@ -31,6 +33,7 @@ function EditableToggle({
       onChange={handleChange}
       options={options}
       styles={selectStyles}
+      isDisabled={isDisabled}
     />
   );
 }

@@ -105,6 +105,32 @@ export function Filter({
         <div className="h-1" />
       </div>
     );
+  } else if (column.id === "displayCss") {
+    const columnFilterValue = column.getFilterValue();
+
+    const options = [
+      { value: "", label: "All" },
+      { value: "true", label: "True" },
+      { value: "false", label: "False" },
+    ];
+
+    return (
+      <div>
+        <div className="input-group">
+          <Select
+            options={options}
+            value={options.find((option) => option.value === columnFilterValue)}
+            onChange={(selectedOption) => {
+              const value = selectedOption ? selectedOption.value : "";
+              column.setFilterValue(value);
+            }}
+            styles={selectStyles}
+            menuPortalTarget={document.body}
+          />
+        </div>
+        <div className="h-1" />
+      </div>
+    );
   } else if (column.id === "state") {
     const columnFilterValue = column.getFilterValue();
 

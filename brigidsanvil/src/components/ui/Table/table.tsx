@@ -65,6 +65,7 @@ import {
   camelCaseToCapitalizedWords,
   renderSubComponent,
   csvFilter,
+  boolFilter,
 } from "./table-helpers";
 import EditableToggle from "./EditableComponents/editable-toggle";
 import { downloadAllArticlesHtml } from "../ArticleView/article-export-helpers";
@@ -748,6 +749,21 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => row.displayCss,
+      id: "displayCss",
+      cell: (info) => {
+        const displayCss = info.getValue();
+        return displayCss ? (
+          <FontAwesomeIcon icon="check" />
+        ) : (
+          <FontAwesomeIcon icon="times" />
+        );
+      },
+      header: "Article CSS?",
+      footer: (props) => props.column.id,
+      filterFn: boolFilter,
+    },
+    {
       accessorFn: (row) => (row.allowComments ? row.allowComments : false),
       id: "allowComments",
       cell: (info) => {
@@ -812,6 +828,7 @@ export function ArticleTable({
     columns,
     filterFns: {
       csv: csvFilter,
+      bool: boolFilter,
     },
     state: {
       columnFilters,
