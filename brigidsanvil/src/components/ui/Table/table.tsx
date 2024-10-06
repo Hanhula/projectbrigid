@@ -749,6 +749,13 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      accessorFn: (row) => row.cssClasses,
+      id: "cssClasses",
+      cell: (info) => info.getValue(),
+      header: "CSS Classes",
+      footer: (props) => props.column.id,
+    },
+    {
       accessorFn: (row) => row.displayCss,
       id: "displayCss",
       cell: (info) => {
