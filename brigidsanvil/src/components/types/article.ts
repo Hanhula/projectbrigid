@@ -163,6 +163,9 @@ export type CreateArticle = {
   templateType: string;
   tags: string;
   fullfooter: string;
+  excerpt: string;
+  state: string;
+  isDraft: boolean;
   world: {
     id: string;
   };

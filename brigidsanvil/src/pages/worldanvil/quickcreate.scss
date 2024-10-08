@@ -3,8 +3,17 @@
     margin-top: 0.5em;
   }
 
-  .create-button {
+  .submit-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2em;
+    justify-content: flex-start;
+    align-items: center;
     margin-top: 0.5em;
+
+    .spinner-border {
+      margin: 0.5em;
+    }
   }
 
   .render-details-container {
