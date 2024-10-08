@@ -40,6 +40,7 @@ export const ArticleQuickCreate = () => {
 
   const [articleData, setArticleData] = useState<Article | null>(null);
   const [renderDetails, setRenderDetails] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const resetForm = () => {
     setForm({
@@ -66,6 +67,7 @@ export const ArticleQuickCreate = () => {
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
+    setError(null);
 
     const selectedType = Object.entries(ArticleTypes).find(
       ([key, value]) => key === form.type
@@ -88,12 +90,15 @@ export const ArticleQuickCreate = () => {
       },
     };
 
-    const returnedData = createArticle(article);
-    returnedData.then((data) => {
-      getArticle(data.id, true);
-      setRenderDetails(true);
-      setArticleData(data);
-    });
+    createArticle(article)
+      .then((data) => {
+        getArticle(data.id, true);
+        setRenderDetails(true);
+        setArticleData(data);
+      })
+      .catch((err) => {
+        setError(err.message);
+      });
   };
   return (
     <Container className="quick-create">
@@ -244,6 +249,12 @@ export const ArticleQuickCreate = () => {
             <Button onClick={resetForm}>Reset Form</Button>
           </div>
         </div>
+      )}
+      {error && (
+        <Alert variant="danger">
+          An error has occurred! Please take a screenshot of this page and show
+          @hanhula.<br></br>Error message: {error}
+        </Alert>
       )}
     </Container>
   );
