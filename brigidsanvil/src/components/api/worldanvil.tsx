@@ -1,5 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
-import { Article, WorldArticle, WorldArticles } from "../types/article";
+import {
+  Article,
+  CreateArticle,
+  WorldArticle,
+  WorldArticles,
+} from "../types/article";
 import {
   selectIdentity,
   setIdentity,
@@ -15,7 +20,7 @@ import {
   setWorldArticles,
   updateArticleById,
 } from "../store/articlesSlice";
-import _, { concat } from "lodash";
+import _ from "lodash";
 
 const CallType = {
   GET: "GET",
@@ -62,16 +67,14 @@ export function useWorldAnvilAPI() {
 
     try {
       const response = await fetch(`/api${endpoint}`, options);
+      const responseData = await response.json();
       if (!response.ok) {
-        if (!response.ok) {
-          const errorMessage = `API request failed with status ${response.status} (${response.statusText}) for URL: ${response.url}`;
-          throw new Error(errorMessage);
-        }
+        const serverErrorMessage = responseData.error;
+        const errorMessage = `API request failed with status ${response.status} (${response.statusText}) for URL: ${response.url}. Server error: ${serverErrorMessage}`;
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
-
-      return data;
+      return responseData;
     } catch (error) {
       console.error(error);
       throw error;
@@ -324,6 +327,22 @@ export function useWorldAnvilAPI() {
     }
   }
 
+  async function createArticle(article: CreateArticle): Promise<Article> {
+    const endpoint = `/article`;
+
+    try {
+      const data = await callWorldAnvil(
+        endpoint,
+        CallType.PUT,
+        JSON.stringify(article)
+      );
+      return data;
+    } catch (error) {
+      console.error("Error getting article:", error);
+      throw error;
+    }
+  }
+
   return {
     callWorldAnvil: async (
       url: string,
@@ -354,6 +373,9 @@ export function useWorldAnvilAPI() {
     },
     getArticle: async (id: string, shouldDispatch: boolean) => {
       return await getArticle(id, shouldDispatch);
+    },
+    createArticle: async (article: CreateArticle) => {
+      return await createArticle(article);
     },
     updateArticleByField: async (
       articleID: string,

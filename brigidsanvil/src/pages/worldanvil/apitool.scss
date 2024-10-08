@@ -6,268 +6,270 @@
   }
 }
 
-.button-container {
-  button {
-    margin-right: 1em;
+.apitool {
+  .button-container {
+    button {
+      margin-right: 1em;
+    }
   }
-}
 
-.button-top {
-  display: none;
-}
-
-.form-control {
-  background: var(--dark-terror);
-  border-color: var(--light-terror);
-  color: var(--lightest-terror);
-}
-
-.widthSmall {
-  max-width: 20em;
-}
-
-.exporter {
-  padding: 0.5em 0em;
-}
-
-.pagination-container {
-  display: flex;
-  align-items: center;
-  margin-top: 0.75em;
-
-  ul.pagination {
-    margin-bottom: 0;
+  .button-top {
+    display: none;
   }
 
   .form-control {
-    width: 4em;
-  }
-}
-
-.table-container {
-  .table-responsive .btn-primary {
-    --bs-btn-bg: var(--secondary);
-    --bs-btn-border-color: var(--secondary);
-    --bs-btn-hover-bg: var(--secondary-light);
-    --bs-btn-hover-border-color: var(--secondary-dark);
-    --bs-btn-active-bg: var(--secondary-dark);
-    --bs-btn-active-border-color: var(--secondary-dark);
-    --bs-btn-disabled-bg: var(--secondary);
-    --bs-btn-disabled-border-color: var(--secondary);
+    background: var(--dark-terror);
+    border-color: var(--light-terror);
+    color: var(--lightest-terror);
   }
 
-  .top-button-container {
+  .widthSmall {
+    max-width: 20em;
+  }
+
+  .exporter {
+    padding: 0.5em 0em;
+  }
+
+  .pagination-container {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    margin-top: 0.75em;
 
-    .fetch-button {
-      width: 10em;
+    ul.pagination {
+      margin-bottom: 0;
+    }
+
+    .form-control {
+      width: 4em;
     }
   }
 
-  .table-select-tags {
-    font-weight: 400;
-  }
+  .table-container {
+    .table-responsive .btn-primary {
+      --bs-btn-bg: var(--secondary);
+      --bs-btn-border-color: var(--secondary);
+      --bs-btn-hover-bg: var(--secondary-light);
+      --bs-btn-hover-border-color: var(--secondary-dark);
+      --bs-btn-active-bg: var(--secondary-dark);
+      --bs-btn-active-border-color: var(--secondary-dark);
+      --bs-btn-disabled-bg: var(--secondary);
+      --bs-btn-disabled-border-color: var(--secondary);
+    }
 
-  .badge {
-    margin: 0.2em;
-  }
-
-  .cell-editing {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.2em;
-
-    .cell-edit-buttons {
+    .top-button-container {
       display: flex;
-      flex-direction: column;
-      gap: 0.2em;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+
+      .fetch-button {
+        width: 10em;
+      }
     }
 
-    .react-tagsinput {
-      background: var(--dark-terror);
-      border-color: var(--light-terror);
-      color: var(--lightest-terror);
+    .table-select-tags {
+      font-weight: 400;
+    }
 
-      &-input {
+    .badge {
+      margin: 0.2em;
+    }
+
+    .cell-editing {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.2em;
+
+      .cell-edit-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2em;
+      }
+
+      .react-tagsinput {
+        background: var(--dark-terror);
+        border-color: var(--light-terror);
         color: var(--lightest-terror);
-        font-size: 16px;
-        width: 6em;
-      }
 
-      &--focused {
-        color: var(--bs-body-color);
-        background-color: var(--bs-body-bg);
-        border-color: var(--primary);
-      }
+        &-input {
+          color: var(--lightest-terror);
+          font-size: 16px;
+          width: 6em;
+        }
 
-      &-tag {
-        background-color: var(--primary);
-        border-color: var(--primary-dark);
-        color: white;
-        border-radius: 0.375rem;
-        font-size: 16px;
+        &--focused {
+          color: var(--bs-body-color);
+          background-color: var(--bs-body-bg);
+          border-color: var(--primary);
+        }
 
-        &:hover {
-          .react-tagsinput-remove {
-            color: var(--primary-light);
+        &-tag {
+          background-color: var(--primary);
+          border-color: var(--primary-dark);
+          color: white;
+          border-radius: 0.375rem;
+          font-size: 16px;
+
+          &:hover {
+            .react-tagsinput-remove {
+              color: var(--primary-light);
+            }
           }
         }
+
+        &-remove {
+          color: white;
+          text-decoration: none;
+          transition: 0.2s;
+        }
       }
-
-      &-remove {
-        color: white;
-        text-decoration: none;
-        transition: 0.2s;
-      }
-    }
-  }
-
-  .col-tags {
-    display: inline-block;
-    margin-right: 0.3em;
-  }
-
-  .cell-edit,
-  .cell-save,
-  .cell-cancel {
-    padding: 4px;
-    margin: 0px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .cell-edit.form-control {
-    resize: both;
-    min-width: 10em;
-  }
-
-  .full-detail-table {
-    .col-tags ~ .col-filter {
-      max-width: 11em;
     }
 
-    .col-editURL ~ .col-filter .input-group,
-    .col-url ~ .col-filter .input-group,
-    .col-copyblock ~ .col-filter .input-group {
-      max-width: 3em;
+    .col-tags {
+      display: inline-block;
+      margin-right: 0.3em;
     }
 
-    .col-wordcount ~ .col-filter .input-group {
-      max-width: 8em;
+    .cell-edit,
+    .cell-save,
+    .cell-cancel {
+      padding: 4px;
+      margin: 0px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .col-entityClass ~ .col-filter .table-select-type {
-      min-width: 9em;
-    }
-
-    .col-wordcount,
-    .col-author,
-    .col-comments {
-      min-width: 6em;
-    }
-
-    .col-icon {
-      min-width: 8em;
-    }
-
-    .cell-likes,
-    .cell-views,
-    .cell-wordcount,
-    .cell-isWip,
-    .cell-isDraft,
-    .cell-state,
-    .cell-url,
-    .cell-editURL,
-    .cell-copyblock,
-    .cell-worldEmber,
-    .cell-comments,
-    .cell-competition,
-    .cell-displayCss {
-      text-align: center;
-    }
-
-    .cell-title {
-      max-width: 10em;
-      width: 10em;
+    .cell-edit.form-control {
+      resize: both;
       min-width: 10em;
     }
 
-    .col-competition {
+    .full-detail-table {
+      .col-tags ~ .col-filter {
+        max-width: 11em;
+      }
+
+      .col-editURL ~ .col-filter .input-group,
+      .col-url ~ .col-filter .input-group,
+      .col-copyblock ~ .col-filter .input-group {
+        max-width: 3em;
+      }
+
+      .col-wordcount ~ .col-filter .input-group {
+        max-width: 8em;
+      }
+
+      .col-entityClass ~ .col-filter .table-select-type {
+        min-width: 9em;
+      }
+
+      .col-wordcount,
+      .col-author,
+      .col-comments {
+        min-width: 6em;
+      }
+
+      .col-icon {
+        min-width: 8em;
+      }
+
+      .cell-likes,
+      .cell-views,
+      .cell-wordcount,
+      .cell-isWip,
+      .cell-isDraft,
+      .cell-state,
+      .cell-url,
+      .cell-editURL,
+      .cell-copyblock,
+      .cell-worldEmber,
+      .cell-comments,
+      .cell-competition,
+      .cell-displayCss {
+        text-align: center;
+      }
+
+      .cell-title {
+        max-width: 10em;
+        width: 10em;
+        min-width: 10em;
+      }
+
+      .col-competition {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-width: 5em;
+      }
+
+      .col-isDraft,
+      .col-isWip,
+      .col-state,
+      .col-likes,
+      .col-views,
+      .col-state,
+      .col-worldEmber,
+      .col-displayCss {
+        min-width: 5em;
+      }
+
+      .col-createdDate,
+      .col-publicationDate,
+      .col-notificationDate,
+      .col-date,
+      .col-cssClasses {
+        min-width: 6.5em;
+      }
+
+      .col-wordcount,
+      .col-category,
+      .cell-toggle {
+        min-width: 7em;
+      }
+    }
+
+    .excerpt-container,
+    .icon-container {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      min-width: 5em;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 0.5em;
+
+      .excerpt-text,
+      .icon-text {
+        max-width: 10em;
+        display: inline-block;
+        word-wrap: break-word;
+      }
     }
 
-    .col-isDraft,
-    .col-isWip,
-    .col-state,
-    .col-likes,
-    .col-views,
-    .col-state,
-    .col-worldEmber,
-    .col-displayCss {
-      min-width: 5em;
-    }
-
-    .col-createdDate,
-    .col-publicationDate,
-    .col-notificationDate,
-    .col-date,
-    .col-cssClasses {
-      min-width: 6.5em;
-    }
-
-    .col-wordcount,
-    .col-category,
-    .cell-toggle {
-      min-width: 7em;
-    }
-  }
-
-  .excerpt-container,
-  .icon-container {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 0.5em;
-
-    .excerpt-text,
-    .icon-text {
-      max-width: 10em;
+    .tag-select {
       display: inline-block;
-      word-wrap: break-word;
+
+      .form-switch {
+        display: inline-block;
+      }
+
+      .form-check-label {
+        font-weight: 500;
+        font-size: 0.9em;
+        color: var(--lightest-terror);
+      }
     }
-  }
 
-  .tag-select {
-    display: inline-block;
-
-    .form-switch {
+    table th.cursor-pointer span {
       display: inline-block;
+      width: 0.5em;
+      height: 0.5em;
+      margin-left: 0.5em;
     }
 
-    .form-check-label {
-      font-weight: 500;
-      font-size: 0.9em;
-      color: var(--lightest-terror);
+    .table {
+      --bs-table-hover-bg: var(--dark-terror);
     }
-  }
-
-  table th.cursor-pointer span {
-    display: inline-block;
-    width: 0.5em;
-    height: 0.5em;
-    margin-left: 0.5em;
-  }
-
-  .table {
-    --bs-table-hover-bg: var(--dark-terror);
   }
 }

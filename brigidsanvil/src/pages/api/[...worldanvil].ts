@@ -56,18 +56,14 @@ export default async function handler(
 
   try {
     const response: Response = await fetch(url, options);
+    const responseData = await response.json(); // Parse the response body
+
     if (!response.ok) {
-      console.log(response.status);
-      throw new Error(response.toString());
+      throw new Error(responseData.error.summary); // Throw an error with the server's error message
     }
 
-    const data = await response.json();
-    console.log(data);
-
-    res.status(200).json(data);
-  } catch (error) {
-    console.error(error);
-
-    throw error; // Propagate the error back to the calling code
+    res.status(200).json(responseData);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 }

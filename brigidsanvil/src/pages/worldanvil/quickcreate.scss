@@ -1,0 +1,38 @@
+.quick-create {
+  .form-section {
+    margin-top: 0.5em;
+  }
+
+  .submit-container {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2em;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 0.5em;
+
+    .spinner-border {
+      margin: 0.5em;
+    }
+  }
+
+  .render-details-container {
+    margin-top: 0.5em;
+
+    .button-container {
+      display: flex;
+      flex-direction: row;
+      gap: 0.2em;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    .render-utils {
+      display: flex;
+      flex-direction: row;
+      gap: 0.2em;
+      justify-content: flex-start;
+      align-items: center;
+    }
+  }
+}

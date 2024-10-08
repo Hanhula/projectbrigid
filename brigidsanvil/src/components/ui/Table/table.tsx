@@ -141,7 +141,11 @@ export function ArticleTable({
     {
       id: "copyblock",
       cell: (info: any) => {
-        return generateMention(info);
+        return generateMention(
+          info.row.original.id,
+          info.row.original.entityClass,
+          info.row.original.title
+        );
       },
       header: "Block",
       footer: (props) => props.column.id,
@@ -382,7 +386,11 @@ export function ArticleTable({
     {
       id: "copyblock",
       cell: (info: any) => {
-        return generateMention(info);
+        return generateMention(
+          info.row.original.id,
+          info.row.original.entityClass,
+          info.row.original.title
+        );
       },
       header: "Copy Block",
       footer: (props) => props.column.id,
