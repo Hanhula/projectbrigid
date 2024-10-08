@@ -215,6 +215,7 @@ export const ArticleQuickCreate = () => {
             name="excerpt"
             onChange={handleInputChange}
             value={form.excerpt}
+            maxLength={255}
           />
         </Form.Group>
 
