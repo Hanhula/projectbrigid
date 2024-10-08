@@ -157,6 +157,17 @@ export enum ArticleTypes {
   Vehicle = "Vehicle",
 }
 
+export type CreateArticle = {
+  title: string;
+  content: string;
+  templateType: string;
+  tags: string;
+  fullfooter: string;
+  world: {
+    id: string;
+  };
+};
+
 export class ArticleDisplay {
   id: string;
   title: string;

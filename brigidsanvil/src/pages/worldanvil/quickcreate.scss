@@ -17,5 +17,13 @@
       justify-content: flex-start;
       align-items: center;
     }
+
+    .render-utils {
+      display: flex;
+      flex-direction: row;
+      gap: 0.2em;
+      justify-content: flex-start;
+      align-items: center;
+    }
   }
 }
