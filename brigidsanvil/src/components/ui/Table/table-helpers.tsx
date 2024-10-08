@@ -1,5 +1,5 @@
 import { Article } from "@/components/types/article";
-import { faClipboard } from "@fortawesome/free-solid-svg-icons";
+import { faClipboard, faSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CellContext, FilterFn, Row } from "@tanstack/react-table";
 import { Button } from "react-bootstrap";
@@ -14,10 +14,14 @@ export type TableProps<TData> = {
   getRowCanExpand: (row: Row<TData>) => boolean;
 };
 
-export function generateMention(info: CellContext<Article, unknown>) {
-  const articleID = info.row.original.id;
-  const articleType = info.row.original.entityClass.toLowerCase();
-  const articleTitle = info.row.original.title;
+export function generateMention(
+  articleID: string,
+  type: string,
+  articleTitle: string
+) {
+  const articleType = type
+    ? type.toString().charAt(0).toLowerCase() + type.toString().slice(1)
+    : "";
   const mention = `@[${articleTitle}](${articleType}:${articleID})`;
 
   const copyToClipboard = async () => {
@@ -32,6 +36,25 @@ export function generateMention(info: CellContext<Article, unknown>) {
   return (
     <Button className="copy-block" variant="primary" onClick={copyToClipboard}>
       <FontAwesomeIcon icon={faClipboard} />
+    </Button>
+  );
+}
+
+export function generateArticleBlock(articleID: string) {
+  const block = `[articleblock:${articleID}]`;
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(block);
+      console.log("Text copied to clipboard");
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
+  return (
+    <Button className="copy-block" variant="primary" onClick={copyToClipboard}>
+      <FontAwesomeIcon icon={faSquare} />
     </Button>
   );
 }

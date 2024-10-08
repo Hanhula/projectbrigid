@@ -16,6 +16,7 @@ import {
   updateArticleById,
 } from "../store/articlesSlice";
 import _, { concat } from "lodash";
+import { CreateArticle } from "@/pages/worldanvil/quickcreate";
 
 const CallType = {
   GET: "GET",
@@ -324,6 +325,22 @@ export function useWorldAnvilAPI() {
     }
   }
 
+  async function createArticle(article: CreateArticle): Promise<Article> {
+    const endpoint = `/article`;
+
+    try {
+      const data = await callWorldAnvil(
+        endpoint,
+        CallType.PUT,
+        JSON.stringify(article)
+      );
+      return data;
+    } catch (error) {
+      console.error("Error getting article:", error);
+      throw error;
+    }
+  }
+
   return {
     callWorldAnvil: async (
       url: string,
@@ -354,6 +371,9 @@ export function useWorldAnvilAPI() {
     },
     getArticle: async (id: string, shouldDispatch: boolean) => {
       return await getArticle(id, shouldDispatch);
+    },
+    createArticle: async (article: CreateArticle) => {
+      return await createArticle(article);
     },
     updateArticleByField: async (
       articleID: string,
