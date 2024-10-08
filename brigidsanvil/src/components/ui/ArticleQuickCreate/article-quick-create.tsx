@@ -129,8 +129,9 @@ export const ArticleQuickCreate = () => {
 
     createArticle(article)
       .then((data) => {
+        setRenderDetails(true);
+        setArticleData(data);
         getArticle(data.id, true).then((articleData) => {
-          setRenderDetails(true);
           setArticleData(articleData);
           setIsSubmitting(false);
         });
@@ -271,6 +272,12 @@ export const ArticleQuickCreate = () => {
             Submit
           </Button>
           {isSubmitting && <Spinner animation="border" size="sm" />}
+          {isSubmitting && (
+            <span>
+              Creating & updating logic... If this is still here but it says
+              it's done, it's still updating so the Edit URL button works!
+            </span>
+          )}
         </div>
       </Form>
       {renderDetails && articleData && (
