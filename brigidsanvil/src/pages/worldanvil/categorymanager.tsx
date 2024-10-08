@@ -17,14 +17,19 @@ import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 
 import "./categorymanager.scss";
 import { CategoryItem } from "@/components/ui/Categories/category-item";
-
-// Modify the CategoryItem component to use NestedCategory
+import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
 
 function CategoryManager() {
   const world = useSelector(selectWorld);
   const isLoadingCategories = useSelector(selectIsLoadingCategories);
   const worldCategories = useSelector(selectWorldCategoriesByWorld(world.id));
   const categories = worldCategories!.categories;
+  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const articles = worldArticles!.articles;
+  const uncategorisedArticles = articles.filter(
+    (article) => !article.category && !article.articleParent
+  );
+
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();
   const currentCategoryDetailState = useSelector(
@@ -37,8 +42,7 @@ function CategoryManager() {
 
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-  // Modify the createNestedStructure function to use NestedCategory
-  function createNestedStructure(categories: Category[]): NestedCategory[] {
+  function createNestedStructure(): NestedCategory[] {
     const map = new Map<string, NestedCategory>();
     const root: NestedCategory[] = [];
 
@@ -84,8 +88,7 @@ function CategoryManager() {
     worldAnvilAPI.getCategories(50, 0, 0);
   }
 
-  // Usage in CategoryManager component
-  const nestedCategories = createNestedStructure(categories);
+  const nestedCategories = createNestedStructure();
 
   return (
     <Container className="category-manager">
@@ -135,6 +138,17 @@ function CategoryManager() {
               ))}
             </Accordion>
           )}
+          <div className="row">
+            <div className="col">
+              <h2>Uncategorised Articles</h2>
+              {/* Step 3: Map over uncategorised articles and display each one in a list */}
+              <ul>
+                {uncategorisedArticles.map((article) => (
+                  <li key={article.id}>{article.title}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </Container>

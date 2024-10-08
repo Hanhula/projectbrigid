@@ -1,0 +1,36 @@
+.category-article {
+  list-style-type: none;
+}
+
+.category-article-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  width: fit-content;
+  margin: 0.25em 0;
+
+  .article-title {
+    background: var(--primary);
+    padding: 0.25em 0.5em;
+    border-radius: 0.5em 0em 0em 0.5em;
+    border-right: 0.15em solid var(--darker-terror);
+  }
+
+  .article-type {
+    background: var(--dark-terror);
+    padding: 0.25em 0.5em;
+    border-right: 0.15em solid var(--darker-terror);
+  }
+
+  .article-state {
+    background: var(--light-terror);
+    padding: 0.25em 0.5em;
+    border-radius: 0em 0.5em 0.5em 0em;
+  }
+
+  .article-edit-category {
+    display: flex;
+    flex-direction: row;
+    margin-left: 0.5em;
+  }
+}

@@ -115,6 +115,7 @@ export type Article = {
   };
   foundInFields?: string[];
   comments?: Comment[];
+  childrenArticles?: Article[];
 };
 
 export type ApiResponse = {

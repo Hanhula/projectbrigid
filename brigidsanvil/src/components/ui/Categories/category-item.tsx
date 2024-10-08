@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSync } from "@fortawesome/free-solid-svg-icons";
 import { debounce } from "lodash";
 import { CustomToggle } from "./custom-toggle";
+import { CategoryArticleItem } from "./category-article-item";
 
 export function CategoryItem({ category }: { category: NestedCategory }) {
   const worldAnvilAPI = useWorldAnvilAPI();
@@ -119,9 +120,7 @@ export function CategoryItem({ category }: { category: NestedCategory }) {
           {category.articles && category.articles.length > 0 && (
             <ul>
               {category.articles.map((article, index) => (
-                <li key={index} className="category-list-item list-article">
-                  {article.title}
-                </li>
+                <CategoryArticleItem {...article} />
               ))}
             </ul>
           )}

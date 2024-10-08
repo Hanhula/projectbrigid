@@ -8,7 +8,7 @@ import { World } from "../types/world";
 export type WorldArticleDetailState = {
   world: World;
   isFullDetail: boolean;
-}
+};
 
 export type WorldArticlesState = {
   worldArticles: WorldArticles[];
@@ -16,7 +16,6 @@ export type WorldArticlesState = {
   isLoadingWorldArticles: boolean;
   detailState: WorldArticleDetailState[];
 };
-
 
 let initialArticle: Article = {
   id: "",
@@ -36,7 +35,7 @@ let initialArticle: Article = {
     timezone_type: 0,
     timezone: "",
   },
-  content: null
+  content: null,
 };
 
 let initialWorld: World = {
@@ -85,8 +84,8 @@ let initialWorld: World = {
 
 let initialDetail: WorldArticleDetailState = {
   world: initialWorld,
-  isFullDetail: false
-}
+  isFullDetail: false,
+};
 
 // Initial state
 const initialState = {
@@ -105,7 +104,7 @@ const initialState = {
     articles: [initialArticle],
   },
   isLoadingWorldArticles: false,
-  detailState: [initialDetail]
+  detailState: [initialDetail],
 };
 
 // Actual Slice
@@ -141,16 +140,16 @@ export const articleSlice = createSlice({
     },
     setDetailState(state, action) {
       const { world, isFullDetail } = action.payload;
-    
+
       const newDetailState: WorldArticleDetailState = {
         world,
         isFullDetail,
       };
-    
+
       const existingDetailStateIndex = state.detailState.findIndex(
         (detailState) => detailState.world.id === newDetailState.world.id
       );
-    
+
       if (existingDetailStateIndex !== -1) {
         state.detailState[existingDetailStateIndex] = newDetailState;
       } else {
@@ -221,7 +220,7 @@ export const selectWorldArticlesByWorld =
     return worldArticle || placeholderArticle;
   };
 
-  export const selectCurrentDetailStateByWorld =
+export const selectCurrentDetailStateByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
     const currentDetailState = state.articleState.detailState.find(
       (detailState) => detailState.world.id === worldId
@@ -229,10 +228,23 @@ export const selectWorldArticlesByWorld =
 
     const placeholderState: WorldArticleDetailState = {
       world: initialWorld,
-      isFullDetail: false
-    }
+      isFullDetail: false,
+    };
 
     return currentDetailState || placeholderState;
+  };
+
+export const selectArticleById =
+  (articleId: string) => (state: { articleState: WorldArticlesState }) => {
+    for (let worldArticle of state.articleState.worldArticles) {
+      let article = worldArticle.articles.find(
+        (article) => article.id === articleId
+      );
+      if (article) {
+        return article;
+      }
+    }
+    return null;
   };
 
 export default articleSlice.reducer;
