@@ -13,6 +13,18 @@ export default async function handler(
     return res.status(500).json({ error: "Application key not found" });
   }
 
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
+    );
+    res.status(200).end();
+    return;
+  }
+
   let { worldanvil } = req.query;
   const queryParameters = req.query;
   let apiEndpoint = worldanvil;
