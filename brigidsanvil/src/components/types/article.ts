@@ -166,6 +166,7 @@ export type CreateArticle = {
   excerpt: string;
   state: string;
   isDraft: boolean;
+  cssClasses: string;
   world: {
     id: string;
   };

@@ -38,6 +38,7 @@ export const ArticleQuickCreate = () => {
     tags: "",
     privacy: "public",
     draft: "true",
+    cssClasses: "",
   });
 
   const [articleData, setArticleData] = useState<Article | null>(null);
@@ -64,6 +65,7 @@ export const ArticleQuickCreate = () => {
       tags: "",
       privacy: "public",
       draft: "true",
+      cssClasses: "",
     });
     setRenderDetails(false);
     setError(null);
@@ -122,6 +124,7 @@ export const ArticleQuickCreate = () => {
       excerpt: form.excerpt,
       state: form.privacy,
       isDraft: form.draft === "true",
+      cssClasses: form.cssClasses,
       world: {
         id: world.id,
       },
@@ -232,6 +235,21 @@ export const ArticleQuickCreate = () => {
               />
               <Form.Text>
                 Tags should be entered as a comma-separated list.
+              </Form.Text>
+            </Form.Group>
+          </Col>
+          <Col md="3">
+            <Form.Group controlId="formCSSClasses" className="form-section">
+              <Form.Label>CSS Classes</Form.Label>
+              <Form.Control
+                type="text"
+                name="cssClasses"
+                placeholder="Enter CSS classes"
+                onChange={handleInputChange}
+                value={form.cssClasses}
+              />
+              <Form.Text>
+                CSS classes should be entered as a comma-separated list.
               </Form.Text>
             </Form.Group>
           </Col>
