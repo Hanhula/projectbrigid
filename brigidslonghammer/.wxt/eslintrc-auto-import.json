@@ -4,6 +4,7 @@
     "InvalidMatchPattern": true,
     "MatchPattern": true,
     "UserAuth": true,
+    "WorldSelect": true,
     "browser": true,
     "createIframeUi": true,
     "createIntegratedUi": true,
@@ -24,6 +25,7 @@
     "useMemo": true,
     "useReducer": true,
     "useRef": true,
-    "useState": true
+    "useState": true,
+    "verifyIdentity": true
   }
 }

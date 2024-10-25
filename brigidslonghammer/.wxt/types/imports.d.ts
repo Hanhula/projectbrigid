@@ -5,6 +5,7 @@ declare global {
   const InvalidMatchPattern: typeof import('wxt/sandbox')['InvalidMatchPattern']
   const MatchPattern: typeof import('wxt/sandbox')['MatchPattern']
   const UserAuth: typeof import('F:/Coding/brigid/brigidslonghammer/components/UserAuth')['default']
+  const WorldSelect: typeof import('F:/Coding/brigid/brigidslonghammer/components/WorldSelect')['default']
   const browser: typeof import('wxt/browser/chrome')['browser']
   const createIframeUi: typeof import('wxt/client')['createIframeUi']
   const createIntegratedUi: typeof import('wxt/client')['createIntegratedUi']
@@ -26,4 +27,5 @@ declare global {
   const useReducer: typeof import('react')['useReducer']
   const useRef: typeof import('react')['useRef']
   const useState: typeof import('react')['useState']
+  const verifyIdentity: typeof import('F:/Coding/brigid/brigidslonghammer/utils/apiUtils')['verifyIdentity']
 }
