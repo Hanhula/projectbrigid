@@ -1,6 +1,7 @@
 import { verifyIdentity } from "@/utils/apiUtils";
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
+import "./styles/UserAuth.css";
 
 const UserAuth = () => {
   const [authToken, setAuthToken] = useState("");
@@ -21,15 +22,23 @@ const UserAuth = () => {
       });
   };
 
-  const logToken = async () => {
-    const token = await storage.getItem("local:authToken");
-    console.log("Current token:", token);
-  };
-
   return (
     <Form onSubmit={handleSubmit}>
-      <Form.Group controlId="authToken">
+      <Form.Group controlId="authToken" className="auth-section">
         <Form.Label>Auth Token</Form.Label>
+        <Form.Text className="text-muted">
+          {"Find your token "}
+          <a
+            href="https://www.worldanvil.com/api/auth/key"
+            onClick={(e) => {
+              e.preventDefault();
+              window.open("https://www.worldanvil.com/api/auth/key", "_blank");
+            }}
+          >
+            here
+          </a>
+          .
+        </Form.Text>
         <Form.Control
           type="text"
           placeholder="Enter auth token"
@@ -38,9 +47,8 @@ const UserAuth = () => {
         />
       </Form.Group>
       <Button variant="primary" type="submit">
-        Submit
+        Submit Auth
       </Button>
-      <Button onClick={logToken}>View Current Token</Button>
     </Form>
   );
 };

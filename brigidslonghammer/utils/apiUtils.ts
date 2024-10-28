@@ -1,3 +1,5 @@
+import { Article, CreateArticle, WorldArticle } from "@/types/article";
+
 enum CallType {
   GET = "GET",
   POST = "POST",
@@ -58,4 +60,36 @@ export async function getWorlds(worldId: string) {
   const endpoint = `/user/worlds?id=${params.id}`;
   const data = await callBrigid(endpoint, CallType.POST);
   return data;
+}
+
+export async function createArticle(article: CreateArticle): Promise<Article> {
+  const endpoint = `/article`;
+
+  try {
+    const data = await callBrigid(
+      endpoint,
+      CallType.PUT,
+      JSON.stringify(article)
+    );
+    return data;
+  } catch (error) {
+    console.error("Error getting article:", error);
+    throw error;
+  }
+}
+
+export async function getArticle(articleId: string): Promise<Article> {
+  let params = {
+    id: articleId,
+    granularity: 2,
+  };
+  const endpoint = `/article?id=${params.id}&granularity=${params.granularity}`;
+
+  try {
+    const data = await callBrigid(endpoint, CallType.GET);
+    return data;
+  } catch (error) {
+    console.error("Error getting article:", error);
+    throw error;
+  }
 }

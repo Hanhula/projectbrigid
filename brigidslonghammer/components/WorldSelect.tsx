@@ -5,15 +5,16 @@ import React, { useState } from "react";
 import { Dropdown, Button, Container } from "react-bootstrap";
 
 const WorldSelect: React.FC = () => {
-  const [selectedWorld, setSelectedWorld] = useState<string | null>(null);
+  const [selectedWorld, setSelectedWorld] = useState<World | null>(null);
   const [worlds, setWorlds] = useState<World[]>([]);
 
   const handleSelect = (eventKey: string | null) => {
-    setSelectedWorld(eventKey);
+    const world = worlds.find((world) => world.title === eventKey) ?? null;
+    setSelectedWorld(world);
   };
 
   const handleSubmit = () => {
-    console.log(`Selected world: ${selectedWorld}`);
+    console.log(`Selected world:`, selectedWorld);
     storage.setItem("local:selectedWorld", selectedWorld);
   };
 
@@ -30,11 +31,34 @@ const WorldSelect: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    handleRefresh();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = storage.watch(
+      "local:identity",
+      (newIdentity: Identity | null) => {
+        if (newIdentity) {
+          handleRefresh();
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (selectedWorld) {
+      handleSubmit();
+    }
+  }, [selectedWorld]);
+
   return (
     <Container className="world-select-container">
-      <Dropdown onSelect={handleSelect}>
+      <Dropdown onSelect={handleSelect} className="m-1">
         <Dropdown.Toggle variant="success" id="dropdown-basic">
-          {selectedWorld || "Select a world"}
+          {selectedWorld ? selectedWorld.title : "Select a world"}
         </Dropdown.Toggle>
 
         <Dropdown.Menu>
@@ -45,10 +69,7 @@ const WorldSelect: React.FC = () => {
           ))}
         </Dropdown.Menu>
       </Dropdown>
-      <Button variant="primary" onClick={handleSubmit} className="m-2">
-        Submit
-      </Button>
-      <Button variant="secondary" onClick={handleRefresh}>
+      <Button variant="secondary" onClick={handleRefresh} className="m-1">
         Refresh
       </Button>
     </Container>
