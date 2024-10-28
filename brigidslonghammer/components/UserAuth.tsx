@@ -10,8 +10,15 @@ const UserAuth = () => {
     console.log("Auth token:", authToken);
     storage.setItem("local:authToken", authToken);
 
-    const identity = verifyIdentity();
-    console.log("Identity:", identity);
+    verifyIdentity()
+      .then((identity) => {
+        storage.setItem("local:identity", identity);
+        console.log(identity);
+      })
+      .catch((error) => {
+        console.error("Error verifying identity:", error);
+        storage.removeItem("local:authToken");
+      });
   };
 
   const logToken = async () => {

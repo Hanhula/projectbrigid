@@ -5,6 +5,9 @@ enum CallType {
   PATCH = "PATCH",
 }
 
+const API_ORIGIN = "brigids-longhammer";
+const API_URL = "https://brigid.istralar.com/api";
+
 async function callBrigid(endpoint: string, callType: string, body?: string) {
   let options: {};
   const authToken = await storage.getItem("local:authToken");
@@ -14,6 +17,7 @@ async function callBrigid(endpoint: string, callType: string, body?: string) {
       method: callType,
       headers: {
         authorization: authToken,
+        origin: API_ORIGIN,
       },
       body: body,
     };
@@ -22,15 +26,13 @@ async function callBrigid(endpoint: string, callType: string, body?: string) {
       method: callType,
       headers: {
         authorization: authToken,
+        origin: API_ORIGIN,
       },
     };
   }
 
   try {
-    const response = await fetch(
-      `https://brigid.istralar.com/api${endpoint}`,
-      options
-    );
+    const response = await fetch(`${API_URL}${endpoint}`, options);
     const responseData = await response.json();
     if (!response.ok) {
       const serverErrorMessage = responseData.error;
@@ -48,5 +50,15 @@ async function callBrigid(endpoint: string, callType: string, body?: string) {
 export async function verifyIdentity() {
   const endpoint = `/identity`;
   const data = await callBrigid(endpoint, CallType.GET);
+  return data;
+}
+
+export async function getWorlds(worldId: string) {
+  let params = {
+    id: worldId,
+    granularity: 0,
+  };
+  const endpoint = `/user/worlds?id=${params.id}`;
+  const data = await callBrigid(endpoint, CallType.POST);
   return data;
 }

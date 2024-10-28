@@ -1,5 +1,6 @@
 import UserAuth from "@/components/UserAuth";
-import { Button } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -32,8 +33,12 @@ function App() {
   return (
     <>
       <div className="main-container">
-        <h1>Brigid's Longhammer</h1>
-        <div className="brigid-auth">
+        <Navbar fixed="top">
+          <Container>
+            <Navbar.Brand>Brigid's Longhammer</Navbar.Brand>
+          </Container>
+        </Navbar>
+        <div className="brigid-container">
           {!isAuthenticated && <UserAuth />}
           {isAuthenticated && (
             <div className="authenticated-container">

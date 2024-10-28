@@ -1,25 +1,37 @@
+import { Identity } from "@/types/user";
+import { World } from "@/types/world";
+import { getWorlds } from "@/utils/apiUtils";
 import React, { useState } from "react";
-import { Dropdown, Button } from "react-bootstrap";
+import { Dropdown, Button, Container } from "react-bootstrap";
 
 const WorldSelect: React.FC = () => {
   const [selectedWorld, setSelectedWorld] = useState<string | null>(null);
-  const [worlds, setWorlds] = useState<string[]>(["Earth", "Mars", "Venus"]);
+  const [worlds, setWorlds] = useState<World[]>([]);
 
   const handleSelect = (eventKey: string | null) => {
     setSelectedWorld(eventKey);
   };
 
   const handleSubmit = () => {
-    alert(`Selected world: ${selectedWorld}`);
+    console.log(`Selected world: ${selectedWorld}`);
+    storage.setItem("local:selectedWorld", selectedWorld);
   };
 
-  const handleRefresh = () => {
-    // Logic to refresh the list of worlds
-    setWorlds(["Earth", "Mars", "Venus", "Jupiter"]);
+  const handleRefresh = async () => {
+    const identity: Identity | null = await storage.getItem("local:identity");
+    if (identity) {
+      getWorlds(identity.id).then((worldData) => {
+        if (worldData.success) {
+          const worlds: World[] = worldData.entities;
+          storage.setItem("local:worlds", worlds);
+          setWorlds(worlds);
+        }
+      });
+    }
   };
 
   return (
-    <div>
+    <Container className="world-select-container">
       <Dropdown onSelect={handleSelect}>
         <Dropdown.Toggle variant="success" id="dropdown-basic">
           {selectedWorld || "Select a world"}
@@ -27,8 +39,8 @@ const WorldSelect: React.FC = () => {
 
         <Dropdown.Menu>
           {worlds.map((world, index) => (
-            <Dropdown.Item key={index} eventKey={world}>
-              {world}
+            <Dropdown.Item key={index} eventKey={world.title}>
+              {world.title}
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>
@@ -39,7 +51,7 @@ const WorldSelect: React.FC = () => {
       <Button variant="secondary" onClick={handleRefresh}>
         Refresh
       </Button>
-    </div>
+    </Container>
   );
 };
 
