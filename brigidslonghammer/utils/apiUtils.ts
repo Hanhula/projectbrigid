@@ -5,7 +5,6 @@ enum CallType {
   PATCH = "PATCH",
 }
 
-const API_ORIGIN = "brigids-longhammer";
 const API_URL = "https://brigid.istralar.com/api";
 
 async function callBrigid(endpoint: string, callType: string, body?: string) {
@@ -17,7 +16,6 @@ async function callBrigid(endpoint: string, callType: string, body?: string) {
       method: callType,
       headers: {
         authorization: authToken,
-        origin: API_ORIGIN,
       },
       body: body,
     };
@@ -26,7 +24,6 @@ async function callBrigid(endpoint: string, callType: string, body?: string) {
       method: callType,
       headers: {
         authorization: authToken,
-        origin: API_ORIGIN,
       },
     };
   }
