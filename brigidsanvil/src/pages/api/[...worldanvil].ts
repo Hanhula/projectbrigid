@@ -13,18 +13,6 @@ export default async function handler(
     return res.status(500).json({ error: "Application key not found" });
   }
 
-  if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
-    );
-    res.status(200).end();
-    return;
-  }
-
   let { worldanvil } = req.query;
   const queryParameters = req.query;
   let apiEndpoint = worldanvil;
@@ -68,13 +56,20 @@ export default async function handler(
 
   try {
     const response: Response = await fetch(url, options);
-    const responseData = await response.json(); // Parse the response body
+    const responseText = await response.text(); // Get the response as text
 
-    if (!response.ok) {
-      throw new Error(responseData.error.summary); // Throw an error with the server's error message
+    try {
+      const responseData = JSON.parse(responseText); // Try to parse the response as JSON
+
+      if (!response.ok) {
+        throw new Error(responseData.error.summary); // Throw an error with the server's error message
+      }
+
+      res.status(200).json(responseData);
+    } catch (jsonError) {
+      console.error("Failed to parse JSON response:", responseText);
+      throw new Error("Invalid JSON response");
     }
-
-    res.status(200).json(responseData);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
   }
