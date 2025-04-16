@@ -550,7 +550,8 @@ function EditableIcons({
               <Tooltip id={`tooltip`} data-bs-theme="light">
                 {(() => {
                   if (editedValue && editedValue.startsWith("fa")) {
-                    let iconName = editedValue.split(" ")[1];
+                    let iconName = editedValue.split(" ")[1] || editedValue;
+                    console.log("icon name: ", iconName);
                     iconName = iconName
                       .substring(2)
                       .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
