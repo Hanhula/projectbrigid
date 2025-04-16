@@ -2,6 +2,7 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 import { DateTime } from "luxon";
+import { getDateTime } from "../../Table/table-helpers";
 
 export function ArticlePublicationDatePieChart({
   articles,
@@ -21,13 +22,15 @@ export function ArticlePublicationDatePieChart({
         }
       } else if (publicationDate) {
         const dateString = String(publicationDate.date);
-        const inputDateString = dateString.substring(0, dateString.length - 7);
-        const dateTime = DateTime.fromFormat(
-          inputDateString,
-          "yyyy-MM-dd HH:mm:ss",
-          { zone: "utc" }
-        );
-        const localDateTime = dateTime.toLocal();
+        const localDateTime = getDateTime(dateString);
+        if (!localDateTime) {
+          if (publicationDateIntervals["Null"]) {
+            publicationDateIntervals["Null"]++;
+          } else {
+            publicationDateIntervals["Null"] = 1;
+          }
+          return;
+        }
         const startOfInterval = localDateTime
           .startOf("quarter")
           .toFormat("MMM");

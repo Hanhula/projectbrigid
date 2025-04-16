@@ -48,7 +48,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { Filter } from "./filter";
-import { DateTime } from "luxon";
 
 import "react-tagsinput/react-tagsinput.css";
 import Link from "next/link";
@@ -66,6 +65,7 @@ import {
   renderSubComponent,
   csvFilter,
   boolFilter,
+  getFormattedDate,
 } from "./table-helpers";
 import EditableToggle from "./EditableComponents/editable-toggle";
 import { downloadAllArticlesHtml } from "../ArticleView/article-export-helpers";
@@ -198,17 +198,7 @@ export function ArticleTable({
       id: "date",
       cell: (info) => {
         const dateString = String(info.getValue());
-        const inputDateString = dateString.substring(0, dateString.length - 7);
-        const dateTime = DateTime.fromFormat(
-          inputDateString,
-          "yyyy-MM-dd HH:mm:ss",
-          { zone: "utc" }
-        );
-        const localDateTime = dateTime.toLocal();
-        const formattedDateTime = localDateTime.toFormat(
-          "yyyy-MM-dd 'at' HH:mm:ss"
-        );
-        return formattedDateTime;
+        return getFormattedDate(dateString);
       },
       header: "Last Edit",
       footer: (props) => props.column.id,
@@ -651,17 +641,7 @@ export function ArticleTable({
       id: "date",
       cell: (info) => {
         const dateString = String(info.getValue());
-        const inputDateString = dateString.substring(0, dateString.length - 7);
-        const dateTime = DateTime.fromFormat(
-          inputDateString,
-          "yyyy-MM-dd HH:mm:ss",
-          { zone: "utc" }
-        );
-        const localDateTime = dateTime.toLocal();
-        const formattedDateTime = localDateTime.toFormat(
-          "yyyy-MM-dd 'at' HH:mm:ss"
-        );
-        return formattedDateTime;
+        return getFormattedDate(dateString);
       },
       header: "Last Edit",
       footer: (props) => props.column.id,
@@ -674,20 +654,7 @@ export function ArticleTable({
           return "";
         } else {
           const dateString = String(info.getValue());
-          const inputDateString = dateString.substring(
-            0,
-            dateString.length - 7
-          );
-          const dateTime = DateTime.fromFormat(
-            inputDateString,
-            "yyyy-MM-dd HH:mm:ss",
-            { zone: "utc" }
-          );
-          const localDateTime = dateTime.toLocal();
-          const formattedDateTime = localDateTime.toFormat(
-            "yyyy-MM-dd 'at' HH:mm:ss"
-          );
-          return formattedDateTime;
+          return getFormattedDate(dateString);
         }
       },
       header: "Created On",
@@ -702,20 +669,7 @@ export function ArticleTable({
           return "";
         } else {
           const dateString = String(info.getValue());
-          const inputDateString = dateString.substring(
-            0,
-            dateString.length - 7
-          );
-          const dateTime = DateTime.fromFormat(
-            inputDateString,
-            "yyyy-MM-dd HH:mm:ss",
-            { zone: "utc" }
-          );
-          const localDateTime = dateTime.toLocal();
-          const formattedDateTime = localDateTime.toFormat(
-            "yyyy-MM-dd 'at' HH:mm:ss"
-          );
-          return formattedDateTime;
+          return getFormattedDate(dateString);
         }
       },
       header: "Published",
@@ -730,20 +684,7 @@ export function ArticleTable({
           return "";
         } else {
           const dateString = String(info.getValue());
-          const inputDateString = dateString.substring(
-            0,
-            dateString.length - 7
-          );
-          const dateTime = DateTime.fromFormat(
-            inputDateString,
-            "yyyy-MM-dd HH:mm:ss",
-            { zone: "utc" }
-          );
-          const localDateTime = dateTime.toLocal();
-          const formattedDateTime = localDateTime.toFormat(
-            "yyyy-MM-dd 'at' HH:mm:ss"
-          );
-          return formattedDateTime;
+          return getFormattedDate(dateString);
         }
       },
       header: "Notified",

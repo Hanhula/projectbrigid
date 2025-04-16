@@ -29,16 +29,15 @@ import { WorldAnvilDate } from "@/components/types/date";
 import { DateTime } from "luxon";
 import { ArticleAuthorPieChart } from "./ArticleAuthorPieChart/articleAuthorPieChart";
 import { ArticleAuthorTypePieChart } from "./ArticleAuthorTypePieChart/articleAuthorTypePieChart";
+import { getFormattedDate } from "../Table/table-helpers";
 
 const convertToDateString = (date: WorldAnvilDate) => {
-  const dateString = String(date.date);
-  const inputDateString = dateString.substring(0, dateString.length - 7);
-  const dateTime = DateTime.fromFormat(inputDateString, "yyyy-MM-dd HH:mm:ss", {
-    zone: "utc",
-  });
-  const localDateTime = dateTime.toLocal();
-  const formattedDateTime = localDateTime.toFormat("yyyy-MM-dd 'at' HH:mm:ss");
-  return formattedDateTime;
+  if (date && date.date) {
+    const dateString = String(date.date);
+    return getFormattedDate(dateString);
+  } else {
+    return "";
+  }
 };
 
 export function WorldStatistics() {

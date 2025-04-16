@@ -1,8 +1,9 @@
 import { Article } from "@/components/types/article";
 import { faClipboard, faSquare } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { CellContext, FilterFn, Row } from "@tanstack/react-table";
+import { FilterFn, Row } from "@tanstack/react-table";
 import { Button } from "react-bootstrap";
+import { DateTime } from "luxon";
 
 export interface TagOption {
   label: string;
@@ -99,4 +100,36 @@ export const boolFilter: FilterFn<any> = (row, columnId, filterValue) => {
   const columnValue = displayCss ? "true" : "false";
 
   return columnValue === filterValue.trim().toLowerCase();
+};
+
+export const getFormattedDate = (dateString: string) => {
+  const localDateTime = getDateTime(dateString);
+  if (localDateTime) {
+    const formattedDateTime = localDateTime.toFormat(
+      "yyyy-MM-dd 'at' HH:mm:ss"
+    );
+    return formattedDateTime;
+  } else {
+    return "";
+  }
+};
+
+export const getDateTime = (dateString: string) => {
+  if (!dateString) {
+    return null;
+  }
+
+  if (dateString && dateString.length < 8) {
+    console.log(
+      `Congratulations, you found an error! Incorrect date string is: ${dateString}`
+    );
+    return null;
+  }
+
+  const inputDateString = dateString.substring(0, dateString.length - 7);
+  const dateTime = DateTime.fromFormat(inputDateString, "yyyy-MM-dd HH:mm:ss", {
+    zone: "utc",
+  });
+  const localDateTime = dateTime.toLocal();
+  return localDateTime;
 };

@@ -2,6 +2,7 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 import { DateTime } from "luxon";
+import { getDateTime } from "../../Table/table-helpers";
 
 export function ArticleUpdateDatePieChart({
   articles,
@@ -14,13 +15,11 @@ export function ArticleUpdateDatePieChart({
     articles.forEach((article) => {
       const { updateDate } = article;
       const dateString = String(updateDate!.date);
-      const inputDateString = dateString.substring(0, dateString.length - 7);
-      const dateTime = DateTime.fromFormat(
-        inputDateString,
-        "yyyy-MM-dd HH:mm:ss",
-        { zone: "utc" }
-      );
-      const localDateTime = dateTime.toLocal();
+      const localDateTime = getDateTime(dateString);
+      if (!localDateTime) {
+        return;
+      }
+
       const startOfInterval = localDateTime.startOf("quarter").toFormat("MMM");
       const endOfInterval = localDateTime
         .startOf("quarter")
