@@ -24,7 +24,7 @@ const Articles = () => {
   );
 
   const stubMurder = () => {
-    let stubmurder = articles.filter((article) => {
+    let stubmurder = Array.from(articles.values()).filter((article) => {
       if (article.tags) {
         return article.tags.includes("stub");
       }
@@ -34,7 +34,7 @@ const Articles = () => {
   };
 
   const DRAFTY = () => {
-    let draaaaaaaft = articles.filter((article) => {
+    let draaaaaaaft = Array.from(articles.values()).filter((article) => {
       return article.isDraft;
     });
     return draaaaaaaft.length;

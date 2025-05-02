@@ -8,15 +8,14 @@ import { World } from "../types/world";
 export type WorldArticleDetailState = {
   world: World;
   isFullDetail: boolean;
-}
-
-export type WorldArticlesState = {
-  worldArticles: WorldArticles[];
-  currentWorldArticles: WorldArticles;
-  isLoadingWorldArticles: boolean;
-  detailState: WorldArticleDetailState[];
 };
 
+export type WorldArticlesState = {
+  worldArticles: Map<string, WorldArticles>;
+  currentWorldArticles: WorldArticles;
+  isLoadingWorldArticles: boolean;
+  detailState: Map<string, WorldArticleDetailState>;
+};
 
 let initialArticle: Article = {
   id: "",
@@ -36,7 +35,7 @@ let initialArticle: Article = {
     timezone_type: 0,
     timezone: "",
   },
-  content: null
+  content: null,
 };
 
 let initialWorld: World = {
@@ -85,27 +84,20 @@ let initialWorld: World = {
 
 let initialDetail: WorldArticleDetailState = {
   world: initialWorld,
-  isFullDetail: false
-}
+  isFullDetail: false,
+};
 
 // Initial state
 const initialState = {
-  worldArticles: [
-    {
-      world: {
-        id: "",
-      },
-      articles: [initialArticle],
-    },
-  ],
+  worldArticles: new Map<string, WorldArticles>(),
   currentWorldArticles: {
     world: {
       id: "",
     },
-    articles: [initialArticle],
+    articles: new Map<string, Article>(),
   },
   isLoadingWorldArticles: false,
-  detailState: [initialDetail]
+  detailState: [initialDetail],
 };
 
 // Actual Slice
@@ -113,25 +105,18 @@ export const articleSlice = createSlice({
   name: "articleState",
   initialState,
   reducers: {
+    setWorldArticlesMap(state, action) {
+      state.worldArticles = action.payload;
+    },
     setWorldArticles(state, action) {
       const newWorldArticles: WorldArticles = action.payload;
-      const worldIndex = state.worldArticles.findIndex(
-        (worldArticle) => worldArticle.world.id === newWorldArticles.world.id
-      );
-
-      if (worldIndex !== -1) {
-        state.worldArticles[worldIndex] = newWorldArticles;
-      } else {
-        state.worldArticles.push(newWorldArticles);
-      }
+      state.worldArticles.set(newWorldArticles.world.id, newWorldArticles);
     },
     setCurrentWorldArticles(state, action) {
       const currentWorld: World = action.payload;
-      const worldArticle = state.worldArticles.find(
-        (worldArticle) => worldArticle.world.id === currentWorld.id
-      );
+      const worldArticle = state.worldArticles.get(currentWorld.id);
       if (worldArticle) {
-        state.currentWorldArticles = worldArticle;
+        state.currentWorldArticles = worldArticle as WorldArticles;
       } else {
         console.error(`World with ID ${currentWorld.id} not found.`);
       }
@@ -141,16 +126,16 @@ export const articleSlice = createSlice({
     },
     setDetailState(state, action) {
       const { world, isFullDetail } = action.payload;
-    
+
       const newDetailState: WorldArticleDetailState = {
         world,
         isFullDetail,
       };
-    
+
       const existingDetailStateIndex = state.detailState.findIndex(
         (detailState) => detailState.world.id === newDetailState.world.id
       );
-    
+
       if (existingDetailStateIndex !== -1) {
         state.detailState[existingDetailStateIndex] = newDetailState;
       } else {
@@ -159,20 +144,14 @@ export const articleSlice = createSlice({
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
-      const worldIndex = state.worldArticles.findIndex(
-        (worldArticle) => worldArticle.world.id === updatedArticleObj.world.id
-      );
-
-      if (worldIndex !== -1) {
-        const articleIndex = state.worldArticles[worldIndex].articles.findIndex(
-          (article) => article.id === updatedArticleObj.article.id
+      const worldArticle = state.worldArticles.get(updatedArticleObj.world.id);
+      if (worldArticle) {
+        const articleToUpdate = worldArticle.articles.get(
+          updatedArticleObj.article.id
         );
-
-        if (articleIndex !== -1) {
-          state.worldArticles[worldIndex].articles[articleIndex] =
-            updatedArticleObj.article;
-        } else {
-          state.worldArticles[worldIndex].articles.push(
+        if (articleToUpdate) {
+          worldArticle.articles.set(
+            updatedArticleObj.article.id,
             updatedArticleObj.article
           );
         }
@@ -192,6 +171,7 @@ export const articleSlice = createSlice({
 });
 
 export const {
+  setWorldArticlesMap,
   setWorldArticles,
   setCurrentWorldArticles,
   setLoadingWorldArticles,
@@ -209,19 +189,24 @@ export const selectIsLoadingWorldArticles = (state: {
 
 export const selectWorldArticlesByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const worldArticle = state.articleState.worldArticles.find(
-      (worldArticle) => worldArticle.world.id === worldId
-    );
+    if (Array.isArray(state.articleState.worldArticles)) {
+      const stateMap = migrateWorldArraysToMaps(
+        state.articleState.worldArticles
+      );
+      setWorldArticlesMap(stateMap);
+    }
+
+    const worldArticle = state.articleState.worldArticles.get(worldId);
 
     const placeholderArticle: WorldArticles = {
       world: initialWorld,
-      articles: [initialArticle],
+      articles: new Map<string, Article>(),
     };
 
     return worldArticle || placeholderArticle;
   };
 
-  export const selectCurrentDetailStateByWorld =
+export const selectCurrentDetailStateByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
     const currentDetailState = state.articleState.detailState.find(
       (detailState) => detailState.world.id === worldId
@@ -229,10 +214,36 @@ export const selectWorldArticlesByWorld =
 
     const placeholderState: WorldArticleDetailState = {
       world: initialWorld,
-      isFullDetail: false
-    }
+      isFullDetail: false,
+    };
 
     return currentDetailState || placeholderState;
   };
+
+const migrateWorldArraysToMaps = (
+  worldArticles: { world: World; articles: Article[] }[]
+) => {
+  const worldArticleMap: Map<string, WorldArticles> = new Map();
+  worldArticles.forEach((worldArticle) => {
+    if (!Array.isArray(worldArticle.articles)) {
+      console.log("error!");
+    }
+
+    const articleArray = worldArticle.articles;
+    const articlesMap: Map<string, Article> = new Map();
+    articleArray.forEach((article) => {
+      articlesMap.set(article.id, article);
+    });
+
+    const newWorldArticle: WorldArticles = {
+      world: worldArticle.world,
+      articles: articlesMap,
+    };
+
+    worldArticleMap.set(worldArticle.world.id, newWorldArticle);
+  });
+
+  return worldArticleMap;
+};
 
 export default articleSlice.reducer;

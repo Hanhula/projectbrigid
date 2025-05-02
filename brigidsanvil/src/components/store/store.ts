@@ -10,6 +10,9 @@ import { authSlice } from "./authSlice";
 import { articleSlice } from "./articlesSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
+import { enableMapSet } from "immer";
+
+enableMapSet();
 
 // Used to prevent the loading state from persisting across refreshes.
 const apiTransform = createTransform(

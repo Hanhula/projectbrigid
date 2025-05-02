@@ -18,7 +18,7 @@ import { CompetitionEntry } from "./competition-entry";
 
 export type WorldArticles = {
   world: World;
-  articles: Article[];
+  articles: Map<string, Article>;
 };
 
 export type WorldArticle = {
