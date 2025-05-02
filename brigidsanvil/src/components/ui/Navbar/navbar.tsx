@@ -7,19 +7,25 @@ import {
   selectWorld,
   selectWorlds,
 } from "@/components/store/apiSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import WorldSelect from "../WorldSelect/worldselect";
-import { selectAuthToken } from "@/components/store/authSlice";
+import { selectAuthToken, setAuthToken } from "@/components/store/authSlice";
 import IdentityForm from "../Identity/identity";
 import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
-import { faCloud, faCoins, fas } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCloud,
+  faCoins,
+  faSignOut,
+  fas,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Container, Navbar, NavbarToggle } from "react-bootstrap";
+import { Button, Navbar } from "react-bootstrap";
 
 library.add(fas);
 import "rpg-awesome/css/rpg-awesome.min.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faDiscord } from "@fortawesome/free-brands-svg-icons";
+import Cookies from "universal-cookie";
 
 const NavBar = () => {
   const world = useSelector(selectWorld);
@@ -28,6 +34,14 @@ const NavBar = () => {
   const articles = worldArticles!.articles;
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
+  const dispatch = useDispatch();
+
+  const logoutButton = async (event: any) => {
+    event.preventDefault();
+    const cookies = new Cookies();
+    cookies.set("authToken", null, { path: "/" });
+    dispatch(setAuthToken(null));
+  };
 
   return (
     <div>
@@ -131,6 +145,9 @@ const NavBar = () => {
                       <dd>{"Logged in as:"}</dd>
                       <dt>{identity.username}</dt>
                     </div>
+                    <Button variant="primary" onClick={logoutButton}>
+                      <FontAwesomeIcon icon={faSignOut} />
+                    </Button>
                   </Nav.Item>
                 )}
               </Nav>
