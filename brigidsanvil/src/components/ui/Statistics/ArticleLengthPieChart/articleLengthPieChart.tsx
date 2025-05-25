@@ -2,7 +2,11 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
-export function ArticleLengthPieChart({ articles }: { articles: Article[] }) {
+export function ArticleLengthPieChart({
+  articles,
+}: {
+  articles: Map<string, Article>;
+}) {
   const countWordCountIntervals = () => {
     const intervals = [0, 50, 500, 1000, 1500, 2000, 2500, 5000, 9000];
     const wordCountIntervals: Record<string, number> = {};

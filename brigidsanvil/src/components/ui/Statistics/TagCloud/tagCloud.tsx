@@ -122,9 +122,9 @@ export default function TagCloud() {
     0
   );
 
-  const averageTagsPerArticle = totalTags / articles.length;
+  const averageTagsPerArticle = totalTags / articles.size;
 
-  const untaggedArticles = articles.filter(
+  const untaggedArticles = Array.from(articles.values()).filter(
     (article) => !article.tags || article.tags.trim() === ""
   );
   const numUntaggedArticles = untaggedArticles.length;

@@ -27,9 +27,9 @@ const ArticlePage: React.FC = () => {
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
 
-  const article = currentArticles.find(
-    (article: Article) => article.id === slug
-  );
+  // If the query is an array, use the first element. If it's undefined, set it to an empty string.
+  const slugString = (Array.isArray(slug) ? slug[0] : slug) ?? "";
+  const article = currentArticles.get(slugString);
 
   if (!article) {
     return <div>Article not found</div>;

@@ -97,7 +97,7 @@ const initialState = {
     articles: new Map<string, Article>(),
   },
   isLoadingWorldArticles: false,
-  detailState: [initialDetail],
+  detailState: new Map<string, WorldArticleDetailState>(),
 };
 
 // Actual Slice
@@ -132,15 +132,7 @@ export const articleSlice = createSlice({
         isFullDetail,
       };
 
-      const existingDetailStateIndex = state.detailState.findIndex(
-        (detailState) => detailState.world.id === newDetailState.world.id
-      );
-
-      if (existingDetailStateIndex !== -1) {
-        state.detailState[existingDetailStateIndex] = newDetailState;
-      } else {
-        state.detailState.push(newDetailState);
-      }
+      state.detailState.set(newDetailState.world.id, newDetailState);
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
@@ -189,13 +181,8 @@ export const selectIsLoadingWorldArticles = (state: {
 
 export const selectWorldArticlesByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    if (Array.isArray(state.articleState.worldArticles)) {
-      const stateMap = migrateWorldArraysToMaps(
-        state.articleState.worldArticles
-      );
-      setWorldArticlesMap(stateMap);
-    }
-
+    console.log("state", state);
+    console.log("state articles", state.articleState.worldArticles);
     const worldArticle = state.articleState.worldArticles.get(worldId);
 
     const placeholderArticle: WorldArticles = {
@@ -208,9 +195,7 @@ export const selectWorldArticlesByWorld =
 
 export const selectCurrentDetailStateByWorld =
   (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const currentDetailState = state.articleState.detailState.find(
-      (detailState) => detailState.world.id === worldId
-    );
+    const currentDetailState = state.articleState.detailState.get(worldId);
 
     const placeholderState: WorldArticleDetailState = {
       world: initialWorld,
@@ -219,31 +204,5 @@ export const selectCurrentDetailStateByWorld =
 
     return currentDetailState || placeholderState;
   };
-
-const migrateWorldArraysToMaps = (
-  worldArticles: { world: World; articles: Article[] }[]
-) => {
-  const worldArticleMap: Map<string, WorldArticles> = new Map();
-  worldArticles.forEach((worldArticle) => {
-    if (!Array.isArray(worldArticle.articles)) {
-      console.log("error!");
-    }
-
-    const articleArray = worldArticle.articles;
-    const articlesMap: Map<string, Article> = new Map();
-    articleArray.forEach((article) => {
-      articlesMap.set(article.id, article);
-    });
-
-    const newWorldArticle: WorldArticles = {
-      world: worldArticle.world,
-      articles: articlesMap,
-    };
-
-    worldArticleMap.set(worldArticle.world.id, newWorldArticle);
-  });
-
-  return worldArticleMap;
-};
 
 export default articleSlice.reducer;

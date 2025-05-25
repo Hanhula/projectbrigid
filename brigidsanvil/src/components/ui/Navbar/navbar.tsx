@@ -52,7 +52,7 @@ const NavBar = () => {
                     as={Link}
                     eventKey="1"
                     href="/worldanvil/apitool"
-                    disabled={!world.success && articles.length > 1}
+                    disabled={!world.success && articles.size > 1}
                   >
                     Articles Explorer
                   </Nav.Link>
@@ -62,7 +62,7 @@ const NavBar = () => {
                     as={Link}
                     eventKey="1"
                     href="/worldanvil/statistics"
-                    disabled={!world.success && articles.length > 1}
+                    disabled={!world.success && articles.size > 1}
                   >
                     World Statistics
                   </Nav.Link>

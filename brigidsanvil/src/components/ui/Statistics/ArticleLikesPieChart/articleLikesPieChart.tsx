@@ -2,7 +2,11 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
-export function ArticleLikesPieChart({ articles }: { articles: Article[] }) {
+export function ArticleLikesPieChart({
+  articles,
+}: {
+  articles: Map<string, Article>;
+}) {
   const countEntityClasses = () => {
     const entityClassCounts: Record<string, number> = {};
 

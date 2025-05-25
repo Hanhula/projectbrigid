@@ -11,6 +11,12 @@ import { articleSlice } from "./articlesSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
 import { enableMapSet } from "immer";
+import {
+  mapToObject,
+  migrateDetailArraysToMaps,
+  migrateWorldArraysToMaps,
+  articleMapTransform,
+} from "./migration-tools";
 
 enableMapSet();
 
@@ -37,6 +43,8 @@ const reducers = combineReducers({
   [articleSlice.name]: articleSlice.reducer,
 });
 
+const APP_VER: number = 1.1;
+
 // this is a commit to reupdate the branch
 const persistConfig = {
   key: "root",
@@ -46,7 +54,49 @@ const persistConfig = {
   serialize: false, // Data serialization is not required and disabling it allows you to inspect storage value in DevTools; Available since redux-persist@5.4.0
   deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
   blacklist: ["authState"],
-  transforms: [apiTransform],
+  transforms: [apiTransform, articleMapTransform],
+  version: APP_VER, // 1.1 = adding Map() instead of [] for articles
+  migration: (state: any, version: number) => {
+    if (!state) return state;
+
+    // return Promise.resolve({
+    //   ...state,
+    //   _persist: {
+    //     ...state._persist,
+    //     version: APP_VER,
+    //   },
+    // });
+
+    if (state._persist.version < version) {
+      const oldWorldArticleData = state.articleState.worldArticles;
+      const oldWorldDetailData = state.articleState.detailState;
+      if (
+        Array.isArray(oldWorldArticleData) ||
+        Array.isArray(oldWorldDetailData)
+      ) {
+        const articleMap = migrateWorldArraysToMaps(oldWorldArticleData);
+        const detailMap = migrateDetailArraysToMaps(oldWorldDetailData);
+
+        return Promise.resolve({
+          ...state,
+          articleState: {
+            ...state.articleState,
+            worldArticles: mapToObject(articleMap), // must store as POJO
+            detailState: mapToObject(detailMap),
+          },
+          _persist: {
+            ...state._persist,
+            version: APP_VER,
+          },
+        });
+      } else {
+        console.error("Migration failed, data seems to not match.");
+        return Promise.resolve(state);
+      }
+    } else {
+      return Promise.resolve(state);
+    }
+  },
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);

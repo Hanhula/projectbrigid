@@ -5,7 +5,7 @@ import { Article } from "@/components/types/article";
 export function ArticleAuthorTypePieChart({
   articles,
 }: {
-  articles: Article[];
+  articles: Map<string, Article>;
 }) {
   const countArticlesPerEntityClassPerAuthor = () => {
     const entityAuthorCounts: Record<string, Record<string, number>> = {};

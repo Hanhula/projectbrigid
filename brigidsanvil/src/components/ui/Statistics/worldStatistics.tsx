@@ -50,9 +50,9 @@ export function WorldStatistics() {
   const isDetailed = currentDetailState.isFullDetail;
   const currentDate = DateTime.now();
 
-  let displayArticleWarning = articles.length > 1 ? false : true;
+  let displayArticleWarning = articles.size > 1 ? false : true;
 
-  const calculateArticleStats = (articles: Article[]) => {
+  const calculateArticleStats = (articles: Map<string, Article>) => {
     let publishedCount = 0;
     let draftCount = 0;
     let privateCount = 0;
@@ -135,13 +135,13 @@ export function WorldStatistics() {
     });
 
     const averageWordCount =
-      articles.length > 0 ? (totalWordCount / articles.length).toFixed(2) : 0;
+      articles.size > 0 ? (totalWordCount / articles.size).toFixed(2) : 0;
     const averageLikes =
-      articles.length > 0 ? (totalLikes / articles.length).toFixed(2) : 0;
+      articles.size > 0 ? (totalLikes / articles.size).toFixed(2) : 0;
     const averageViews =
-      articles.length > 0 ? (totalViews / articles.length).toFixed(2) : 0;
+      articles.size > 0 ? (totalViews / articles.size).toFixed(2) : 0;
     const averageComments =
-      articles.length > 0 ? (totalComments / articles.length).toFixed(2) : 0;
+      articles.size > 0 ? (totalComments / articles.size).toFixed(2) : 0;
 
     let mostActiveMonth = "";
     if (Object.keys(activityCounts).length !== 0) {
@@ -257,7 +257,7 @@ export function WorldStatistics() {
           </Col>
           <Col>
             <dt>Number of Articles</dt>
-            <dd>{articles.length}</dd>
+            <dd>{articles.size}</dd>
           </Col>
           <Col>
             <dt>Number of Maps</dt>

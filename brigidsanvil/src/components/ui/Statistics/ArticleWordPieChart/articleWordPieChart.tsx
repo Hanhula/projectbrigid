@@ -2,7 +2,11 @@ import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
-export function ArticleWordPieChart({ articles }: { articles: Article[] }) {
+export function ArticleWordPieChart({
+  articles,
+}: {
+  articles: Map<string, Article>;
+}) {
   const countEntityClasses = () => {
     const entityClassCounts: Record<string, { total: number; count: number }> =
       {};

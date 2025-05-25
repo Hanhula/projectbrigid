@@ -51,7 +51,9 @@ function WorldAnvilSearch() {
         },
       });
 
-      const addDocumentPromises = articles.map((article) => {
+      const addDocumentPromises = [];
+
+      for (const article of articles.values()) {
         const searchObject = createSearchObject(article);
         const document = {
           id: article.id,
@@ -59,8 +61,8 @@ function WorldAnvilSearch() {
           content: article.content,
           ...searchObject,
         };
-        return index.addAsync(document.id, document);
-      });
+        addDocumentPromises.push(index.addAsync(document.id, document));
+      }
 
       await Promise.all(addDocumentPromises);
 
@@ -72,49 +74,45 @@ function WorldAnvilSearch() {
   }, [articles]);
 
   const performSearch = () => {
-    if (searchIndex) {
-      const query = searchInputRef.current?.value || "";
-      const searchResultArray = searchIndex.searchAsync(query);
+    if (!searchIndex) return;
 
-      searchResultArray.then((results) => {
-        const matchingArticles: Article[] = results
-          .map((result: any) => {
-            const articleIds = result.result;
-            return articles.filter((article) =>
-              articleIds.includes(article.id)
-            );
-          })
-          .flat();
+    const query = searchInputRef.current?.value || "";
+    searchIndex.searchAsync(query).then((results) => {
+      const foundArticlesMap = new Map<
+        string | number,
+        { article: Article; foundInFields: string[] }
+      >();
 
-        const uniqueArticleIds = new Set();
-        const filteredMatchingArticles = matchingArticles.filter((article) => {
-          if (!uniqueArticleIds.has(article.id)) {
-            uniqueArticleIds.add(article.id);
-            return true;
+      for (const result of results) {
+        const field = result.field;
+        const ids: (string | number)[] = result.result;
+
+        for (const id of ids) {
+          const article = articles.get(String(id));
+          if (!article) continue;
+
+          if (!foundArticlesMap.has(id)) {
+            foundArticlesMap.set(id, {
+              article,
+              foundInFields: [field],
+            });
+          } else {
+            foundArticlesMap.get(id)!.foundInFields.push(field);
           }
-          return false;
-        });
+        }
+      }
 
-        const articlesWithFieldInfo = filteredMatchingArticles.map(
-          (article) => {
-            const fieldsInfo = results.filter((result: any) =>
-              result.result.includes(article.id)
-            );
-            const foundInFields = fieldsInfo.map(
-              (fieldInfo: any) => fieldInfo.field
-            );
-            return {
-              ...article,
-              foundInFields: foundInFields,
-            };
-          }
-        );
+      const articlesWithFieldInfo = Array.from(foundArticlesMap.values()).map(
+        ({ article, foundInFields }) => ({
+          ...article,
+          foundInFields,
+        })
+      );
 
-        setFoundArticles(articlesWithFieldInfo);
-        setSearchResults(results);
-        setIsSearching(true);
-      });
-    }
+      setFoundArticles(articlesWithFieldInfo);
+      setSearchResults(results);
+      setIsSearching(true);
+    });
   };
 
   const handleSearchKeyDown = (event: React.KeyboardEvent) => {

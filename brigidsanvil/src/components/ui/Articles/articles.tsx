@@ -100,7 +100,10 @@ const Articles = () => {
             : "table-tool min-detail-table"
         }
       >
-        <ArticleTable data={articles} getRowCanExpand={() => true} />
+        <ArticleTable
+          data={Array.from(articles.values())}
+          getRowCanExpand={() => true}
+        />
       </div>
       <div>
         <h4>{"Han's Utility Bits"}</h4>

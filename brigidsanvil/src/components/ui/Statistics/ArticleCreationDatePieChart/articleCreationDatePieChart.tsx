@@ -7,7 +7,7 @@ import { getDateTime } from "../../Table/table-helpers";
 export function ArticleCreationDatePieChart({
   articles,
 }: {
-  articles: Article[];
+  articles: Map<string, Article>;
 }) {
   const countCreationDateIntervals = () => {
     const creationDateIntervals: Record<string, number> = {};
