@@ -70,5 +70,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "prettier": "^2.5.1",
     "sass": "^1.68.0"
+  },
+  "engines": {
+    "node": "18.16.3"
   }
 }
