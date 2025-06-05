@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 import {
@@ -33,20 +33,39 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
     editedContent || article[fieldIdentifier] || ""
   );
 
-  const delayedDispatch = debounce((value) => {
-    dispatch(
-      setEditedContentByID({
-        world: world,
-        articleID: article.id,
-        fieldIdentifier,
-        editedFields: value,
-      })
-    );
-  }, 2000);
+  // Create memoized debounced dispatch function
+  const delayedDispatch = useCallback(
+    debounce((value: string) => {
+      dispatch(
+        setEditedContentByID({
+          world: world,
+          articleID: article.id,
+          fieldIdentifier,
+          editedFields: value,
+        })
+      );
+    }, 500), // Reduced from 2000ms to 500ms for better responsiveness
+    [world.id, article.id, fieldIdentifier]
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      delayedDispatch.cancel();
+    };
+  }, [delayedDispatch]);
+
+  // Update local state when editedContent changes
+  useEffect(() => {
+    if (editedContent !== undefined && editedContent !== inputValue) {
+      setInputValue(editedContent);
+    }
+  }, [editedContent]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-    delayedDispatch(event.target.value);
+    const newValue = event.target.value;
+    setInputValue(newValue);
+    delayedDispatch(newValue);
   };
 
   return (
