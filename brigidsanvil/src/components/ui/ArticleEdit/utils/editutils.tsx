@@ -75,245 +75,233 @@ class EditUtils {
     },
   };
 
+  isCustomElement = (node: any): node is CustomElement => {
+    return (
+      node && typeof node === "object" && "type" in node && "children" in node
+    );
+  };
+
+  isCustomText = (node: any): node is CustomText => {
+    return node && typeof node === "object" && "text" in node;
+  };
+
   serializeNode = (node: SlateNode): string => {
-    //console.log("problem child: ", node);
     if (Text.isText(node)) {
       let text = node.text;
-      for (const [tag, bbcode] of Object.entries(this.markBBCodeTags)) {
-        if ((node as CustomText)[bbcode.format]) {
+
+      // Process marks in a specific order to avoid nesting issues
+      const markOrder = ["bold", "italics", "underline", "code"];
+      for (const format of markOrder) {
+        const bbcode = this.markBBCodeTags[format];
+        if (bbcode && (node as CustomText)[bbcode.format]) {
           text = `${bbcode.openTag}${text}${bbcode.closeTag}`;
         }
       }
       return text;
-    } else {
-      const element = node as CustomElement;
-      const blockTag = this.blockBBCodeTags[element.type];
-
-      let serializedChildren = this.serializeChildren(element.children);
-
-      if (element.type === "mention") {
-        const mentionNode = element as MentionElement;
-        const mentionText = mentionNode.children[0].text
-          .replace("@[", "")
-          .replace("]", "");
-        const entityClass = mentionNode.entityClass.toLowerCase();
-        return `@[${mentionText}](${entityClass}:${mentionNode.id})`;
-      } else if (blockTag) {
-        return `${blockTag.openTag}${serializedChildren}${blockTag.closeTag}`;
-      }
-
-      return serializedChildren;
     }
-  };
 
-  serializeChildren = (children: SlateNode[]): string => {
-    return children.map((child) => this.serializeNode(child)).join("");
+    const element = node as CustomElement;
+    const blockTag = this.blockBBCodeTags[element.type];
+    const children = element.children
+      .map((n) => this.serializeNode(n))
+      .join("");
+
+    if (element.type === "mention") {
+      const mentionNode = element as MentionElement;
+      return `@[${mentionNode.children[0].text.replace(
+        /^@\[(.*?)\]$/,
+        "$1"
+      )}](${mentionNode.entityClass.toLowerCase()}:${mentionNode.id})`;
+    }
+
+    if (blockTag) {
+      if (
+        element.type === "blockquote" &&
+        "author" in element &&
+        element.author
+      ) {
+        return `${blockTag.openTag}${children}| ${element.author}${blockTag.closeTag}`;
+      }
+      return `${blockTag.openTag}${children}${blockTag.closeTag}`;
+    }
+
+    return children;
   };
 
   serializeVal = (value: any[]): string => {
-    return value
-      .map((node, index) => {
-        const serializedNode = this.serializeNode(node);
-        const separator = node.type !== "paragraph" ? "\n" : "\n\n";
-        return serializedNode + (index < value.length - 1 ? separator : "");
-      })
-      .join("");
+    // First convert the nodes to raw BBCode
+    const serializedNodes = value.map((node) => this.serializeNode(node));
+
+    // Join nodes with appropriate spacing
+    let rawContent = "";
+    for (let i = 0; i < serializedNodes.length; i++) {
+      const current = serializedNodes[i];
+      const next =
+        i < serializedNodes.length - 1 ? serializedNodes[i + 1] : null;
+
+      rawContent += current;
+
+      // Add double newline between paragraphs, unless we're inside a block element
+      if (
+        next &&
+        !current.match(/^\[(quote|h[1-4]|aloud)\]/) &&
+        !next.match(/^\[\/(?:quote|h[1-4]|aloud)\]/) &&
+        !current.endsWith("[br]") // Don't add newlines after [br]
+      ) {
+        rawContent += "\n\n";
+      }
+    }
+
+    // Handle line breaks within paragraphs
+    rawContent = rawContent
+      // First ensure consistent newlines
+      .replace(/\r\n/g, "\n")
+      // Convert single newlines to [br]
+      .replace(/\n(?!\n)/g, "[br]")
+      // Clean up any excessive newlines
+      .replace(/\n{3,}/g, "\n\n")
+      // Clean up [br] tags around newlines
+      .replace(/\[br\]\n/g, "[br]")
+      .replace(/\n\[br\]/g, "[br]")
+      .replace(/\[br\]\[br\]/g, "\n\n")
+      .trim();
+
+    return rawContent;
   };
 
-  deserialize = (savedBBcode: string) => {
-    //console.log("deserialising: ", savedBBcode);
-    console.log("deserialising: ", savedBBcode.replace(/\n/g, "\\n"));
-    if (savedBBcode) {
-      const htmlString = WorldAnvilParser.parsePureBBCode(savedBBcode);
-      const document = new DOMParser().parseFromString(htmlString, "text/html");
-      const body = document.body;
-      const children = Array.from(body.childNodes).map((childNode) =>
-        this.deserializeNode(childNode)
-      );
-      const flattenedChildren = children.flatMap((child) =>
-        Array.isArray(child) ? child : [child]
-      );
-
-      const elements = [];
-      let currentParagraph = {
-        type: "paragraph",
-        children: [] as CustomElement[],
-      };
-
-      for (const child of flattenedChildren) {
-        if (
-          typeof child === "object" &&
-          child.hasOwnProperty("type") &&
-          (child.type === "paragraph" ||
-            child.type === "blockquote" ||
-            child.type.startsWith("h"))
-        ) {
-          if (currentParagraph.children.length > 0) {
-            elements.push(currentParagraph);
-            currentParagraph = { type: "paragraph", children: [] };
-          }
-          elements.push(child);
-        } else {
-          currentParagraph.children.push(child);
-        }
-      }
-
-      if (currentParagraph.children.length > 0) {
-        elements.push(currentParagraph);
-      }
-      console.log("fully deserialised: ", elements);
-
-      return elements;
-    } else {
+  deserialize = (bbcode: string): Descendant[] => {
+    console.log("deserialising: ", bbcode.replace(/\n/g, "\\n"));
+    if (!bbcode) {
       return this.defaultInitialValue;
     }
-  };
 
-  deserializeNode: any = (el: Node, markAttributes: NodeAttributes = {}) => {
-    if (el.nodeType === Node.TEXT_NODE && el.textContent) {
-      //console.log("textContent:", el.textContent); // Log 1
+    const result: CustomElement[] = [];
+    let currentText = bbcode
+      // First normalize all newlines
+      .replace(/\r\n/g, "\n")
+      // Ensure [br][br] is treated as paragraph break
+      .replace(/\[br\]\[br\]/g, "\n\n");
 
-      const mentionRegex = /@\[(.*?)\]\((.*?):(.*?)\)/g;
-      let match;
-      const nodes = [];
-      let lastIndex = 0;
+    // Helper function to create a text node with formats
+    const createFormattedText = (text: string): CustomText[] => {
+      let processedText = text;
+      const formats: { [key: string]: boolean } = {};
 
-      while ((match = mentionRegex.exec(el.textContent)) !== null) {
-        const [matchText, text, entityClass, id] = match;
-        //console.log("match:", match); // Log 2
+      // Process each mark type
+      for (const [format, tag] of Object.entries(this.markBBCodeTags)) {
+        const openTag = tag.openTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const closeTag = tag.closeTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`${openTag}(.*?)${closeTag}`, "g");
 
-        // Add the text before the mention
-        if (match.index > lastIndex) {
-          nodes.push(
-            jsx(
-              "text",
-              markAttributes,
-              el.textContent.slice(lastIndex, match.index)
-            )
-          );
+        // Store all matches and their positions
+        const matches: { start: number; end: number; content: string }[] = [];
+        let match;
+        while ((match = regex.exec(processedText)) !== null) {
+          matches.push({
+            start: match.index,
+            end: match.index + match[0].length,
+            content: match[1],
+          });
         }
 
-        // Add the mention
-        nodes.push({
-          type: "mention",
-          entityClass: entityClass,
-          id: id,
-          children: [{ text: `@[${text}]` }],
-        });
-
-        lastIndex = match.index + matchText.length;
-      }
-
-      // Add the text after the last mention
-      if (lastIndex < el.textContent.length) {
-        nodes.push(
-          jsx("text", markAttributes, el.textContent.slice(lastIndex))
-        );
-      }
-
-      //console.log("nodes:", nodes); // Log 3
-
-      return nodes;
-    } else if (el.nodeType !== Node.ELEMENT_NODE) {
-      return null;
-    }
-
-    const nodeAttributes: NodeAttributes = { ...markAttributes };
-
-    switch (el.nodeName) {
-      case "STRONG":
-        nodeAttributes.bold = true;
-        break;
-      case "EM": // For <em> tag
-      case "I": // For <i> tag
-        nodeAttributes.italics = true;
-        break;
-      case "CODE":
-        nodeAttributes.code = true;
-
-      default:
-        break;
-    }
-
-    const children = Array.from(el.childNodes)
-      .map((node) => this.deserializeNode(node, nodeAttributes))
-      .flat();
-
-    if (children.length === 0) {
-      children.push(jsx("text", nodeAttributes, ""));
-    }
-
-    switch (el.nodeName) {
-      case "BODY": {
-        const elements = [];
-        let currentParagraph = {
-          type: "paragraph",
-          children: [] as CustomText[],
-        };
-
-        for (const child of children) {
-          if (
-            child.type === "paragraph" ||
-            child.type === "blockquote" ||
-            child.type.startsWith("h")
-          ) {
-            if (currentParagraph.children.length > 0) {
-              elements.push(currentParagraph);
-              currentParagraph = { type: "paragraph", children: [] };
-            }
-            elements.push(child);
-          } else {
-            // Check for \n\n and split into paragraphs
-            if (child.text && child.text.includes("\n\n")) {
-              const parts = child.text.split("\n\n");
-              parts.forEach((part: string, i: number) => {
-                currentParagraph.children.push({ text: part.trim() });
-                if (i < parts.length - 1) {
-                  elements.push(currentParagraph);
-                  currentParagraph = { type: "paragraph", children: [] };
-                }
-              });
-            } else {
-              currentParagraph.children.push(child);
-            }
+        // If we found any matches, mark this format as active
+        if (matches.length > 0) {
+          formats[tag.format] = true;
+          // Replace each match with its content
+          for (const m of matches.reverse()) {
+            processedText =
+              processedText.slice(0, m.start) +
+              m.content +
+              processedText.slice(m.end);
           }
         }
-
-        if (currentParagraph.children.length > 0) {
-          elements.push(currentParagraph);
-        }
-
-        return jsx("fragment", {}, elements);
       }
-      case "BR":
-        return "\n";
-      case "BLOCKQUOTE":
-        return jsx("element", { type: "blockquote" }, children);
-      case "P":
-        return jsx("element", { type: "paragraph" }, children);
-      case "A":
-        return jsx(
-          "element",
-          { type: "link", url: (el as HTMLElement).getAttribute("href") },
-          children
-        );
-      case "H1":
-        return jsx("element", { type: "h1" }, children);
-      case "H2":
-        return jsx("element", { type: "h2" }, children);
-      case "H3":
-        return jsx("element", { type: "h3" }, children);
-      case "H4":
-        return jsx("element", { type: "h4" }, children);
-      default:
-        return children;
+
+      // Convert [br] to newlines
+      processedText = processedText.replace(/\[br\]/g, "\n");
+
+      return [{ text: processedText, ...formats }];
+    };
+
+    // Helper function to create a paragraph node
+    const createParagraph = (text: string): CustomElement => {
+      return {
+        type: "paragraph",
+        children: createFormattedText(text),
+      } as CustomElement;
+    };
+
+    // First handle block-level tags
+    for (const [type, tag] of Object.entries(this.blockBBCodeTags)) {
+      if (type === "mention") continue; // Handle mentions separately
+
+      const openTag = tag.openTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const closeTag = tag.closeTag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`${openTag}(.*?)${closeTag}`, "gs");
+
+      currentText = currentText.replace(regex, (match, content) => {
+        // For quotes, handle the special case of author attribution
+        if (type === "blockquote") {
+          const parts = content.split("|");
+          const quoteContent = parts[0];
+          const author = parts[1] || "";
+
+          result.push({
+            type: "blockquote",
+            children: createFormattedText(quoteContent),
+            author: author.trim(),
+          } as CustomElement);
+        } else {
+          result.push({
+            type: type as CustomElement["type"],
+            children: createFormattedText(content),
+          } as CustomElement);
+        }
+        return "\u0000"; // Use null character as placeholder
+      });
     }
+
+    // Handle mentions
+    const mentionRegex = /@\[(.*?)\]\((.*?):(.*?)\)/g;
+    currentText = currentText.replace(
+      mentionRegex,
+      (match, name, entityClass, id) => {
+        result.push({
+          type: "mention",
+          children: [{ text: `@[${name}]` }],
+          entityClass: entityClass,
+          id: id,
+        } as CustomElement);
+        return "\u0000";
+      }
+    );
+
+    // Process remaining text
+    const textParts = currentText.split("\u0000").filter(Boolean);
+    for (const part of textParts) {
+      if (part.trim()) {
+        // Split by double newlines to create separate paragraphs
+        const paragraphs = part.split(/\n\n+/);
+        for (const paragraph of paragraphs) {
+          if (paragraph.trim()) {
+            result.push(createParagraph(paragraph));
+          }
+        }
+      }
+    }
+
+    // Ensure we have at least one node
+    if (result.length === 0) {
+      return this.defaultInitialValue;
+    }
+
+    return result;
   };
 
   defaultInitialValue: Descendant[] = [
     {
       type: "paragraph",
-      children: [{ text: " " }],
+      children: [{ text: "" }],
     },
   ];
 }

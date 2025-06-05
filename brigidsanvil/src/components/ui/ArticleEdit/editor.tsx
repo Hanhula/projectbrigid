@@ -16,6 +16,8 @@ import {
   Element as SlateElement,
   Transforms,
   Range,
+  Path,
+  Point,
 } from "slate";
 import {
   Slate,
@@ -48,6 +50,7 @@ import {
 import _ from "lodash";
 import { Article } from "@/components/types/article";
 import { selectWorld } from "@/components/store/apiSlice";
+import { debounce } from "lodash";
 
 declare module "slate" {
   interface CustomTypes {
@@ -72,29 +75,93 @@ const CustomEditor = {
     );
     const isList = LIST_TYPES.includes(format);
 
-    Transforms.unwrapNodes(editor, {
-      match: (n) =>
-        !Editor.isEditor(n) &&
-        SlateElement.isElement(n) &&
-        LIST_TYPES.includes(n.type) &&
-        !TEXT_ALIGN_TYPES.includes(format),
-      split: true,
-    });
-    let newProperties: Partial<SlateElement>;
-    if (TEXT_ALIGN_TYPES.includes(format)) {
-      newProperties = {
-        align: isActive ? undefined : format,
-      };
-    } else {
-      newProperties = {
-        type: isActive ? "paragraph" : isList ? "list-item" : format,
-      };
-    }
-    Transforms.setNodes<SlateElement>(editor, newProperties);
+    // Get the current selection
+    const { selection } = editor;
+    if (!selection) return;
 
-    if (!isActive && isList) {
-      const block = { type: format, children: [] };
-      Transforms.wrapNodes(editor, block);
+    // If selection is collapsed (cursor), get the current line
+    if (Range.isCollapsed(selection)) {
+      const currentLineRange = Editor.range(
+        editor,
+        Editor.start(editor, selection),
+        Editor.end(editor, selection.anchor.path)
+      );
+
+      // Split the current line into its own block if needed
+      Transforms.splitNodes(editor, {
+        at: currentLineRange.anchor,
+        always: true,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+      Transforms.splitNodes(editor, {
+        at: currentLineRange.focus,
+        always: true,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+
+      // Apply formatting only to the current line
+      let newProperties: Partial<CustomElement>;
+      if (TEXT_ALIGN_TYPES.includes(format)) {
+        newProperties = {
+          align: isActive ? undefined : format,
+        };
+      } else {
+        newProperties = {
+          type: isActive ? "paragraph" : isList ? "list-item" : format,
+        };
+      }
+
+      Transforms.setNodes<CustomElement>(editor, newProperties, {
+        at: currentLineRange,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+
+      if (!isActive && isList) {
+        const block = { type: format, children: [] } as CustomElement;
+        Transforms.wrapNodes(editor, block, { at: currentLineRange });
+      }
+    } else {
+      // For selected text, first split at selection boundaries
+      Transforms.splitNodes(editor, {
+        at: selection.anchor,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+      Transforms.splitNodes(editor, {
+        at: selection.focus,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+
+      // Then handle the blocks within the selection
+      Transforms.unwrapNodes(editor, {
+        at: selection,
+        match: (n) =>
+          !Editor.isEditor(n) &&
+          SlateElement.isElement(n) &&
+          LIST_TYPES.includes((n as CustomElement).type) &&
+          !TEXT_ALIGN_TYPES.includes(format),
+        split: true,
+      });
+
+      let newProperties: Partial<CustomElement>;
+      if (TEXT_ALIGN_TYPES.includes(format)) {
+        newProperties = {
+          align: isActive ? undefined : format,
+        };
+      } else {
+        newProperties = {
+          type: isActive ? "paragraph" : isList ? "list-item" : format,
+        };
+      }
+
+      Transforms.setNodes<CustomElement>(editor, newProperties, {
+        at: selection,
+        match: (n) => SlateElement.isElement(n) && Editor.isBlock(editor, n),
+      });
+
+      if (!isActive && isList) {
+        const block = { type: format, children: [] } as CustomElement;
+        Transforms.wrapNodes(editor, block, { at: selection });
+      }
     }
   },
 
@@ -303,14 +370,6 @@ export const WorldAnvilEditor = ({
 }: EditorProps) => {
   const dispatch = useDispatch();
   const editUtils = new EditUtils();
-  const [editor] = useState(() =>
-    withHistory(withReact(withMentions(createEditor())))
-  );
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [target, setTarget] = useState<Range | undefined | null>();
-  const [index, setIndex] = useState(0);
-  const [search, setSearch] = useState("");
-
   const world = useSelector(selectWorld);
   const articles = useSelector(selectCurrentArticles);
   const selectEditedContentByID = makeSelectEditedContentByID(
@@ -320,6 +379,41 @@ export const WorldAnvilEditor = ({
   );
   const editedContent = useSelector(selectEditedContentByID);
 
+  const defaultValue: CustomElement[] = [
+    {
+      type: "paragraph",
+      children: [{ text: "" }],
+    },
+  ];
+
+  const initialValue = useMemo(() => {
+    try {
+      if (editedContent) {
+        const deserialized = editUtils.deserialize(editedContent);
+        return deserialized.length > 0 ? deserialized : defaultValue;
+      } else if (existingContent) {
+        const deserialized = editUtils.deserialize(existingContent);
+        return deserialized.length > 0 ? deserialized : defaultValue;
+      }
+      return defaultValue;
+    } catch (error) {
+      console.error("Error initializing editor:", error);
+      return defaultValue;
+    }
+  }, [editedContent, existingContent]);
+
+  const [editor] = useState(() => {
+    const e = withHistory(withReact(withMentions(createEditor())));
+    // Ensure editor always has at least one paragraph
+    e.children = initialValue;
+    return e;
+  });
+
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [target, setTarget] = useState<Range | undefined | null>();
+  const [index, setIndex] = useState(0);
+  const [search, setSearch] = useState("");
+
   const chars = articles
     .filter((article) =>
       article.title.toLowerCase().startsWith(search.toLowerCase())
@@ -328,22 +422,6 @@ export const WorldAnvilEditor = ({
 
   const onKeyDown = useCallback(
     (event: any) => {
-      if (event.shiftKey && event.key === "Enter") {
-        event.preventDefault();
-        const currentSelection = editor.selection;
-        if (currentSelection) {
-          const [start] = Editor.edges(editor, currentSelection);
-          Transforms.insertText(editor, "\n", { at: start });
-        }
-      } else {
-        for (const hotkey in HOTKEYS) {
-          if (isHotkey(hotkey, event as any)) {
-            event.preventDefault();
-            const mark = HOTKEYS[hotkey];
-            CustomEditor.toggleMark(editor, mark);
-          }
-        }
-      }
       if (target && chars.length > 0) {
         switch (event.key) {
           case "ArrowDown":
@@ -368,6 +446,46 @@ export const WorldAnvilEditor = ({
             setTarget(null);
             break;
         }
+        return;
+      }
+
+      for (const hotkey in HOTKEYS) {
+        if (isHotkey(hotkey, event as any)) {
+          event.preventDefault();
+          const mark = HOTKEYS[hotkey];
+          CustomEditor.toggleMark(editor, mark);
+        }
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        // Check if we're in a block element
+        const [match] = Editor.nodes(editor, {
+          match: (n) =>
+            !Editor.isEditor(n) &&
+            SlateElement.isElement(n) &&
+            n.type !== "paragraph",
+        });
+
+        if (match) {
+          const [node, path] = match;
+          const end = Editor.end(editor, path);
+          const isAtEnd =
+            editor.selection && Point.equals(editor.selection.anchor, end);
+
+          if (isAtEnd) {
+            // If at the end of a block, exit it
+            Transforms.insertNodes(editor, {
+              type: "paragraph",
+              children: [{ text: "" }],
+            } as CustomElement);
+            return;
+          }
+        }
+
+        // Default behavior: insert newline
+        editor.insertText("\n");
       }
     },
     [chars, editor, index, target]
@@ -383,16 +501,6 @@ export const WorldAnvilEditor = ({
     }
   }, [chars.length, editor, index, search, target]);
 
-  const initialValue = useMemo(() => {
-    if (editedContent) {
-      return editUtils.deserialize(editedContent);
-    } else if (existingContent) {
-      return editUtils.deserialize(existingContent);
-    } else {
-      return editUtils.defaultInitialValue;
-    }
-  }, [editedContent, existingContent]);
-
   const renderElement = useCallback((props: RenderElementProps) => {
     return <Element {...props} />;
   }, []);
@@ -401,26 +509,40 @@ export const WorldAnvilEditor = ({
     return <Leaf {...props} />;
   }, []);
 
-  const delayedDispatch = _.debounce((value) => {
-    console.log("toserialise: ", value);
-    const serializedValue = editUtils.serializeVal(value);
-    //console.log("serialised: ", serializedValue);
-    console.log("serialising: ", serializedValue.replace(/\n/g, "\\n"));
-    dispatch(
-      setEditedContentByID({
-        world: world,
-        articleID: id,
-        fieldIdentifier,
-        editedFields: serializedValue,
-      })
-    );
-  }, 2000);
+  const delayedDispatch = useCallback(
+    debounce((value: any) => {
+      console.log("toserialise: ", value);
+      const serializedValue = editUtils.serializeVal(value);
+      console.log("serialising: ", serializedValue.replace(/\n/g, "\\n"));
+      dispatch(
+        setEditedContentByID({
+          world: world,
+          articleID: id,
+          fieldIdentifier,
+          editedFields: serializedValue,
+        })
+      );
+    }, 500),
+    [world.id, id, fieldIdentifier]
+  );
+
+  useEffect(() => {
+    return () => {
+      delayedDispatch.cancel();
+    };
+  }, [delayedDispatch]);
 
   return (
     <Slate
       editor={editor}
       initialValue={initialValue}
       onChange={(value) => {
+        // Ensure there's always at least one paragraph
+        if (!value || value.length === 0) {
+          editor.children = defaultValue;
+          return;
+        }
+
         const { selection } = editor;
         if (selection && Range.isCollapsed(selection)) {
           const [start] = Range.edges(selection);
