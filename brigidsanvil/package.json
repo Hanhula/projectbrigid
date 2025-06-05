@@ -20,7 +20,7 @@
     "@reduxjs/toolkit": "^1.9.6",
     "@tanstack/react-table": "^8.10.3",
     "@types/luxon": "^3.3.3",
-    "@types/node": "18.16.3",
+    "@types/node": "20.11.1",
     "@types/papaparse": "^5.3.10",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.1",
@@ -72,6 +72,6 @@
     "sass": "^1.68.0"
   },
   "engines": {
-    "node": "18.16.3"
+    "node": ">=20.11.1 <21.0.0"
   }
 }
