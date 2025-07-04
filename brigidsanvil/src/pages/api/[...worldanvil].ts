@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 
-const baseURL: string = "https://www.worldanvil.com/api/external/boromir";
+const baseURL: string = "https://brigid-passthrough.hanhula.workers.dev";
 const appKey: string | undefined = process.env.APP_KEY;
 let authToken: string;
 
