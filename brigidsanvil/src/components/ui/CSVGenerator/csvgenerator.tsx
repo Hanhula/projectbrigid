@@ -1,6 +1,7 @@
 import { Article } from "@/components/types/article";
 import Papa from "papaparse";
 import { Button } from "react-bootstrap";
+import { useMemo, memo } from "react";
 
 type CSVGeneratorProps = {
   articles: Article[];
@@ -20,18 +21,24 @@ const CSVGenerator: React.FC<CSVGeneratorProps> = ({ articles }) => {
     return Array.from(propertyNames);
   };
 
-  const allPropertyNames = collectPropertyNames(articles);
+  const allPropertyNames = useMemo(
+    () => collectPropertyNames(articles),
+    [articles]
+  );
 
   const mapProperty = (article: Article, property: string) => {
     if (property in article) {
       const value = (article as Record<string, any>)[property];
       if (typeof value === "object" && value) {
-        if (Array.isArray(value)) {
-          return value.map((item: any) => item.title).join(", ");
+        if (Array.isArray(value) && value.length > 0) {
+          return value
+            .filter((item) => item?.title)
+            .map((item) => String(item.title))
+            .join(", ");
         } else if ("date" in value) {
-          return value.date;
+          return value.date ?? "";
         } else if ("title" in value) {
-          return value.title;
+          return value.title ?? "";
         }
       }
       return value;
@@ -40,35 +47,38 @@ const CSVGenerator: React.FC<CSVGeneratorProps> = ({ articles }) => {
   };
 
   const replaceNewlines = (text: string) => {
-    // Replace newline characters with a space or an empty string, depending on your needs
-    return text.replace(/[\r\n]/g, " "); // This example replaces newlines with spaces
+    return text.replace(/[\r\n]/g, " ");
   };
 
-  const modifiedArticles = articles.map((article) => {
-    const articleData: Record<string, any> = {};
-
-    allPropertyNames.forEach((property) => {
-      const propertyValue = mapProperty(article, property);
-      if (typeof propertyValue === "string") {
-        articleData[property] = replaceNewlines(propertyValue);
-      } else {
-        articleData[property] = propertyValue;
-      }
+  const modifiedArticles = useMemo(() => {
+    return articles.map((article) => {
+      const articleData: Record<string, any> = {};
+      allPropertyNames.forEach((property) => {
+        const propertyValue = mapProperty(article, property);
+        if (typeof propertyValue === "string") {
+          articleData[property] = replaceNewlines(propertyValue);
+        } else {
+          articleData[property] = propertyValue;
+        }
+      });
+      return articleData;
     });
+  }, [articles, allPropertyNames]);
 
-    return articleData;
-  });
+  const csv = useMemo(
+    () =>
+      Papa.unparse(modifiedArticles, {
+        quotes: true,
+        escapeFormulae: true,
+        delimiter: ",",
+      }),
+    [modifiedArticles]
+  );
 
-  const csv = Papa.unparse(modifiedArticles, {
-    quotes: true,
-    escapeFormulae: true,
-    delimiter: ",",
-  });
-
-  const csvData = "\ufeff" + csv;
-  const csvDataUri = `data:text/csv;charset=utf-8,${encodeURIComponent(
-    csvData
-  )}`;
+  const csvDataUri = useMemo(() => {
+    const csvData = "\ufeff" + csv;
+    return `data:text/csv;charset=utf-8,${encodeURIComponent(csvData)}`;
+  }, [csv]);
 
   return (
     <Button variant="primary">
@@ -83,4 +93,4 @@ const CSVGenerator: React.FC<CSVGeneratorProps> = ({ articles }) => {
   );
 };
 
-export default CSVGenerator;
+export default memo(CSVGenerator);
