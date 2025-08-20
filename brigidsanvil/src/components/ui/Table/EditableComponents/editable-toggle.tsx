@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, memo } from "react";
 import Select from "react-select";
 import { selectStyles } from "@/components/styling/selectstyles";
 
@@ -38,4 +38,4 @@ function EditableToggle({
   );
 }
 
-export default EditableToggle;
+export default memo(EditableToggle);

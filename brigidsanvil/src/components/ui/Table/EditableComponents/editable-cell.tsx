@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import React, { useState, memo } from "react";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { faCheck, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
@@ -116,4 +116,4 @@ function EditableCell({
   );
 }
 
-export default EditableCell;
+export default memo(EditableCell);

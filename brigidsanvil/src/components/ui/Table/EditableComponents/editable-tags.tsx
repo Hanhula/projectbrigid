@@ -4,7 +4,7 @@ import {
   faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import React, { useMemo, useState, memo } from "react";
 import { Button } from "react-bootstrap";
 import TagsInput from "react-tagsinput";
 
@@ -19,6 +19,11 @@ function EditableTags({
     initialValue.split(",").filter((tag) => tag.trim() !== "")
   );
   const [editing, setEditing] = useState(false);
+
+  const displayTags = useMemo(
+    () => initialValue.split(",").filter((t) => t.trim() !== ""),
+    [initialValue]
+  );
 
   const handleEdit = () => {
     setEditing(true);
@@ -82,7 +87,7 @@ function EditableTags({
         </div>
       ) : (
         <div>
-          {initialValue.split(",").map((tag, index) => (
+          {displayTags.map((tag, index) => (
             <span key={index} className="badge text-bg-secondary">
               {tag}
             </span>
@@ -96,4 +101,4 @@ function EditableTags({
   );
 }
 
-export default EditableTags;
+export default memo(EditableTags);

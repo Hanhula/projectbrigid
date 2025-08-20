@@ -11,6 +11,7 @@ import {
   selectWorldArticlesByWorld,
   setDetailState,
 } from "@/components/store/articlesSlice";
+import { useCallback } from "react";
 
 const Articles = () => {
   const isLoadingArticles = useSelector(selectIsLoadingArticles);
@@ -50,6 +51,8 @@ const Articles = () => {
   const articleCount = world.countArticles;
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
+
+  const canExpand = useCallback(() => true, []);
 
   return (
     <div className="table-container">
@@ -100,7 +103,7 @@ const Articles = () => {
             : "table-tool min-detail-table"
         }
       >
-        <ArticleTable data={articles} getRowCanExpand={() => true} />
+        <ArticleTable data={articles} getRowCanExpand={canExpand} />
       </div>
       <div>
         <h4>{"Han's Utility Bits"}</h4>
