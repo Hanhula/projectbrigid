@@ -1,5 +1,5 @@
 /* The following line can be included in a src/App.scss */
-@import "~bootstrap/scss/bootstrap";
+@use "bootstrap/scss/bootstrap" as bs;
 
 a {
   text-decoration: none;

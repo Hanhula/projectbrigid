@@ -3,7 +3,9 @@ const path = require("path");
 
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  sassOptions: {
+    loadPaths: ["./node_modules/bootstrap/scss/", "./src/styles/"],
+  },
 
   // Enable CORS for WorldAnvil API
   async headers() {
