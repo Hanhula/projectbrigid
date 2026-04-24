@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start --webpack",
+    "lint": "next lint --webpack",
     "test": "jest --watch"
   },
   "dependencies": {
@@ -30,7 +30,6 @@
     "@visx/scale": "^3.3.0",
     "@visx/text": "^3.3.0",
     "@visx/wordcloud": "^3.3.0",
-    "bootstrap": "^5.2.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "eslint-config-next": "^13.3.2",
@@ -43,11 +42,10 @@
     "lodash": "^4.17.21",
     "lucide-react": "^0.279.0",
     "luxon": "^3.4.3",
-    "next": "^14.2.14",
+    "next": "^16.2.4",
     "next-redux-wrapper": "^8.1.0",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.9.0",
     "react-dom": "^18.2.0",
     "react-redux": "^8.1.2",
     "react-responsive": "^9.0.2",
@@ -57,7 +55,7 @@
     "redux-persist": "^6.0.0",
     "rpg-awesome": "^0.2.0",
     "typescript": "^5.0.4",
-    "universal-cookie": "^6.1.1",
+    "universal-cookie": "^8.1.0",
     "ya-bbcode": "^4.0.0"
   },
   "devDependencies": {
@@ -65,11 +63,13 @@
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.5.5",
     "@typescript-eslint/parser": "^5.59.1",
+    "bootstrap": "^5.3.8",
     "eslint": "^8.7.0",
     "jest": "^29.7.0",
-    "jest-environment-jsdom": "^29.7.0",
+    "jest-environment-jsdom": "^30.3.0",
     "prettier": "^2.5.1",
-    "sass": "^1.68.0"
+    "react-bootstrap": "^2.10.10",
+    "sass": "^1.99.0"
   },
   "engines": {
     "node": ">=20.11.1 <21.0.0"

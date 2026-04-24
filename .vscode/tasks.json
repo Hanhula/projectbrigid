@@ -7,7 +7,7 @@
 			"path": "brigidsanvil",
 			"problemMatcher": [],
 			"label": "npm: dev - brigidsanvil",
-			"detail": "npm run dev"
+			"detail": "npm run dev --turbo=false"
 		}
 	]
 }
