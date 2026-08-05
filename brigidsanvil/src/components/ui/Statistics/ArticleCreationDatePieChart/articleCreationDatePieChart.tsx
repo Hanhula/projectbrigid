@@ -60,8 +60,8 @@ export function ArticleCreationDatePieChart({
   }));
 
   return (
-    <div className="row">
-      <div className="col-md-2" style={{ height: 900 }}>
+    <div className="row align-items-start">
+      <div className="col-md-2" style={{ minHeight: 280 }}>
         <h5>{`By Creation Date`}</h5>
         <dl className="article-date-list">
           {Object.entries(creationDateIntervals)
@@ -75,9 +75,7 @@ export function ArticleCreationDatePieChart({
         </dl>
       </div>
       <div className="col-md-10">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChartComponent data={data}></PieChartComponent>
-        </ResponsiveContainer>
+        <PieChartComponent data={data}></PieChartComponent>
       </div>
     </div>
   );

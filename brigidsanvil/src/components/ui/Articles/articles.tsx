@@ -1,55 +1,61 @@
-import { Button, Form, Spinner } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { Button, Form, ProgressBar, Spinner } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import {
+  resetArticleFetchProgress,
+  selectArticleFetchProgress,
   selectIsLoadingArticles,
   selectWorld,
+  setLoadingArticles,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { ArticleTable } from "../Table/table";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-  setDetailState,
-} from "@/components/store/articlesSlice";
+import * as articleSliceSelectors from "@/components/store/articlesSlice";
+import { useAppSelector } from "@/components/store/store";
 
 const Articles = () => {
-  const isLoadingArticles = useSelector(selectIsLoadingArticles);
-  const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const isLoadingArticles = useAppSelector(selectIsLoadingArticles);
+  const articleFetchProgress = useAppSelector(selectArticleFetchProgress);
+  const world = useAppSelector(selectWorld);
+  const worldArticles = useAppSelector(
+    articleSliceSelectors.selectWorldArticlesByWorld(world.id),
+  );
   const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
+  const currentDetailState = useAppSelector(
+    articleSliceSelectors.selectCurrentDetailStateByWorld(world.id),
+  );
+  const { stubCount, draftCount } = useAppSelector((state) =>
+    articleSliceSelectors.selectWorldArticleStats(state, world.id),
   );
 
-  const stubMurder = () => {
-    let stubmurder = articles.filter((article) => {
-      if (article.tags) {
-        return article.tags.includes("stub");
-      }
-      return false;
-    });
-    return stubmurder.length;
-  };
-
-  const DRAFTY = () => {
-    let draaaaaaaft = articles.filter((article) => {
-      return article.isDraft;
-    });
-    return draaaaaaaft.length;
-  };
-
   const setDetailLevel = (checked: boolean) => {
-    dispatch(setDetailState({ world: world, isFullDetail: checked }));
+    dispatch(resetArticleFetchProgress());
+    dispatch(setLoadingArticles(false));
+    dispatch(
+      articleSliceSelectors.setDetailState({
+        world: world,
+        isFullDetail: checked,
+      }),
+    );
   };
-
-  const stubs = stubMurder();
-  const drafts = DRAFTY();
 
   const articleCount = world.countArticles;
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
+  const progressPercentage =
+    articleFetchProgress.totalCount > 0
+      ? Math.round(
+          (articleFetchProgress.loadedCount / articleFetchProgress.totalCount) *
+            100,
+        )
+      : 0;
+  const shouldShowProgress =
+    Boolean(articleFetchProgress.worldId === world.id) &&
+    (isLoadingArticles ||
+      articleFetchProgress.isComplete ||
+      articleFetchProgress.loadedCount > 0 ||
+      articleFetchProgress.totalCount > 0);
 
   return (
     <div className="table-container">
@@ -62,7 +68,7 @@ const Articles = () => {
               Math.min(articleCount, 50),
               0,
               0,
-              articleCount
+              articleCount,
             );
           }}
         >
@@ -72,6 +78,37 @@ const Articles = () => {
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
+        )}
+        {shouldShowProgress && articleCount > 0 && (
+          <div
+            className="d-flex align-items-center"
+            style={{
+              minHeight: isLoadingArticles ? "auto" : "1.5rem",
+              width: isLoadingArticles ? "100%" : "auto",
+              flexWrap: "wrap",
+              paddingRight: isLoadingArticles ? "0.5rem" : "0",
+            }}
+          >
+            {isLoadingArticles ? (
+              <>
+                <div style={{ width: "100%" }}>
+                  <ProgressBar
+                    now={progressPercentage}
+                    label={`${progressPercentage}%`}
+                    striped
+                    animated
+                  />
+                </div>
+                <Form.Text className="mt-2">
+                  {`Fetched ${articleFetchProgress.loadedCount} of ${articleFetchProgress.totalCount} steps`}
+                </Form.Text>
+              </>
+            ) : (
+              <Form.Text className="text-success fw-semibold mb-0 d-block p-2">
+                {`Fetch complete: ${articleFetchProgress.loadedCount} of ${articleFetchProgress.totalCount} steps loaded`}
+              </Form.Text>
+            )}
+          </div>
         )}
         <Form>
           <Form.Check
@@ -110,9 +147,9 @@ const Articles = () => {
           their tags, and how many drafts the world has. For full stats, check
           the stats page!
         </p>
-        {stubs + " stubs DONE"}
+        {stubCount + " stubs DONE"}
         <br />
-        {drafts + " drafts REMAINING"}
+        {draftCount + " drafts REMAINING"}
       </div>
     </div>
   );

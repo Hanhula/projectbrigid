@@ -38,7 +38,6 @@ const IdentityForm = () => {
     event.preventDefault();
     const cookies = new Cookies();
     cookies.set("authToken", placeholderToken, { path: "/" });
-    console.log(cookies.get("authToken"));
     dispatch(setAuthToken(placeholderToken));
   };
 

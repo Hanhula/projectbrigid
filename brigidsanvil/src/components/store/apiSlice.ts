@@ -4,6 +4,14 @@ import { ApiResponse, Article } from "../types/article";
 import { Identity } from "../types/user";
 import { World } from "../types/world";
 
+export type ArticleFetchProgress = {
+  worldId: string;
+  totalCount: number;
+  loadedCount: number;
+  offset: number;
+  isComplete: boolean;
+};
+
 export type AnvilAppState = {
   apiResponse: ApiResponse;
   identity: Identity;
@@ -11,6 +19,15 @@ export type AnvilAppState = {
   worlds: { success: boolean; entities: World[] };
   articles: Article[];
   isLoadingArticles: boolean;
+  articleFetchProgress: ArticleFetchProgress;
+};
+
+const initialArticleFetchProgress: ArticleFetchProgress = {
+  worldId: "",
+  totalCount: 0,
+  loadedCount: 0,
+  offset: 0,
+  isComplete: false,
 };
 
 // Initial state
@@ -20,6 +37,7 @@ const initialState = {
   world: {},
   worlds: { success: false },
   isLoadingArticles: false,
+  articleFetchProgress: initialArticleFetchProgress,
 };
 
 // Actual Slice
@@ -42,6 +60,24 @@ export const apiSlice = createSlice({
     setLoadingArticles(state, action) {
       state.isLoadingArticles = action.payload;
     },
+    setArticleFetchProgress(state, action) {
+      const progress = action.payload as ArticleFetchProgress;
+      state.articleFetchProgress = {
+        ...state.articleFetchProgress,
+        ...progress,
+      };
+    },
+    resetArticleFetchProgress(state) {
+      state.articleFetchProgress = initialArticleFetchProgress;
+    },
+    resetApiState(state) {
+      state.apiResponse = initialState.apiResponse;
+      state.identity = initialState.identity;
+      state.world = initialState.world;
+      state.worlds = initialState.worlds;
+      state.isLoadingArticles = initialState.isLoadingArticles;
+      state.articleFetchProgress = initialArticleFetchProgress;
+    },
   },
   extraReducers(builder) {
     builder.addCase(HYDRATE, (state, action) => {
@@ -59,6 +95,9 @@ export const {
   setWorld,
   setWorlds,
   setLoadingArticles,
+  setArticleFetchProgress,
+  resetArticleFetchProgress,
+  resetApiState,
 } = apiSlice.actions;
 
 export const selectAPIResponse = (state: { apiState: AnvilAppState }) =>
@@ -71,5 +110,8 @@ export const selectWorlds = (state: { apiState: AnvilAppState }) =>
   state.apiState.worlds;
 export const selectIsLoadingArticles = (state: { apiState: AnvilAppState }) =>
   state.apiState.isLoadingArticles;
+export const selectArticleFetchProgress = (state: {
+  apiState: AnvilAppState;
+}) => state.apiState.articleFetchProgress;
 
 export default apiSlice.reducer;
