@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { createSelector } from "reselect";
 import { HYDRATE } from "next-redux-wrapper";
 import { Article, WorldArticle, WorldArticles } from "../types/article";
 import { Image } from "../types/image";
@@ -200,72 +199,40 @@ export const {
   updateArticleById,
 } = articleSlice.actions;
 
-// Base selectors
-const selectArticleState = (state: {
+export const selectWorldArticles = (state: {
   articleState: WorldArticlesState;
-}) => state.articleState;
+}) => state.articleState.worldArticles;
 
-export const selectWorldArticles = createSelector(
-  [selectArticleState],
-  (articleState) => articleState.worldArticles
-);
-
-export const selectIsLoadingWorldArticles = createSelector(
-  [selectArticleState],
-  (articleState) => articleState.isLoadingWorldArticles
-);
-
-// Memoized selector factory for articles by world
-// This uses a cache to avoid recreating selectors for the same worldId
-const worldArticleSelectors: Record<string, any> = {};
+export const selectIsLoadingWorldArticles = (state: {
+  articleState: WorldArticlesState;
+}) => state.articleState.isLoadingWorldArticles;
 
 export const selectWorldArticlesByWorld =
-  (worldId: string) => {
-    // Return cached selector if it exists
-    if (!worldArticleSelectors[worldId]) {
-      worldArticleSelectors[worldId] = createSelector(
-        [selectArticleState],
-        (articleState) => {
-          const worldArticle = articleState.worldArticles.find(
-            (worldArticle) => worldArticle.world.id === worldId
-          );
+  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
+    const worldArticle = state.articleState.worldArticles.find(
+      (worldArticle) => worldArticle.world.id === worldId
+    );
 
-          const placeholderArticle: WorldArticles = {
-            world: initialWorld,
-            articles: [initialArticle],
-          };
+    const placeholderArticle: WorldArticles = {
+      world: initialWorld,
+      articles: [initialArticle],
+    };
 
-          return worldArticle || placeholderArticle;
-        }
-      );
-    }
-    return worldArticleSelectors[worldId];
+    return worldArticle || placeholderArticle;
   };
 
-// Memoized selector factory for detail state by world
-const detailStateSelectors: Record<string, any> = {};
+  export const selectCurrentDetailStateByWorld =
+  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
+    const currentDetailState = state.articleState.detailState.find(
+      (detailState) => detailState.world.id === worldId
+    );
 
-export const selectCurrentDetailStateByWorld =
-  (worldId: string) => {
-    // Return cached selector if it exists
-    if (!detailStateSelectors[worldId]) {
-      detailStateSelectors[worldId] = createSelector(
-        [selectArticleState],
-        (articleState) => {
-          const currentDetailState = articleState.detailState.find(
-            (detailState) => detailState.world.id === worldId
-          );
-
-          const placeholderState: WorldArticleDetailState = {
-            world: initialWorld,
-            isFullDetail: false
-          }
-
-          return currentDetailState || placeholderState;
-        }
-      );
+    const placeholderState: WorldArticleDetailState = {
+      world: initialWorld,
+      isFullDetail: false
     }
-    return detailStateSelectors[worldId];
+
+    return currentDetailState || placeholderState;
   };
 
 export default articleSlice.reducer;
