@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Text } from "@visx/text";
 import { scaleLog } from "@visx/scale";
 import Wordcloud from "@visx/wordcloud/lib/Wordcloud";
-import { useSelector } from "react-redux";
 import { selectWorld } from "@/components/store/apiSlice";
-import { selectWorldArticlesByWorld } from "@/components/store/articlesSlice";
+import * as articleSliceSelectors from "@/components/store/articlesSlice";
 import { ParentSize } from "@visx/responsive";
+import { useAppSelector } from "@/components/store/store";
 
 export interface WordData {
   text: string;
@@ -81,13 +81,16 @@ function WordCloud({ words, width, height }: WordCloudProps) {
 }
 
 export default function TagCloud() {
-  const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const world = useAppSelector(selectWorld);
+  const worldArticles = useAppSelector(
+    articleSliceSelectors.selectWorldArticlesByWorld(world.id)
+  );
+  const summary = useAppSelector((state) =>
+    articleSliceSelectors.selectWorldStatisticsSummary(state, world.id)
+  );
   const articles = worldArticles!.articles;
 
-  const tagCountMap: { [key: string]: number } = {};
-
-  const countTags = () => {
+  const tagCount = useMemo(() => {
     const tagCount: Record<string, number> = {};
 
     articles.forEach((article) => {
@@ -95,21 +98,21 @@ export default function TagCloud() {
         const tagsSplit = article.tags.split(",");
         tagsSplit.forEach((tag) => {
           const trimmedTag = tag.trim();
-          tagCountMap[trimmedTag] = (tagCountMap[trimmedTag] || 0) + 1;
+          if (!trimmedTag) {
+            return;
+          }
 
-          if (tagCount[tag]) {
-            tagCount[tag]++;
+          if (tagCount[trimmedTag]) {
+            tagCount[trimmedTag]++;
           } else {
-            tagCount[tag] = 1;
+            tagCount[trimmedTag] = 1;
           }
         });
       }
     });
 
     return tagCount;
-  };
-
-  const tagCount = countTags();
+  }, [articles]);
 
   const tagData: WordData[] = Object.entries(tagCount).map(([text, value]) => ({
     text,
@@ -117,17 +120,10 @@ export default function TagCloud() {
   }));
 
   const sortedTagData = tagData.sort((a, b) => b.value - a.value);
-  const totalTags = Object.values(tagCount).reduce(
-    (acc, count) => acc + count,
-    0
-  );
-
-  const averageTagsPerArticle = totalTags / articles.length;
-
-  const untaggedArticles = articles.filter(
-    (article) => !article.tags || article.tags.trim() === ""
-  );
-  const numUntaggedArticles = untaggedArticles.length;
+  const totalTags = summary.totalTags;
+  const averageTagsPerArticle =
+    summary.articleCount > 0 ? totalTags / summary.articleCount : 0;
+  const numUntaggedArticles = summary.untaggedArticles;
 
   return (
     <div className="wordcloud-and-tags">

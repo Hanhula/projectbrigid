@@ -40,52 +40,64 @@ export function PieChartComponent({ data }: { data: any[] }) {
     "#FF9A8B",
   ];
 
-  let testSize = isMobile ? 100 : 300;
+  const testSize = isMobile ? 100 : 300;
+  const chartHeight = isMobile ? 320 : 420;
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <PieChart>
-        {" "}
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          outerRadius={testSize}
-          fill="#8884d8"
-          dataKey="value"
-          label={({
-            cx,
-            cy,
-            midAngle,
-            innerRadius,
-            outerRadius,
-            value,
-            index,
-          }) => {
-            const RADIAN = Math.PI / 180;
-            const radius = 25 + innerRadius + (outerRadius - innerRadius);
-            const x = cx + radius * Math.cos(-midAngle * RADIAN);
-            const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    <div
+      style={{
+        width: "100%",
+        minWidth: 0,
+        height: chartHeight,
+        minHeight: 300,
+      }}
+    >
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            outerRadius={testSize}
+            fill="#8884d8"
+            dataKey="value"
+            label={({
+              cx,
+              cy,
+              midAngle,
+              innerRadius,
+              outerRadius,
+              value,
+              index,
+            }) => {
+              const RADIAN = Math.PI / 180;
+              const radius = 25 + innerRadius + (outerRadius - innerRadius);
+              const x = cx + radius * Math.cos(-midAngle * RADIAN);
+              const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
-            return (
-              <text
-                x={x}
-                y={y}
+              return (
+                <text
+                  x={x}
+                  y={y}
+                  fill={colors[index % colors.length]}
+                  textAnchor={x > cx ? "start" : "end"}
+                  dominantBaseline="central"
+                >
+                  {data[index].name} ({value})
+                </text>
+              );
+            }}
+          >
+            {data.map((entry, index) => (
+              <Cell
+                key={`cell-${index}`}
                 fill={colors[index % colors.length]}
-                textAnchor={x > cx ? "start" : "end"}
-                dominantBaseline="central"
-              >
-                {data[index].name} ({value})
-              </text>
-            );
-          }}
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
-        <Legend verticalAlign="top" height={36} />
-      </PieChart>
-    </ResponsiveContainer>
+              />
+            ))}
+          </Pie>
+          <Legend verticalAlign="top" height={36} />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

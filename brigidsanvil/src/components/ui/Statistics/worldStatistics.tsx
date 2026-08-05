@@ -1,10 +1,7 @@
 import { selectWorld } from "@/components/store/apiSlice";
-import { useSelector } from "react-redux";
 import "./worldStatistics.scss";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-} from "@/components/store/articlesSlice";
+import * as articleSliceSelectors from "@/components/store/articlesSlice";
+import { useAppSelector } from "@/components/store/store";
 import { ArticlePieChart } from "./ArticlePieChart/articlePieChart";
 import TagCloud from "./TagCloud/tagCloud";
 import { ArticleWordPieChart } from "./ArticleWordPieChart/articleWordPieChart";
@@ -30,6 +27,7 @@ import { DateTime } from "luxon";
 import { ArticleAuthorPieChart } from "./ArticleAuthorPieChart/articleAuthorPieChart";
 import { ArticleAuthorTypePieChart } from "./ArticleAuthorTypePieChart/articleAuthorTypePieChart";
 import { getFormattedDate } from "../Table/table-helpers";
+import { useMemo } from "react";
 
 const convertToDateString = (date: WorldAnvilDate) => {
   if (date && date.date) {
@@ -41,16 +39,21 @@ const convertToDateString = (date: WorldAnvilDate) => {
 };
 
 export function WorldStatistics() {
-  const world: World = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
+  const world: World = useAppSelector(selectWorld);
+  const worldArticles = useAppSelector(
+    articleSliceSelectors.selectWorldArticlesByWorld(world.id),
   );
-  const articles = worldArticles!.articles;
+  const currentDetailState = useAppSelector(
+    articleSliceSelectors.selectCurrentDetailStateByWorld(world.id),
+  );
+  const summary = useAppSelector((state) =>
+    articleSliceSelectors.selectWorldStatisticsSummary(state, world.id),
+  );
+  const articles = worldArticles?.articles ?? [];
   const isDetailed = currentDetailState.isFullDetail;
-  const currentDate = DateTime.now();
+  const currentDate = useMemo(() => DateTime.now(), []);
 
-  let displayArticleWarning = articles.length > 1 ? false : true;
+  const displayArticleWarning = summary.articleCount > 1 ? false : true;
 
   const calculateArticleStats = (articles: Article[]) => {
     let publishedCount = 0;
@@ -61,8 +64,8 @@ export function WorldStatistics() {
     let totalLikes = 0;
     let totalViews = 0;
     let totalComments = 0;
-    let activityCounts: { [monthYear: string]: number } = {};
-    let fanCounts: { [title: string]: number } = {};
+    const activityCounts: { [monthYear: string]: number } = {};
+    const fanCounts: { [title: string]: number } = {};
     let activeArticles = 0;
     let staleArticles = 0;
     let extraStaleArticles = 0;
@@ -81,10 +84,10 @@ export function WorldStatistics() {
         publicCount++;
       }
 
-      totalWordCount += article.wordcount ? article.wordcount : 0;
-      totalLikes += article.likes ? article.likes : 0;
-      totalViews += article.views ? article.views : 0;
-      totalComments += article.comments ? article.comments.length : 0;
+      totalWordCount += article.wordcount ?? 0;
+      totalLikes += article.likes ?? 0;
+      totalViews += article.views ?? 0;
+      totalComments += article.comments?.length ?? 0;
 
       if (article.fans) {
         article.fans.forEach((fan: { title: string }) => {
@@ -97,38 +100,54 @@ export function WorldStatistics() {
       }
 
       if (article.updateDate) {
+        const updateDateString = convertToDateString(article.updateDate);
         const articleUpdateDateTime = DateTime.fromFormat(
-          convertToDateString(article.updateDate),
-          "yyyy-MM-dd 'at' HH:mm:ss"
+          updateDateString,
+          "yyyy-MM-dd 'at' HH:mm:ss",
         );
+
+        if (!articleUpdateDateTime.isValid) {
+          return;
+        }
+
         const monthYear = articleUpdateDateTime.toFormat("yyyy-MM");
         activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months < 1) {
+        const monthsSinceUpdate = currentDate.diff(
+          articleUpdateDateTime,
+          "months",
+        ).months;
+
+        if (monthsSinceUpdate < 1) {
           articlesUpdatedThisMonth++;
         }
 
-        if (
-          currentDate.diff(articleUpdateDateTime, "months").months >= 1 &&
-          currentDate.diff(articleUpdateDateTime, "months").months < 2
-        ) {
+        if (monthsSinceUpdate >= 1 && monthsSinceUpdate < 2) {
           activeArticles++;
         }
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months > 6) {
+        if (monthsSinceUpdate > 6) {
           staleArticles++;
         }
 
-        if (currentDate.diff(articleUpdateDateTime, "months").months > 12) {
+        if (monthsSinceUpdate > 12) {
           extraStaleArticles++;
         }
       }
 
       if (article.publicationDate) {
-        const articlePublicationDateTime = DateTime.fromFormat(
-          convertToDateString(article.publicationDate),
-          "yyyy-MM-dd 'at' HH:mm:ss"
+        const publicationDateString = convertToDateString(
+          article.publicationDate,
         );
+        const articlePublicationDateTime = DateTime.fromFormat(
+          publicationDateString,
+          "yyyy-MM-dd 'at' HH:mm:ss",
+        );
+
+        if (!articlePublicationDateTime.isValid) {
+          return;
+        }
+
         const monthYear = articlePublicationDateTime.toFormat("yyyy-MM");
         activityCounts[monthYear] = (activityCounts[monthYear] || 0) + 1;
       }
@@ -146,7 +165,7 @@ export function WorldStatistics() {
     let mostActiveMonth = "";
     if (Object.keys(activityCounts).length !== 0) {
       mostActiveMonth = Object.keys(activityCounts).reduce((a, b) =>
-        activityCounts[a] > activityCounts[b] ? a : b
+        activityCounts[a] > activityCounts[b] ? a : b,
       );
     } else {
       mostActiveMonth = "Unknown!";
@@ -189,12 +208,15 @@ export function WorldStatistics() {
     privateCount,
     publicCount,
     totalWordCount,
-    averageWordCount,
     totalLikes,
-    averageLikes,
     totalViews,
-    averageViews,
     totalComments,
+  } = summary;
+
+  const {
+    averageWordCount,
+    averageLikes,
+    averageViews,
     averageComments,
     topFans,
     mostActiveMonth,
@@ -203,11 +225,13 @@ export function WorldStatistics() {
     staleArticles,
     extraStaleArticles,
     articlesUpdatedThisMonth,
-  } = calculateArticleStats(articles);
+  } = useMemo(() => calculateArticleStats(articles), [articles, currentDate]);
 
-  const creationDate = world.creationDate
-    ? convertToDateString(world.creationDate)
-    : "Update your world to see this date!";
+  const creationDate = useMemo(() => {
+    return world.creationDate
+      ? convertToDateString(world.creationDate)
+      : "Update your world to see this date!";
+  }, [world.creationDate]);
 
   const progressPercentage = world.goalWords
     ? Math.round((totalWordCount / world.goalWords) * 100)
@@ -218,11 +242,11 @@ export function WorldStatistics() {
   if (world.creationDate) {
     const creationDateTime = DateTime.fromFormat(
       convertToDateString(world.creationDate),
-      "yyyy-MM-dd 'at' HH:mm:ss"
+      "yyyy-MM-dd 'at' HH:mm:ss",
     );
     const monthsDiff = Math.max(
       1,
-      currentDate.diff(creationDateTime, "months").months
+      currentDate.diff(creationDateTime, "months").months,
     );
     wordsPerMonth = Math.round(totalWordCount / monthsDiff);
     publishedArticlesPerMonth = (publishedCount / monthsDiff).toFixed(2);
@@ -430,7 +454,7 @@ export function WorldStatistics() {
         )}
         {!displayArticleWarning && (
           <div>
-            <Tabs>
+            <Tabs mountOnEnter unmountOnExit>
               <Tab eventKey="numberRanked" title="By Number">
                 <ArticlePieChart articles={articles}></ArticlePieChart>
               </Tab>

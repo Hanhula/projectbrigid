@@ -7,7 +7,7 @@ import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import { createTransform, persistReducer, persistStore } from "redux-persist";
 import defaultStorage from "redux-persist/lib/storage";
 import { authSlice } from "./authSlice";
-import { articleSlice } from "./articlesSlice";
+import { articleSlice, migratePersistedArticleState } from "./articlesSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
 
@@ -25,7 +25,7 @@ const apiTransform = createTransform(
     }
     return outboundState;
   },
-  { whitelist: ["apiState"] }
+  { whitelist: ["apiState"] },
 );
 
 const reducers = combineReducers({
@@ -37,6 +37,7 @@ const reducers = combineReducers({
 // this is a commit to reupdate the branch
 const persistConfig = {
   key: "root",
+  version: 2,
   storage: globalThis.indexedDB
     ? createIdbStorage({ name: "brigidsAnvil", storeName: "brigidStore" })
     : defaultStorage,
@@ -44,6 +45,16 @@ const persistConfig = {
   deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
   blacklist: ["authState"],
   transforms: [apiTransform],
+  migrate: async (persistedState: any) => {
+    if (!persistedState || typeof persistedState !== "object") {
+      return persistedState;
+    }
+
+    return {
+      ...persistedState,
+      articleState: migratePersistedArticleState(persistedState.articleState),
+    };
+  },
 };
 
 const persistedReducer = persistReducer(persistConfig, reducers);
@@ -72,9 +83,9 @@ export type AppThunk<ReturnType = void> = ThunkAction<
 >;
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
+export const useAppSelector: TypedUseSelectorHook<AppState> = useSelector;
 
-export type RootState = ReturnType<typeof makeStore>;
+export type RootState = AppState;
 
 export const wrapper = createWrapper<AppStore>(makeStore);
 

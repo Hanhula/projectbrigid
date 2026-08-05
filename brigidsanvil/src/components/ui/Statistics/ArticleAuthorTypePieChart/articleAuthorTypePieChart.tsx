@@ -40,8 +40,8 @@ export function ArticleAuthorTypePieChart({
   );
 
   return (
-    <div className="row">
-      <div className="col-md-2" style={{ height: 900 }}>
+    <div className="row align-items-start">
+      <div className="col-md-2" style={{ minHeight: 280 }}>
         <h5>Author by Type Breakdown</h5>
         <dl className="article-author-type-list">
           {Object.entries(entityAuthorCounts)
@@ -61,9 +61,7 @@ export function ArticleAuthorTypePieChart({
         </dl>
       </div>
       <div className="col-md-10">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChartComponent data={data}></PieChartComponent>
-        </ResponsiveContainer>
+        <PieChartComponent data={data}></PieChartComponent>
       </div>
     </div>
   );

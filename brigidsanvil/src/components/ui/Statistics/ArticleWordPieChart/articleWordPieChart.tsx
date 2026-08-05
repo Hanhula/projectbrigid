@@ -1,9 +1,10 @@
+import { useMemo } from "react";
 import { ResponsiveContainer } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
 export function ArticleWordPieChart({ articles }: { articles: Article[] }) {
-  const countEntityClasses = () => {
+  const entityClassAverages = useMemo(() => {
     const entityClassCounts: Record<string, { total: number; count: number }> =
       {};
     const entityClassAverages: Record<string, number> = {};
@@ -19,7 +20,6 @@ export function ArticleWordPieChart({ articles }: { articles: Article[] }) {
       }
     });
 
-    // Calculate average word count for each entity class
     for (const entityClass in entityClassCounts) {
       const { total, count } = entityClassCounts[entityClass];
       entityClassAverages[entityClass] =
@@ -27,18 +27,20 @@ export function ArticleWordPieChart({ articles }: { articles: Article[] }) {
     }
 
     return entityClassAverages;
-  };
+  }, [articles]);
 
-  const entityClassAverages = countEntityClasses();
-
-  const data = Object.entries(entityClassAverages).map(([name, value]) => ({
-    name,
-    value,
-  }));
+  const data = useMemo(
+    () =>
+      Object.entries(entityClassAverages).map(([name, value]) => ({
+        name,
+        value,
+      })),
+    [entityClassAverages]
+  );
 
   return (
-    <div className="row">
-      <div className="col-md-2" style={{ height: 900 }}>
+    <div className="row align-items-start">
+      <div className="col-md-2" style={{ minHeight: 280 }}>
         <h5>{`Types Breakdown (By Wordcount Average)`}</h5>
         <dl className="article-type-list">
           {Object.entries(entityClassAverages)
@@ -52,9 +54,7 @@ export function ArticleWordPieChart({ articles }: { articles: Article[] }) {
         </dl>
       </div>
       <div className="col-md-10">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChartComponent data={data}></PieChartComponent>
-        </ResponsiveContainer>
+        <PieChartComponent data={data}></PieChartComponent>
       </div>
     </div>
   );

@@ -1,55 +1,48 @@
-import { Button, Form, Spinner } from "react-bootstrap";
-import { useDispatch, useSelector } from "react-redux";
+import { Button, Form, ProgressBar, Spinner } from "react-bootstrap";
+import { useDispatch } from "react-redux";
 import {
+  selectArticleFetchProgress,
   selectIsLoadingArticles,
   selectWorld,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { ArticleTable } from "../Table/table";
-import {
-  selectCurrentDetailStateByWorld,
-  selectWorldArticlesByWorld,
-  setDetailState,
-} from "@/components/store/articlesSlice";
+import * as articleSliceSelectors from "@/components/store/articlesSlice";
+import { useAppSelector } from "@/components/store/store";
 
 const Articles = () => {
-  const isLoadingArticles = useSelector(selectIsLoadingArticles);
-  const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
+  const isLoadingArticles = useAppSelector(selectIsLoadingArticles);
+  const articleFetchProgress = useAppSelector(selectArticleFetchProgress);
+  const world = useAppSelector(selectWorld);
+  const worldArticles = useAppSelector(
+    articleSliceSelectors.selectWorldArticlesByWorld(world.id)
+  );
   const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
+  const currentDetailState = useAppSelector(
+    articleSliceSelectors.selectCurrentDetailStateByWorld(world.id)
+  );
+  const { stubCount, draftCount } = useAppSelector((state) =>
+    articleSliceSelectors.selectWorldArticleStats(state, world.id)
   );
 
-  const stubMurder = () => {
-    let stubmurder = articles.filter((article) => {
-      if (article.tags) {
-        return article.tags.includes("stub");
-      }
-      return false;
-    });
-    return stubmurder.length;
-  };
-
-  const DRAFTY = () => {
-    let draaaaaaaft = articles.filter((article) => {
-      return article.isDraft;
-    });
-    return draaaaaaaft.length;
-  };
-
   const setDetailLevel = (checked: boolean) => {
-    dispatch(setDetailState({ world: world, isFullDetail: checked }));
+    dispatch(
+      articleSliceSelectors.setDetailState({
+        world: world,
+        isFullDetail: checked,
+      })
+    );
   };
-
-  const stubs = stubMurder();
-  const drafts = DRAFTY();
 
   const articleCount = world.countArticles;
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
+  const progressPercentage =
+    articleCount > 0
+      ? Math.round((articleFetchProgress.loadedCount / articleCount) * 100)
+      : 0;
 
   return (
     <div className="table-container">
@@ -72,6 +65,19 @@ const Articles = () => {
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
+        )}
+        {articleCount > 0 && (
+          <div className="w-100">
+            <ProgressBar
+              now={progressPercentage}
+              label={`${progressPercentage}%`}
+              striped
+              animated={isLoadingArticles}
+            />
+            <Form.Text>
+              {`Fetched ${articleFetchProgress.loadedCount} of ${articleCount} articles`}
+            </Form.Text>
+          </div>
         )}
         <Form>
           <Form.Check
@@ -110,9 +116,9 @@ const Articles = () => {
           their tags, and how many drafts the world has. For full stats, check
           the stats page!
         </p>
-        {stubs + " stubs DONE"}
+        {stubCount + " stubs DONE"}
         <br />
-        {drafts + " drafts REMAINING"}
+        {draftCount + " drafts REMAINING"}
       </div>
     </div>
   );

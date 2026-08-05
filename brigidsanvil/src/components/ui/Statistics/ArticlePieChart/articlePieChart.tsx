@@ -1,9 +1,10 @@
+import { useMemo } from "react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import { PieChartComponent } from "../PieChart/pieChart";
 import { Article } from "@/components/types/article";
 
 export function ArticlePieChart({ articles }: { articles: Article[] }) {
-  const countEntityClasses = () => {
+  const entityClassCounts = useMemo(() => {
     const entityClassCounts: Record<string, number> = {};
 
     articles.forEach((article) => {
@@ -17,18 +18,20 @@ export function ArticlePieChart({ articles }: { articles: Article[] }) {
     });
 
     return entityClassCounts;
-  };
+  }, [articles]);
 
-  const entityClassCounts = countEntityClasses();
-
-  const data = Object.entries(entityClassCounts).map(([name, value]) => ({
-    name,
-    value,
-  }));
+  const data = useMemo(
+    () =>
+      Object.entries(entityClassCounts).map(([name, value]) => ({
+        name,
+        value,
+      })),
+    [entityClassCounts]
+  );
 
   return (
-    <div className="row">
-      <div className="col-md-2" style={{ height: 900 }}>
+    <div className="row align-items-start">
+      <div className="col-md-2" style={{ minHeight: 280 }}>
         <h5>Types Breakdown</h5>
         <dl className="article-type-list">
           {Object.entries(entityClassCounts)
@@ -42,9 +45,7 @@ export function ArticlePieChart({ articles }: { articles: Article[] }) {
         </dl>
       </div>
       <div className="col-md-10">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChartComponent data={data}></PieChartComponent>
-        </ResponsiveContainer>
+        <PieChartComponent data={data}></PieChartComponent>
       </div>
     </div>
   );

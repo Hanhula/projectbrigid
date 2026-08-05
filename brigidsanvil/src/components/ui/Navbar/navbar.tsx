@@ -1,5 +1,6 @@
 import Nav from "react-bootstrap/Nav";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 import "./navbar.scss";
 import {
@@ -28,6 +29,7 @@ import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import Cookies from "universal-cookie";
 
 const NavBar = () => {
+  const router = useRouter();
   const world = useSelector(selectWorld);
   const worlds = useSelector(selectWorlds);
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
@@ -39,8 +41,9 @@ const NavBar = () => {
   const logoutButton = async (event: any) => {
     event.preventDefault();
     const cookies = new Cookies();
-    cookies.set("authToken", null, { path: "/" });
+    cookies.remove("authToken", { path: "/" });
     dispatch(setAuthToken(null));
+    await router.push("/");
   };
 
   return (
@@ -102,6 +105,15 @@ const NavBar = () => {
                     href="/worldanvil/quickcreate"
                   >
                     Quick Create
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
+                    href="/worldanvil/markdownpreview"
+                  >
+                    Markdown Preview
                   </Nav.Link>
                 </Nav.Item>
                 {worlds.success && (
