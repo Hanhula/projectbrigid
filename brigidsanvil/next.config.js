@@ -5,6 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   sassOptions: {
     loadPaths: ["./node_modules/bootstrap/scss/", "./src/styles/"],
+    quietDeps: true,
   },
 
   // Enable CORS for WorldAnvil API
