@@ -40,8 +40,8 @@ export function PieChartComponent({ data }: { data: any[] }) {
     "#FF9A8B",
   ];
 
-  const testSize = isMobile ? 100 : 300;
-  const chartHeight = isMobile ? 320 : 420;
+  const testSize = isMobile ? "20rem" : "40rem";
+  const chartHeight = isMobile ? "40rem" : "53rem";
 
   return (
     <div

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Article,
@@ -13,6 +14,7 @@ import {
   selectWorld,
   setLoadingArticles,
   setArticleFetchProgress,
+  resetArticleFetchProgress,
   selectArticleFetchProgress,
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
@@ -44,8 +46,14 @@ export function useWorldAnvilAPI() {
   const currentDetailState = useSelector(
     selectCurrentDetailStateByWorld(world.id),
   );
+  const fetchRequestIdRef = useRef(0);
 
   let articleFetch: Article[] = [];
+
+  useEffect(() => {
+    fetchRequestIdRef.current += 1;
+    dispatch(resetArticleFetchProgress());
+  }, [dispatch, world.id]);
 
   async function callWorldAnvil(
     endpoint: string,
@@ -131,8 +139,23 @@ export function useWorldAnvilAPI() {
     });
   }
 
-  async function testFinishArticles(articlesFetched: Article[]) {
-    articleFetch = await checkArticleState(articlesFetched);
+  async function testFinishArticles(
+    articlesFetched: Article[],
+    requestId: number,
+    totalCount?: number,
+  ) {
+    if (fetchRequestIdRef.current !== requestId) {
+      return;
+    }
+
+    const { articles: checkedArticles, totalCount: resolvedTotalCount } =
+      await checkArticleState(
+        articlesFetched,
+        totalCount ?? articleFetch.length,
+        requestId,
+      );
+
+    articleFetch = checkedArticles;
 
     let fetchedArticles: WorldArticles = {
       world: world,
@@ -143,8 +166,8 @@ export function useWorldAnvilAPI() {
     dispatch(
       setArticleFetchProgress({
         worldId: world.id,
-        totalCount: articleFetch.length,
-        loadedCount: articleFetch.length,
+        totalCount: resolvedTotalCount ?? articleFetch.length,
+        loadedCount: resolvedTotalCount ?? articleFetch.length,
         offset: articleFetch.length,
         isComplete: true,
       }),
@@ -157,9 +180,13 @@ export function useWorldAnvilAPI() {
     offset: number,
     numLoop: number,
     articleCount?: number,
+    requestId?: number,
   ) {
+    const isInitialFetch = numLoop === 0;
+    const activeRequestId = requestId ?? ++fetchRequestIdRef.current;
     const shouldResumeFromCheckpoint =
       articleCount !== undefined &&
+      !isInitialFetch &&
       articleFetchProgress.worldId === world.id &&
       !articleFetchProgress.isComplete &&
       articleFetchProgress.offset > 0 &&
@@ -173,12 +200,21 @@ export function useWorldAnvilAPI() {
       ? Object.values(currentArticleMap)
       : [];
 
+    if (isInitialFetch) {
+      articleFetch = [];
+      dispatch(resetArticleFetchProgress());
+    }
+
+    if (fetchRequestIdRef.current !== activeRequestId) {
+      return;
+    }
+
     dispatch(setLoadingArticles(true));
     dispatch(
       setArticleFetchProgress({
         worldId: world.id,
         totalCount: articleCount ?? 0,
-        loadedCount: articleFetchProgress.loadedCount,
+        loadedCount: isInitialFetch ? 0 : articleFetch.length,
         offset: resumeOffset,
         isComplete: false,
       }),
@@ -199,6 +235,10 @@ export function useWorldAnvilAPI() {
     });
 
     const articles = await callWorldAnvil(endpoint, CallType.POST, body);
+
+    if (fetchRequestIdRef.current !== activeRequestId) {
+      return;
+    }
 
     if (articles.entities) {
       if (articleCount) {
@@ -238,17 +278,26 @@ export function useWorldAnvilAPI() {
             resumeOffset + newArticles.length,
             numLoop + 1,
             articleCount,
+            activeRequestId,
           );
         } else {
-          testFinishArticles(articleFetch);
+          testFinishArticles(articleFetch, activeRequestId, articleCount);
         }
       } else {
-        testFinishArticles(articles.entities);
+        testFinishArticles(
+          articles.entities,
+          activeRequestId,
+          articleCount ?? articles.entities.length,
+        );
       }
     }
   }
 
-  async function checkArticleState(articles: Article[]) {
+  async function checkArticleState(
+    articles: Article[],
+    articleCount: number | undefined,
+    requestId: number,
+  ) {
     const currentArticleMapRecord = currentArticleMap ?? {};
 
     let articleArray: Article[] = [];
@@ -266,15 +315,37 @@ export function useWorldAnvilAPI() {
     }
 
     if (currentDetailState && currentDetailState.isFullDetail) {
+      const detailTotal =
+        (articleCount ?? articles.length) + articlesToUpdate.length;
+      dispatch(
+        setArticleFetchProgress({
+          worldId: world.id,
+          totalCount: detailTotal,
+          loadedCount: articleFetch.length,
+          offset: articleFetchProgress.offset,
+          isComplete: false,
+        }),
+      );
       if (articlesToUpdate.length > 0) {
-        const updatedArticles = await getFullArticles(articlesToUpdate);
+        const updatedArticles = await getFullArticles(
+          articlesToUpdate,
+          requestId,
+          detailTotal,
+          articleFetch.length,
+        );
         articleArray.push(...updatedArticles);
       }
     } else {
       articleArray.push(...articlesToUpdate);
     }
 
-    return articleArray;
+    return {
+      articles: articleArray,
+      totalCount:
+        currentDetailState && currentDetailState.isFullDetail
+          ? (articleCount ?? articles.length) + articlesToUpdate.length
+          : articleCount ?? articleArray.length,
+    };
   }
 
   function shouldArticleUpdate(
@@ -298,10 +369,16 @@ export function useWorldAnvilAPI() {
 
   const throttleDelay = 200;
 
-  async function getFullArticles(articles: Article[]) {
+  async function getFullArticles(
+    articles: Article[],
+    requestId: number,
+    totalCount: number,
+    loadedBase: number,
+  ) {
     const articleIds = articles.map((article) => article.id);
     const updatedArticles: Article[] = [];
     let queueIndex = 0;
+    let completedCount = loadedBase;
 
     async function processQueue() {
       while (queueIndex < articleIds.length) {
@@ -311,6 +388,18 @@ export function useWorldAnvilAPI() {
         try {
           const updatedArticle = await getArticle(articleId!, false);
           updatedArticles.push(updatedArticle);
+          completedCount += 1;
+          if (fetchRequestIdRef.current === requestId) {
+            dispatch(
+              setArticleFetchProgress({
+                worldId: world.id,
+                totalCount,
+                loadedCount: completedCount,
+                offset: articleFetchProgress.offset,
+                isComplete: false,
+              }),
+            );
+          }
         } catch (error) {
           console.error("Error getting article: ", error);
         }

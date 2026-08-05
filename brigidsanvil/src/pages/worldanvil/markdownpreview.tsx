@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useMemo, useState } from "react";
-import { Alert, Col, Form, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { selectIdentity } from "@/components/store/apiSlice";
 import { selectAuthToken } from "@/components/store/authSlice";
@@ -328,6 +328,9 @@ export default function MarkdownPreviewPage() {
   const authToken = useSelector(selectAuthToken);
   const identity = useSelector(selectIdentity);
   const [markdown, setMarkdown] = useState(starterMarkdown);
+  const [copiedField, setCopiedField] = useState<"markdown" | "bbcode" | null>(
+    null,
+  );
 
   const renderedMarkdown = useMemo(() => markdownToHtml(markdown), [markdown]);
   const bbCode = useMemo(
@@ -338,6 +341,19 @@ export default function MarkdownPreviewPage() {
     () => WorldAnvilParser.parseField(bbCode, true),
     [bbCode],
   );
+
+  const copyToClipboard = async (
+    value: string,
+    field: "markdown" | "bbcode",
+  ) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedField(field);
+      window.setTimeout(() => setCopiedField(null), 1200);
+    } catch (error) {
+      console.error("Unable to copy content", error);
+    }
+  };
 
   return (
     <div>
@@ -357,7 +373,17 @@ export default function MarkdownPreviewPage() {
           <Row className="g-3">
             <Col md={4}>
               <Form.Group>
-                <Form.Label>Markdown input</Form.Label>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Form.Label className="mb-0">Markdown input</Form.Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline-light"
+                    onClick={() => copyToClipboard(markdown, "markdown")}
+                  >
+                    {copiedField === "markdown" ? "Copied" : "Copy"}
+                  </Button>
+                </div>
                 <Form.Control
                   as="textarea"
                   rows={24}
@@ -402,7 +428,17 @@ export default function MarkdownPreviewPage() {
           <Row className="g-3 mt-1">
             <Col>
               <Form.Group>
-                <Form.Label>Raw BBCode</Form.Label>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Form.Label className="mb-0">Raw BBCode</Form.Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline-light"
+                    onClick={() => copyToClipboard(bbCode, "bbcode")}
+                  >
+                    {copiedField === "bbcode" ? "Copied" : "Copy"}
+                  </Button>
+                </div>
                 <Form.Control
                   as="textarea"
                   rows={12}

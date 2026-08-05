@@ -70,6 +70,14 @@ export const apiSlice = createSlice({
     resetArticleFetchProgress(state) {
       state.articleFetchProgress = initialArticleFetchProgress;
     },
+    resetApiState(state) {
+      state.apiResponse = initialState.apiResponse;
+      state.identity = initialState.identity;
+      state.world = initialState.world;
+      state.worlds = initialState.worlds;
+      state.isLoadingArticles = initialState.isLoadingArticles;
+      state.articleFetchProgress = initialArticleFetchProgress;
+    },
   },
   extraReducers(builder) {
     builder.addCase(HYDRATE, (state, action) => {
@@ -89,6 +97,7 @@ export const {
   setLoadingArticles,
   setArticleFetchProgress,
   resetArticleFetchProgress,
+  resetApiState,
 } = apiSlice.actions;
 
 export const selectAPIResponse = (state: { apiState: AnvilAppState }) =>

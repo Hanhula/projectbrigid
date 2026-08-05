@@ -16,6 +16,9 @@ export const authSlice = createSlice({
     setAuthToken(state, action) {
       state.authToken = action.payload;
     },
+    resetAuthState(state) {
+      state.authToken = initialState.authToken;
+    },
   },
   extraReducers(builder) {
     builder.addCase(HYDRATE, (state, action) => {
@@ -27,7 +30,7 @@ export const authSlice = createSlice({
   },
 });
 
-export const { setAuthToken } = authSlice.actions;
+export const { setAuthToken, resetAuthState } = authSlice.actions;
 
 export const selectAuthToken = (state: { authState: AuthState }) =>
   state.authState.authToken;

@@ -278,6 +278,16 @@ export const articleSlice = createSlice({
 
       state.detailStateByWorld[newDetailState.world.id] = newDetailState;
     },
+    resetArticleState(state) {
+      state.worldArticles = initialState.worldArticles;
+      state.currentWorldArticles = initialState.currentWorldArticles;
+      state.isLoadingWorldArticles = initialState.isLoadingWorldArticles;
+      state.detailState = initialState.detailState;
+      state.worldArticlesById = {};
+      state.detailStateByWorld = {};
+      state.articleIdsByWorld = {};
+      state.articlesByIdByWorld = {};
+    },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
       const worldId = updatedArticleObj.world.id;
@@ -337,6 +347,7 @@ export const {
   setCurrentWorldArticles,
   setLoadingWorldArticles,
   setDetailState,
+  resetArticleState,
   updateArticleById,
 } = articleSlice.actions;
 

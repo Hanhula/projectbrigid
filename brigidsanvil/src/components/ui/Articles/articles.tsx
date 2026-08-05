@@ -1,9 +1,11 @@
 import { Button, Form, ProgressBar, Spinner } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import {
+  resetArticleFetchProgress,
   selectArticleFetchProgress,
   selectIsLoadingArticles,
   selectWorld,
+  setLoadingArticles,
 } from "@/components/store/apiSlice";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { ArticleTable } from "../Table/table";
@@ -15,24 +17,26 @@ const Articles = () => {
   const articleFetchProgress = useAppSelector(selectArticleFetchProgress);
   const world = useAppSelector(selectWorld);
   const worldArticles = useAppSelector(
-    articleSliceSelectors.selectWorldArticlesByWorld(world.id)
+    articleSliceSelectors.selectWorldArticlesByWorld(world.id),
   );
   const articles = worldArticles!.articles;
   const worldAnvilAPI = useWorldAnvilAPI();
   const dispatch = useDispatch();
   const currentDetailState = useAppSelector(
-    articleSliceSelectors.selectCurrentDetailStateByWorld(world.id)
+    articleSliceSelectors.selectCurrentDetailStateByWorld(world.id),
   );
   const { stubCount, draftCount } = useAppSelector((state) =>
-    articleSliceSelectors.selectWorldArticleStats(state, world.id)
+    articleSliceSelectors.selectWorldArticleStats(state, world.id),
   );
 
   const setDetailLevel = (checked: boolean) => {
+    dispatch(resetArticleFetchProgress());
+    dispatch(setLoadingArticles(false));
     dispatch(
       articleSliceSelectors.setDetailState({
         world: world,
         isFullDetail: checked,
-      })
+      }),
     );
   };
 
@@ -40,9 +44,18 @@ const Articles = () => {
   const minutes = Math.floor(articleCount / 60);
   const seconds = articleCount % 60;
   const progressPercentage =
-    articleCount > 0
-      ? Math.round((articleFetchProgress.loadedCount / articleCount) * 100)
+    articleFetchProgress.totalCount > 0
+      ? Math.round(
+          (articleFetchProgress.loadedCount / articleFetchProgress.totalCount) *
+            100,
+        )
       : 0;
+  const shouldShowProgress =
+    Boolean(articleFetchProgress.worldId === world.id) &&
+    (isLoadingArticles ||
+      articleFetchProgress.isComplete ||
+      articleFetchProgress.loadedCount > 0 ||
+      articleFetchProgress.totalCount > 0);
 
   return (
     <div className="table-container">
@@ -55,7 +68,7 @@ const Articles = () => {
               Math.min(articleCount, 50),
               0,
               0,
-              articleCount
+              articleCount,
             );
           }}
         >
@@ -66,17 +79,35 @@ const Articles = () => {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
         )}
-        {articleCount > 0 && (
-          <div className="w-100">
-            <ProgressBar
-              now={progressPercentage}
-              label={`${progressPercentage}%`}
-              striped
-              animated={isLoadingArticles}
-            />
-            <Form.Text>
-              {`Fetched ${articleFetchProgress.loadedCount} of ${articleCount} articles`}
-            </Form.Text>
+        {shouldShowProgress && articleCount > 0 && (
+          <div
+            className="d-flex align-items-center"
+            style={{
+              minHeight: isLoadingArticles ? "auto" : "1.5rem",
+              width: isLoadingArticles ? "100%" : "auto",
+              flexWrap: "wrap",
+              paddingRight: isLoadingArticles ? "0.5rem" : "0",
+            }}
+          >
+            {isLoadingArticles ? (
+              <>
+                <div style={{ width: "100%" }}>
+                  <ProgressBar
+                    now={progressPercentage}
+                    label={`${progressPercentage}%`}
+                    striped
+                    animated
+                  />
+                </div>
+                <Form.Text className="mt-2">
+                  {`Fetched ${articleFetchProgress.loadedCount} of ${articleFetchProgress.totalCount} steps`}
+                </Form.Text>
+              </>
+            ) : (
+              <Form.Text className="text-success fw-semibold mb-0 d-block p-2">
+                {`Fetch complete: ${articleFetchProgress.loadedCount} of ${articleFetchProgress.totalCount} steps loaded`}
+              </Form.Text>
+            )}
           </div>
         )}
         <Form>
