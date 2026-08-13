@@ -1,26 +1,62 @@
 import { Person } from "@/components/types/article-types/person";
 import { WorldAnvilEditor } from "../editor";
-import { Form, Tab, Tabs } from "react-bootstrap";
+import { Button, ButtonGroup, Form, Tab, Tabs } from "react-bootstrap";
 import { selectWorld } from "@/components/store/apiSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DebouncedInput from "./debounced-input";
 import DebouncedDropdown from "./debounced-dropdown";
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import {
+  selectEditorMode,
+  setEditorMode,
+} from "@/components/store/articlesSlice";
 
 const CharacterEdit = ({ article }: { article: Person }) => {
+  const dispatch = useDispatch();
   const world = useSelector(selectWorld);
+  const editorMode = useSelector(selectEditorMode);
   const [lastFocusedEditor, setLastFocusedEditor] = useState("");
+  const [isSwitchingMode, setIsSwitchingMode] = useState(false);
+
+  const switchEditorMode = useCallback(
+    (mode: "rich" | "raw") => {
+      if (mode === editorMode || isSwitchingMode) {
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      if (activeElement instanceof HTMLElement) {
+        activeElement.blur();
+      }
+
+      setLastFocusedEditor("");
+      setIsSwitchingMode(true);
+
+      // Two-phase switch avoids Slate unmount/remount in the same commit.
+      setTimeout(() => {
+        dispatch(setEditorMode(mode));
+        requestAnimationFrame(() => {
+          setIsSwitchingMode(false);
+        });
+      }, 0);
+    },
+    [dispatch, editorMode, isSwitchingMode],
+  );
 
   const renderEditor = (fieldIdentifier: string, title?: string) => (
     <>
       {title && <h3>{title}</h3>}
-      <WorldAnvilEditor
-        fieldIdentifier={fieldIdentifier}
-        id={article.id}
-        existingContent={article[fieldIdentifier]!}
-        onFocus={setLastFocusedEditor}
-        lastFocusedEditor={lastFocusedEditor}
-      />
+      {!isSwitchingMode ? (
+        <WorldAnvilEditor
+          fieldIdentifier={fieldIdentifier}
+          id={article.id}
+          existingContent={article[fieldIdentifier]!}
+          onFocus={setLastFocusedEditor}
+          lastFocusedEditor={lastFocusedEditor}
+        />
+      ) : (
+        <div className="text-muted">Switching editor mode...</div>
+      )}
       <br />
     </>
   );
@@ -28,6 +64,30 @@ const CharacterEdit = ({ article }: { article: Person }) => {
   return (
     <div>
       <h1>{article.title}</h1>
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <strong>Editor Mode</strong>
+        <ButtonGroup aria-label="Editor mode toggle">
+          <Button
+            size="sm"
+            variant={editorMode === "rich" ? "primary" : "outline-primary"}
+            onClick={() => switchEditorMode("rich")}
+            disabled={isSwitchingMode}
+          >
+            Rich
+          </Button>
+          <Button
+            size="sm"
+            variant={editorMode === "raw" ? "primary" : "outline-primary"}
+            onClick={() => switchEditorMode("raw")}
+            disabled={isSwitchingMode}
+          >
+            Raw BBCode
+          </Button>
+        </ButtonGroup>
+        <small className="text-muted">
+          Shift+Enter inserts a soft line break in Rich mode.
+        </small>
+      </div>
       <Tabs defaultActiveKey="body" id="character-edit-tabs" className="mb-3">
         <Tab eventKey="body" title="Body">
           {renderEditor("content")}
@@ -51,7 +111,7 @@ const CharacterEdit = ({ article }: { article: Person }) => {
               {renderEditor("facialFeatures", "Facial Features")}
               {renderEditor(
                 "identifyingCharacteristics",
-                "Identifying Characteristics"
+                "Identifying Characteristics",
               )}
               {renderEditor("quirksPhysical", "Physical Quirks")}
               {renderEditor("specialAbilities", "Special Abilities")}
@@ -69,7 +129,7 @@ const CharacterEdit = ({ article }: { article: Person }) => {
               {renderEditor("mentalTraumas", "Mental Trauma")}
               {renderEditor(
                 "intellectualCharacteristics",
-                "Intellectual Characteristics"
+                "Intellectual Characteristics",
               )}
               {renderEditor("morality", "Morality & Philosophy")}
               {renderEditor("taboos", "Taboos")}

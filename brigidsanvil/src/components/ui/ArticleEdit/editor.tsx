@@ -18,6 +18,7 @@ import {
   Range,
   Path,
   Point,
+  NodeEntry,
 } from "slate";
 import {
   Slate,
@@ -45,9 +46,9 @@ import EditUtils from "@/components/ui/ArticleEdit/utils/editutils";
 import {
   makeSelectEditedContentByID,
   selectCurrentArticles,
+  selectEditorMode,
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
-import _ from "lodash";
 import { Article } from "@/components/types/article";
 import { selectWorld } from "@/components/store/apiSlice";
 import { debounce } from "lodash";
@@ -66,12 +67,30 @@ export const Portal = ({ children }: { children?: ReactNode }) => {
     : null;
 };
 
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const highlightBBCode = (value: string) => {
+  const escapedValue = escapeHtml(value);
+
+  return escapedValue
+    .replace(
+      /(\[[^\]\n]+\])/g,
+      '<span style="color:#d73a49; font-weight:600;">$1</span>',
+    )
+    .replace(
+      /(@\[[^\]]+\]\([^\)]+\))/g,
+      '<span style="color:#6f42c1; font-weight:600;">$1</span>',
+    )
+    .replace(/(\|[^\n\[]+)/g, '<span style="color:#0b7285;">$1</span>');
+};
+
 const CustomEditor = {
   toggleBlock(editor: Editor, format: any) {
     const isActive = CustomEditor.isBlockActive(
       editor,
       format,
-      TEXT_ALIGN_TYPES.includes(format) ? "align" : "type"
+      TEXT_ALIGN_TYPES.includes(format) ? "align" : "type",
     );
     const isList = LIST_TYPES.includes(format);
 
@@ -84,7 +103,7 @@ const CustomEditor = {
       const currentLineRange = Editor.range(
         editor,
         Editor.start(editor, selection),
-        Editor.end(editor, selection.anchor.path)
+        Editor.end(editor, selection.anchor.path),
       );
 
       // Split the current line into its own block if needed
@@ -186,7 +205,7 @@ const CustomEditor = {
           !Editor.isEditor(n) &&
           SlateElement.isElement(n) &&
           n[blockType] === format,
-      })
+      }),
     );
 
     return !!match;
@@ -369,15 +388,41 @@ export const WorldAnvilEditor = ({
   lastFocusedEditor,
 }: EditorProps) => {
   const dispatch = useDispatch();
-  const editUtils = new EditUtils();
+  const editUtils = useMemo(() => new EditUtils(), []);
   const world = useSelector(selectWorld);
+  const editorMode = useSelector(selectEditorMode);
   const articles = useSelector(selectCurrentArticles);
-  const selectEditedContentByID = makeSelectEditedContentByID(
-    world.id,
-    id,
-    fieldIdentifier
+  const selectEditedContentByID = useMemo(
+    () => makeSelectEditedContentByID(world.id, id, fieldIdentifier),
+    [world.id, id, fieldIdentifier],
   );
   const editedContent = useSelector(selectEditedContentByID);
+  const editedContentRef = useRef(editedContent);
+  const existingContentRef = useRef(existingContent);
+  const worldRef = useRef(world);
+  const canonicalContent = useMemo(
+    () => editedContent || existingContent || "",
+    [editedContent, existingContent],
+  );
+  const [rawValue, setRawValue] = useState(canonicalContent);
+
+  useEffect(() => {
+    editedContentRef.current = editedContent;
+  }, [editedContent]);
+
+  useEffect(() => {
+    existingContentRef.current = existingContent;
+  }, [existingContent]);
+
+  useEffect(() => {
+    worldRef.current = world;
+  }, [world]);
+
+  useEffect(() => {
+    if (lastFocusedEditor !== fieldIdentifier) {
+      setRawValue(canonicalContent);
+    }
+  }, [canonicalContent, fieldIdentifier, lastFocusedEditor]);
 
   const defaultValue: CustomElement[] = [
     {
@@ -387,6 +432,10 @@ export const WorldAnvilEditor = ({
   ];
 
   const initialValue = useMemo(() => {
+    if (editorMode === "raw") {
+      return defaultValue;
+    }
+
     try {
       if (editedContent) {
         const deserialized = editUtils.deserialize(editedContent);
@@ -400,7 +449,7 @@ export const WorldAnvilEditor = ({
       console.error("Error initializing editor:", error);
       return defaultValue;
     }
-  }, [editedContent, existingContent]);
+  }, [defaultValue, editUtils, editedContent, editorMode, existingContent]);
 
   const [editor] = useState(() => {
     const e = withHistory(withReact(withMentions(createEditor())));
@@ -410,15 +459,27 @@ export const WorldAnvilEditor = ({
   });
 
   const ref = useRef<HTMLDivElement | null>(null);
+  const hasInitializedRef = useRef(false);
   const [target, setTarget] = useState<Range | undefined | null>();
   const [index, setIndex] = useState(0);
   const [search, setSearch] = useState("");
 
-  const chars = articles
-    .filter((article) =>
-      article.title.toLowerCase().startsWith(search.toLowerCase())
-    )
-    .slice(0, 10);
+  useEffect(() => {
+    setTarget(null);
+    setSearch("");
+    setIndex(0);
+    hasInitializedRef.current = false;
+  }, [editorMode]);
+
+  const chars = useMemo(
+    () =>
+      articles
+        .filter((article) =>
+          article.title.toLowerCase().startsWith(search.toLowerCase()),
+        )
+        .slice(0, 10),
+    [articles, search],
+  );
 
   const onKeyDown = useCallback(
     (event: any) => {
@@ -460,13 +521,22 @@ export const WorldAnvilEditor = ({
       if (event.key === "Enter") {
         event.preventDefault();
 
+        // Use Shift+Enter for soft line breaks within the same paragraph.
+        if (event.shiftKey) {
+          editor.insertText("\n");
+          return;
+        }
+
         // Check if we're in a block element
-        const [match] = Editor.nodes(editor, {
+        const blockNodeIterator = Editor.nodes(editor, {
           match: (n) =>
             !Editor.isEditor(n) &&
             SlateElement.isElement(n) &&
             n.type !== "paragraph",
         });
+        const match = blockNodeIterator.next().value as
+          | NodeEntry<SlateElement>
+          | undefined;
 
         if (match) {
           const [node, path] = match;
@@ -484,11 +554,11 @@ export const WorldAnvilEditor = ({
           }
         }
 
-        // Default behavior: insert newline
-        editor.insertText("\n");
+        // Default behavior: create a new paragraph block.
+        editor.insertBreak();
       }
     },
-    [chars, editor, index, target]
+    [chars, editor, index, target],
   );
 
   useEffect(() => {
@@ -511,32 +581,127 @@ export const WorldAnvilEditor = ({
 
   const delayedDispatch = useCallback(
     debounce((value: any) => {
-      console.log("toserialise: ", value);
       const serializedValue = editUtils.serializeVal(value);
-      console.log("serialising: ", serializedValue.replace(/\n/g, "\\n"));
+
+      // Avoid rewriting store state when content is unchanged.
+      if (serializedValue === editedContentRef.current) {
+        return;
+      }
+
+      if (
+        !editedContentRef.current &&
+        existingContentRef.current &&
+        serializedValue === existingContentRef.current
+      ) {
+        return;
+      }
+
       dispatch(
         setEditedContentByID({
-          world: world,
+          world: worldRef.current,
           articleID: id,
           fieldIdentifier,
           editedFields: serializedValue,
-        })
+        }),
       );
     }, 500),
-    [world.id, id, fieldIdentifier]
+    [dispatch, editUtils, fieldIdentifier, id],
+  );
+
+  const delayedRawDispatch = useCallback(
+    debounce((value: string) => {
+      if (value === editedContentRef.current) {
+        return;
+      }
+
+      if (
+        !editedContentRef.current &&
+        existingContentRef.current &&
+        value === existingContentRef.current
+      ) {
+        return;
+      }
+
+      dispatch(
+        setEditedContentByID({
+          world: worldRef.current,
+          articleID: id,
+          fieldIdentifier,
+          editedFields: value,
+        }),
+      );
+    }, 300),
+    [dispatch, fieldIdentifier, id],
   );
 
   useEffect(() => {
     return () => {
       delayedDispatch.cancel();
+      delayedRawDispatch.cancel();
     };
-  }, [delayedDispatch]);
+  }, [delayedDispatch, delayedRawDispatch]);
+
+  const isFocusedEditor = lastFocusedEditor === fieldIdentifier;
+  const isRawMode = editorMode === "raw";
+  const highlightedRawPreview = useMemo(() => {
+    if (!isRawMode || !isFocusedEditor) {
+      return "";
+    }
+
+    return highlightBBCode(rawValue);
+  }, [isFocusedEditor, isRawMode, rawValue]);
+
+  if (isRawMode) {
+    return (
+      <div>
+        <textarea
+          value={rawValue}
+          onFocus={() => onFocus(fieldIdentifier)}
+          onChange={(event) => {
+            const nextValue = event.target.value;
+            setRawValue(nextValue);
+            delayedRawDispatch(nextValue);
+          }}
+          className="form-control"
+          rows={Math.max(6, rawValue.split("\n").length + 2)}
+          style={{
+            fontFamily:
+              "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
+            whiteSpace: "pre-wrap",
+            marginBottom: "0.5rem",
+          }}
+        />
+        {isFocusedEditor && (
+          <div
+            style={{
+              border: "1px solid #d0d7de",
+              borderRadius: "0.375rem",
+              padding: "0.625rem",
+              background: "#f6f8fa",
+              fontFamily:
+                "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
+              fontSize: "0.875rem",
+              whiteSpace: "pre-wrap",
+              overflowX: "auto",
+            }}
+            dangerouslySetInnerHTML={{ __html: highlightedRawPreview }}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <Slate
+      key={`rich-${id}-${fieldIdentifier}`}
       editor={editor}
       initialValue={initialValue}
       onChange={(value) => {
+        if (!hasInitializedRef.current) {
+          hasInitializedRef.current = true;
+          return;
+        }
+
         // Ensure there's always at least one paragraph
         if (!value || value.length === 0) {
           editor.children = defaultValue;
@@ -567,19 +732,14 @@ export const WorldAnvilEditor = ({
         setTarget(null);
 
         const isAstChange = editor.operations.some(
-          (op) => op.type !== "set_selection"
+          (op) => op.type !== "set_selection",
         );
-        if (
-          isAstChange ||
-          editor.operations.some(
-            (op) => op.type === "insert_text" || op.type === "remove_text"
-          )
-        ) {
+        if (isAstChange && ReactEditor.isFocused(editor)) {
           delayedDispatch(value);
         }
       }}
     >
-      {lastFocusedEditor === fieldIdentifier && (
+      {isFocusedEditor && (
         <Container>
           <ButtonToolbar>
             <ButtonGroup className="me-2 flex-wrap" role="toolbar">

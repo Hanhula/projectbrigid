@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Article,
@@ -22,7 +22,6 @@ import {
   removeEditByID,
   selectCurrentDetailStateByWorld,
   selectWorldArticleMapByWorld,
-  selectEditState,
   selectEditedArticlesByWorld,
   selectWorldArticlesByWorld,
   setWorldArticles,
@@ -42,15 +41,30 @@ export function useWorldAnvilAPI() {
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
-  const currentArticleMap = useSelector(selectWorldArticleMapByWorld(world.id));
+  const worldArticlesSelector = useMemo(
+    () => selectWorldArticlesByWorld(world.id),
+    [world.id],
+  );
+  const worldArticleMapSelector = useMemo(
+    () => selectWorldArticleMapByWorld(world.id),
+    [world.id],
+  );
+  const currentDetailStateSelector = useMemo(
+    () => selectCurrentDetailStateByWorld(world.id),
+    [world.id],
+  );
+  const editedArticlesSelector = useMemo(
+    () => selectEditedArticlesByWorld(world.id),
+    [world.id],
+  );
+
+  const worldArticles = useSelector(worldArticlesSelector);
+  const currentArticleMap = useSelector(worldArticleMapSelector);
   const currentArticles = worldArticles!.articles;
   const articleFetchProgress = useSelector(selectArticleFetchProgress);
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id),
-  );
+  const currentDetailState = useSelector(currentDetailStateSelector);
   const fetchRequestIdRef = useRef(0);
-  const editedArticles = useSelector(selectEditedArticlesByWorld(world.id));
+  const editedArticles = useSelector(editedArticlesSelector);
 
   let articleFetch: Article[] = [];
 

@@ -26,6 +26,8 @@ export type EditState = {
   editedArticles: ArticleEditState[];
 };
 
+export type EditorMode = "rich" | "raw";
+
 export type WorldArticlesState = {
   worldArticles: WorldArticles[];
   currentWorldArticles: WorldArticles;
@@ -36,6 +38,7 @@ export type WorldArticlesState = {
   articleIdsByWorld: Record<string, string[]>;
   articlesByIdByWorld: Record<string, Record<string, Article>>;
   editState: EditState[];
+  editorMode: EditorMode;
 };
 
 let initialArticle: Article = {
@@ -172,6 +175,7 @@ const ensureArticleStateRecords = (state: WorldArticlesState) => {
   state.articleIdsByWorld = state.articleIdsByWorld ?? {};
   state.articlesByIdByWorld = state.articlesByIdByWorld ?? {};
   state.editState = state.editState ?? [];
+  state.editorMode = state.editorMode ?? "rich";
 };
 
 export const migratePersistedArticleState = (
@@ -190,6 +194,7 @@ export const migratePersistedArticleState = (
     articleIdsByWorld: articleState?.articleIdsByWorld ?? {},
     articlesByIdByWorld: articleState?.articlesByIdByWorld ?? {},
     editState: articleState?.editState ?? [],
+    editorMode: articleState?.editorMode ?? "rich",
   };
 
   const legacyWorldArticles = nextState.worldArticles ?? [];
@@ -251,6 +256,7 @@ const initialState: WorldArticlesState = {
   articleIdsByWorld: {},
   articlesByIdByWorld: {},
   editState: [],
+  editorMode: "rich",
 };
 
 // Actual Slice
@@ -308,6 +314,13 @@ export const articleSlice = createSlice({
       state.articleIdsByWorld = {};
       state.articlesByIdByWorld = {};
       state.editState = [];
+      state.editorMode = "rich";
+    },
+    setEditorMode(state, action) {
+      state.editorMode = action.payload;
+    },
+    toggleEditorMode(state) {
+      state.editorMode = state.editorMode === "rich" ? "raw" : "rich";
     },
     updateArticleById(state, action) {
       const updatedArticleObj: WorldArticle = action.payload;
@@ -377,7 +390,7 @@ export const articleSlice = createSlice({
         action.payload;
 
       if (state.editState === undefined) {
-        state.editState = [initialEditState];
+        state.editState = [];
         state.editState.push({
           world,
           editedArticles: [],
@@ -415,14 +428,10 @@ export const articleSlice = createSlice({
     },
     removeEditByID(state, action) {
       const { worldID, articleID } = action.payload;
-      console.log("world:", worldID);
-      console.log("article:", articleID);
 
       const worldIndex = state.editState.findIndex(
         (editState) => editState.world.id === worldID,
       );
-
-      console.log("worldindex:", worldIndex);
 
       if (worldIndex !== -1) {
         const articleIndex = state.editState[
@@ -430,8 +439,6 @@ export const articleSlice = createSlice({
         ].editedArticles.findIndex(
           (editedArticle) => editedArticle.articleID === articleID,
         );
-
-        console.log("articleindex:", articleIndex);
 
         if (articleIndex !== -1) {
           state.editState[worldIndex].editedArticles.splice(articleIndex, 1);
@@ -468,6 +475,8 @@ export const articleSlice = createSlice({
         state.articlesByIdByWorld =
           incomingState.articlesByIdByWorld ?? state.articlesByIdByWorld ?? {};
         state.editState = incomingState.editState ?? state.editState ?? [];
+        state.editorMode =
+          incomingState.editorMode ?? state.editorMode ?? "rich";
       }
 
       return migrateWorldArticlesState(state as WorldArticlesState);
@@ -486,6 +495,8 @@ export const {
   setEditedArticle,
   setEditedContentByID,
   removeEditByID,
+  setEditorMode,
+  toggleEditorMode,
 } = articleSlice.actions;
 
 const selectWorldArticlesByIdState = (state: {
@@ -511,7 +522,7 @@ export const selectWorldArticles = (state: {
 
 export const selectWorldArticleMapByWorld = (worldId: string) =>
   createSelector([selectArticlesByIdByWorldState], (articlesByIdByWorld) => {
-    return articlesByIdByWorld[worldId] || {};
+    return articlesByIdByWorld[worldId] || EMPTY_ARTICLE_MAP;
   });
 
 export const selectIsLoadingWorldArticles = (state: {
@@ -522,6 +533,10 @@ const placeholderArticle: WorldArticles = {
   world: initialWorld,
   articles: [initialArticle],
 };
+
+const EMPTY_ARTICLE_MAP: Record<string, Article> = {};
+const EMPTY_EDITED_ARTICLES: ArticleEditState[] = [];
+const EMPTY_FIELD_EDITS: FieldEditState[] = [];
 
 export const selectWorldArticlesByWorld = (worldId: string) =>
   createSelector([selectWorldArticlesByIdState], (worldArticlesById) => {
@@ -635,7 +650,7 @@ export const selectEditedArticlesByWorld =
       (editState) => editState.world.id === worldId,
     );
 
-    return editState?.editedArticles || [];
+    return editState?.editedArticles || EMPTY_EDITED_ARTICLES;
   };
 
 // Select the edited content for a specific article within a world
@@ -650,7 +665,7 @@ export const selectEditedContentByID =
       (editedArticle) => editedArticle.articleID === articleID,
     );
 
-    return editedArticle?.fieldsChanged || [];
+    return editedArticle?.fieldsChanged || EMPTY_FIELD_EDITS;
   };
 
 export const makeSelectCurrentArticles = () =>
@@ -683,5 +698,9 @@ export const makeSelectEditedContentByID = (
 
     return editedField?.editedContent || "";
   });
+
+export const selectEditorMode = (state: {
+  articleState: Partial<WorldArticlesState>;
+}) => state.articleState?.editorMode ?? "rich";
 
 export default articleSlice.reducer;

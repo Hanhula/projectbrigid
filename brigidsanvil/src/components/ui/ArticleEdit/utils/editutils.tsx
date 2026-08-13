@@ -9,8 +9,6 @@ import {
 } from "./editortypes";
 import { Descendant, Node as SlateNode, Text } from "slate";
 
-import WorldAnvilParser from "@/components/ui/ArticleView/CustomRenderers/WorldAnvilParser/worldanvil-parser";
-
 class EditUtils {
   constructor() {}
 
@@ -110,7 +108,7 @@ class EditUtils {
       const mentionNode = element as MentionElement;
       return `@[${mentionNode.children[0].text.replace(
         /^@\[(.*?)\]$/,
-        "$1"
+        "$1",
       )}](${mentionNode.entityClass.toLowerCase()}:${mentionNode.id})`;
     }
 
@@ -129,58 +127,27 @@ class EditUtils {
   };
 
   serializeVal = (value: any[]): string => {
-    // First convert the nodes to raw BBCode
-    const serializedNodes = value.map((node) => this.serializeNode(node));
+    const serializedNodes = value
+      .map((node) => this.serializeNode(node))
+      .map((nodeText) => nodeText.replace(/\r\n/g, "\n").replace(/\n/g, "[br]"))
+      .filter((nodeText) => nodeText.length > 0);
 
-    // Join nodes with appropriate spacing
-    let rawContent = "";
-    for (let i = 0; i < serializedNodes.length; i++) {
-      const current = serializedNodes[i];
-      const next =
-        i < serializedNodes.length - 1 ? serializedNodes[i + 1] : null;
-
-      rawContent += current;
-
-      // Add double newline between paragraphs, unless we're inside a block element
-      if (
-        next &&
-        !current.match(/^\[(quote|h[1-4]|aloud)\]/) &&
-        !next.match(/^\[\/(?:quote|h[1-4]|aloud)\]/) &&
-        !current.endsWith("[br]") // Don't add newlines after [br]
-      ) {
-        rawContent += "\n\n";
-      }
-    }
-
-    // Handle line breaks within paragraphs
-    rawContent = rawContent
-      // First ensure consistent newlines
-      .replace(/\r\n/g, "\n")
-      // Convert single newlines to [br]
-      .replace(/\n(?!\n)/g, "[br]")
-      // Clean up any excessive newlines
+    return serializedNodes
+      .join("\n\n")
       .replace(/\n{3,}/g, "\n\n")
-      // Clean up [br] tags around newlines
-      .replace(/\[br\]\n/g, "[br]")
-      .replace(/\n\[br\]/g, "[br]")
-      .replace(/\[br\]\[br\]/g, "\n\n")
       .trim();
-
-    return rawContent;
   };
 
   deserialize = (bbcode: string): Descendant[] => {
-    console.log("deserialising: ", bbcode.replace(/\n/g, "\\n"));
     if (!bbcode) {
       return this.defaultInitialValue;
     }
 
     const result: CustomElement[] = [];
     let currentText = bbcode
-      // First normalize all newlines
       .replace(/\r\n/g, "\n")
-      // Ensure [br][br] is treated as paragraph break
-      .replace(/\[br\]\[br\]/g, "\n\n");
+      .replace(/\[br\]/g, "\n")
+      .replace(/\n{3,}/g, "\n\n");
 
     // Helper function to create a text node with formats
     const createFormattedText = (text: string): CustomText[] => {
@@ -216,9 +183,6 @@ class EditUtils {
           }
         }
       }
-
-      // Convert [br] to newlines
-      processedText = processedText.replace(/\[br\]/g, "\n");
 
       return [{ text: processedText, ...formats }];
     };
@@ -273,7 +237,7 @@ class EditUtils {
           id: id,
         } as CustomElement);
         return "\u0000";
-      }
+      },
     );
 
     // Process remaining text
