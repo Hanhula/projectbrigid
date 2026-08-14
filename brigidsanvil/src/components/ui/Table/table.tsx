@@ -94,7 +94,13 @@ export function ArticleTable({
       cell: ({ row }) => {
         return row.getCanExpand() ? (
           <button
+            type="button"
             className="btn btn-secondary"
+            aria-label={
+              row.getIsExpanded()
+                ? "Collapse article details"
+                : "Expand article details"
+            }
             {...{
               onClick: row.getToggleExpandedHandler(),
               style: { cursor: "pointer" },
@@ -129,11 +135,16 @@ export function ArticleTable({
       accessorFn: (row) => row.url,
       id: "url",
       cell: (info: any) => (
-        <a href={info.getValue() as string}>
-          <Button className="link-url" variant="primary">
-            <FontAwesomeIcon icon={faLink} />
-          </Button>
-        </a>
+        <Button
+          as="a"
+          href={info.getValue() as string}
+          className="link-url"
+          variant="primary"
+          title={`Open ${info.row.original.title} in WorldAnvil`}
+          aria-label={`Open ${info.row.original.title} in WorldAnvil`}
+        >
+          <FontAwesomeIcon icon={faLink} />
+        </Button>
       ),
       header: "Link",
       footer: (props) => props.column.id,
@@ -144,7 +155,7 @@ export function ArticleTable({
         return generateMention(
           info.row.original.id,
           info.row.original.entityClass,
-          info.row.original.title
+          info.row.original.title,
         );
       },
       header: "Block",
@@ -180,7 +191,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "tags",
-                newTags
+                newTags,
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -214,7 +225,13 @@ export function ArticleTable({
         };
 
         return (
-          <Button variant="primary" className="cell-sync" onClick={handleSync}>
+          <Button
+            variant="primary"
+            className="cell-sync"
+            onClick={handleSync}
+            title={`Sync ${info.row.original.title}`}
+            aria-label={`Sync ${info.row.original.title}`}
+          >
             <FontAwesomeIcon icon={faSync} />
           </Button>
         );
@@ -231,7 +248,13 @@ export function ArticleTable({
       cell: ({ row }) => {
         return row.getCanExpand() ? (
           <button
+            type="button"
             className="btn btn-secondary"
+            aria-label={
+              row.getIsExpanded()
+                ? "Collapse article details"
+                : "Expand article details"
+            }
             {...{
               onClick: row.getToggleExpandedHandler(),
               style: { cursor: "pointer" },
@@ -277,7 +300,7 @@ export function ArticleTable({
           //   isDisabled={true}
           // ></EditableCell>
           <Link href={`/worldanvil/articles/${info.row.original.id}/view`}>
-            {titleValue}
+            <span aria-label={`View ${titleValue}`}>{titleValue}</span>
           </Link>
         );
       },
@@ -327,7 +350,7 @@ export function ArticleTable({
       accessorFn: (row) => {
         if (Array.isArray(row.competitionEntries)) {
           return row.competitionEntries.some(
-            (entry) => entry.entityClass === "CompetitionEntry"
+            (entry) => entry.entityClass === "CompetitionEntry",
           );
         }
         return false;
@@ -336,9 +359,19 @@ export function ArticleTable({
       cell: (info) => {
         const value = info.getValue();
         return value ? (
-          <FontAwesomeIcon icon="check" />
+          <span
+            aria-label="Competition entry: yes"
+            title="Competition entry: yes"
+          >
+            <FontAwesomeIcon icon="check" />
+          </span>
         ) : (
-          <FontAwesomeIcon icon="times" />
+          <span
+            aria-label="Competition entry: no"
+            title="Competition entry: no"
+          >
+            <FontAwesomeIcon icon="times" />
+          </span>
         );
       },
       header: "Comp Entry",
@@ -349,11 +382,16 @@ export function ArticleTable({
       id: "url",
       accessorFn: (row) => row.url,
       cell: (info: any) => (
-        <a href={info.getValue() as string}>
-          <Button className="link-url" variant="primary">
-            <FontAwesomeIcon icon={faLink} />
-          </Button>
-        </a>
+        <Button
+          as="a"
+          href={info.getValue() as string}
+          className="link-url"
+          variant="primary"
+          title={`Open ${info.row.original.title} in WorldAnvil`}
+          aria-label={`Open ${info.row.original.title} in WorldAnvil`}
+        >
+          <FontAwesomeIcon icon={faLink} />
+        </Button>
       ),
       header: "Link",
       footer: (props) => props.column.id,
@@ -363,13 +401,37 @@ export function ArticleTable({
       id: "editURL",
       accessorFn: (row) => row.editURL,
       cell: (info: any) => (
-        <a href={info.getValue() as string}>
-          <Button className="edit-url" variant="primary">
-            <FontAwesomeIcon icon={faFileEdit} />
-          </Button>
-        </a>
+        <Button
+          as="a"
+          href={info.getValue() as string}
+          className="edit-url"
+          variant="primary"
+          title={`Edit ${info.row.original.title} in WorldAnvil`}
+          aria-label={`Edit ${info.row.original.title} in WorldAnvil`}
+        >
+          <FontAwesomeIcon icon={faFileEdit} />
+        </Button>
       ),
       header: "Edit",
+      footer: (props) => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
+      id: "editBrigid",
+      accessorFn: (row) => row.id,
+      cell: (info: any) => (
+        <Button
+          as="a"
+          href={`/worldanvil/articles/${info.getValue() as string}/edit`}
+          className="edit-url-brigid"
+          variant="secondary"
+          title={`Edit ${info.row.original.title} in Brigid`}
+          aria-label={`Edit ${info.row.original.title} in Brigid`}
+        >
+          <FontAwesomeIcon icon={faFileEdit} />
+        </Button>
+      ),
+      header: "Brigid Edit",
       footer: (props) => props.column.id,
       enableColumnFilter: false,
     },
@@ -379,7 +441,7 @@ export function ArticleTable({
         return generateMention(
           info.row.original.id,
           info.row.original.entityClass,
-          info.row.original.title
+          info.row.original.title,
         );
       },
       header: "Copy Block",
@@ -400,7 +462,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "state",
-                newState
+                newState,
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -431,7 +493,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "isWip",
-                newState === "true" // Convert string to boolean
+                newState === "true", // Convert string to boolean
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -462,7 +524,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "isDraft",
-                newState === "true" // Convert string to boolean
+                newState === "true", // Convert string to boolean
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -501,7 +563,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "tags",
-                newTags
+                newTags,
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -531,7 +593,7 @@ export function ArticleTable({
                   await worldAnvilAPI.updateArticleByField(
                     articleID,
                     "icon",
-                    newIcon
+                    newIcon,
                   );
                   table.setPagination(paginationState);
                   await worldAnvilAPI.getArticle(articleID, true);
@@ -590,7 +652,7 @@ export function ArticleTable({
                 await worldAnvilAPI.updateArticleByField(
                   articleID,
                   "excerpt",
-                  newExcerpt
+                  newExcerpt,
                 );
                 table.setPagination(paginationState);
                 await worldAnvilAPI.getArticle(articleID, true);
@@ -601,7 +663,12 @@ export function ArticleTable({
               isTruncated={isTruncated}
             ></EditableCell>
             {!editing && excerptValue !== "" && (
-              <Button onClick={toggleExpand} variant="secondary">
+              <Button
+                onClick={toggleExpand}
+                variant="secondary"
+                title={isTruncated ? "Expand excerpt" : "Collapse excerpt"}
+                aria-label={isTruncated ? "Expand excerpt" : "Collapse excerpt"}
+              >
                 {isTruncated ? (
                   <FontAwesomeIcon icon={faExpand} />
                 ) : (
@@ -710,9 +777,13 @@ export function ArticleTable({
       cell: (info) => {
         const displayCss = info.getValue();
         return displayCss ? (
-          <FontAwesomeIcon icon="check" />
+          <span aria-label="Has article CSS" title="Has article CSS">
+            <FontAwesomeIcon icon="check" />
+          </span>
         ) : (
-          <FontAwesomeIcon icon="times" />
+          <span aria-label="No article CSS" title="No article CSS">
+            <FontAwesomeIcon icon="times" />
+          </span>
         );
       },
       header: "Article CSS?",
@@ -734,7 +805,7 @@ export function ArticleTable({
               await worldAnvilAPI.updateArticleByField(
                 articleID,
                 "allowComments",
-                newState === "true" // Convert string to boolean
+                newState === "true", // Convert string to boolean
               );
               table.setPagination(paginationState);
               await worldAnvilAPI.getArticle(articleID, true);
@@ -761,7 +832,13 @@ export function ArticleTable({
         };
 
         return (
-          <Button variant="primary" className="cell-sync" onClick={handleSync}>
+          <Button
+            variant="primary"
+            className="cell-sync"
+            onClick={handleSync}
+            title={`Sync ${info.row.original.title}`}
+            aria-label={`Sync ${info.row.original.title}`}
+          >
             <FontAwesomeIcon icon={faSync} />
           </Button>
         );
@@ -773,7 +850,7 @@ export function ArticleTable({
 
   const world = useSelector(selectWorld);
   const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id)
+    selectCurrentDetailStateByWorld(world.id),
   );
 
   const isDetailed = currentDetailState.isFullDetail;
@@ -837,26 +914,31 @@ export function ArticleTable({
         </Offcanvas.Body>
       </Offcanvas>
       <BootstrapTable striped hover responsive size="sm">
+        <caption className="visually-hidden">
+          Article listing with sorting, filtering, and edit actions
+        </caption>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <th key={header.id} colSpan={header.colSpan}>
+                  <th key={header.id} colSpan={header.colSpan} scope="col">
                     {header.isPlaceholder ? null : (
                       <>
                         {header.column.getCanSort() ? (
-                          <div
-                            {...{
-                              className: header.column.getCanSort()
-                                ? `cursor-pointer select-none col-${header.column.id}`
-                                : "",
-                              onClick: header.column.getToggleSortingHandler(),
-                            }}
+                          <button
+                            type="button"
+                            className={
+                              header.column.getCanSort()
+                                ? `btn btn-link p-0 text-decoration-none cursor-pointer select-none col-${header.column.id}`
+                                : "btn btn-link p-0 text-decoration-none"
+                            }
+                            onClick={header.column.getToggleSortingHandler()}
+                            aria-label={`Sort by ${header.column.id}`}
                           >
                             {flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                             {{
                               asc: (
@@ -878,7 +960,7 @@ export function ArticleTable({
                                 </span>
                               ),
                             }[header.column.getIsSorted() as string] ?? null}
-                          </div>
+                          </button>
                         ) : (
                           <div>
                             {header.column.columnDef.header
@@ -931,7 +1013,7 @@ export function ArticleTable({
                       <td key={cell.id} className={`cell-${cell.column.id}`}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </td>
                     );
@@ -1039,6 +1121,7 @@ export function ArticleTable({
             <Form.Control
               type="number"
               defaultValue={table.getState().pagination.pageIndex + 1}
+              aria-label="Go to page"
               onChange={(e) => {
                 const page = e.target.value ? Number(e.target.value) - 1 : 0;
                 table.setPageIndex(page);

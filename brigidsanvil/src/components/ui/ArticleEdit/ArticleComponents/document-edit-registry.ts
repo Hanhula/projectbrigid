@@ -14,8 +14,15 @@ export type DocumentBodySubTabConfig = {
   fields: ArticleFieldConfig<Document>[];
 };
 
-export const bodyFieldRegistry: ArticleFieldConfig<Document>[] =
-  createCommonBodyFieldRegistry<Document>();
+export const bodyFieldRegistry: ArticleFieldConfig<Document>[] = [
+  ...createCommonBodyFieldRegistry<Document>(),
+  {
+    key: "body-purpose",
+    kind: "bbcode",
+    fieldIdentifier: "purpose",
+    label: "Purpose",
+  },
+];
 
 export const bodySubTabRegistry: DocumentBodySubTabConfig[] = [
   {
