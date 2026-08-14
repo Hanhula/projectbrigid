@@ -1,11 +1,12 @@
 import { Vehicle } from "@/components/types/article-types/vehicle";
-import { ArticleFieldConfig } from "./article-edit-field-renderer";
+import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
   createCommonBodyFieldRegistry,
+  createCommonDesignFieldRegistry,
   createCommonFooterFieldRegistry,
   createCommonSidebarFieldRegistry,
   createCommonSubtitleFieldRegistry,
-} from "./article-edit-registry-common";
+} from "../EditComponents/article-edit-registry-common";
 
 export type VehicleBodySubTabConfig = {
   eventKey: string;
@@ -228,4 +229,8 @@ export const sidebarFieldRegistry: ArticleFieldConfig<Vehicle>[] = [
 
 export const footerFieldRegistry: ArticleFieldConfig<Vehicle>[] = [
   ...createCommonFooterFieldRegistry<Vehicle>(),
+];
+
+export const designFieldRegistry: ArticleFieldConfig<Vehicle>[] = [
+  ...createCommonDesignFieldRegistry<Vehicle>(),
 ];

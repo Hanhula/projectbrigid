@@ -40,9 +40,9 @@ import {
   LIST_TYPES,
   TEXT_ALIGN_TYPES,
   MentionElement,
-} from "@/components/ui/ArticleEdit/utils/editortypes";
+} from "@/components/ui/ArticleEdit/SlateEditor/utils/editortypes";
 import isHotkey from "is-hotkey";
-import EditUtils from "@/components/ui/ArticleEdit/utils/editutils";
+import EditUtils from "@/components/ui/ArticleEdit/SlateEditor/utils/editutils";
 import {
   makeSelectEditedContentByID,
   selectCurrentArticles,

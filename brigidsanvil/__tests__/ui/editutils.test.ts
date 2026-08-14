@@ -1,4 +1,4 @@
-import EditUtils from "@/components/ui/ArticleEdit/utils/editutils";
+import EditUtils from "@/components/ui/ArticleEdit/SlateEditor/utils/editutils";
 
 describe("EditUtils BBCode round-trip", () => {
   test("preserves mixed nested inline marks across deserialize and serialize", () => {

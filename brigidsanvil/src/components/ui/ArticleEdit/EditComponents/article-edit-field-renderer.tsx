@@ -1,7 +1,7 @@
 import { Article } from "@/components/types/article";
 import { World } from "@/components/types/world";
 import { Form } from "react-bootstrap";
-import BBCodeEditor from "../bbcode-editor";
+import BBCodeEditor from "./bbcode-editor";
 import DebouncedDropdown from "./debounced-dropdown";
 import DebouncedInput from "./debounced-input";
 

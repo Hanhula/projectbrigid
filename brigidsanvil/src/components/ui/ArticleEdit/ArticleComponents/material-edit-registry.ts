@@ -1,11 +1,12 @@
 import { Material } from "@/components/types/article-types/material";
-import { ArticleFieldConfig } from "./article-edit-field-renderer";
+import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
-  createCommonArticleMetaFieldRegistry,
   createCommonBodyFieldRegistry,
   createCommonFooterFieldRegistry,
   createCommonSidebarFieldRegistry,
-} from "./article-edit-registry-common";
+  createCommonSubtitleFieldRegistry,
+  createCommonDesignFieldRegistry,
+} from "../EditComponents/article-edit-registry-common";
 
 export type MaterialBodySubTabConfig = {
   eventKey: string;
@@ -336,7 +337,7 @@ export const bodySubTabRegistry: MaterialBodySubTabConfig[] = [
 ];
 
 export const subtitleFieldRegistry: ArticleFieldConfig<Material>[] = [
-  ...createCommonArticleMetaFieldRegistry<Material>(),
+  ...createCommonSubtitleFieldRegistry<Material>(),
 ];
 
 export const sidebarFieldRegistry: ArticleFieldConfig<Material>[] = [
@@ -345,4 +346,8 @@ export const sidebarFieldRegistry: ArticleFieldConfig<Material>[] = [
 
 export const footerFieldRegistry: ArticleFieldConfig<Material>[] = [
   ...createCommonFooterFieldRegistry<Material>(),
+];
+
+export const designFieldRegistry: ArticleFieldConfig<Material>[] = [
+  ...createCommonDesignFieldRegistry<Material>(),
 ];

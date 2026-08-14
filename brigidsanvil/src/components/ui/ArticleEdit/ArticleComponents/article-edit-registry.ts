@@ -1,10 +1,11 @@
-import { ArticleFieldConfig } from "./article-edit-field-renderer";
+import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
   createCommonBodyFieldRegistry,
   createCommonFooterFieldRegistry,
   createCommonSidebarFieldRegistry,
   createCommonSubtitleFieldRegistry,
-} from "./article-edit-registry-common";
+  createCommonDesignFieldRegistry,
+} from "../EditComponents/article-edit-registry-common";
 import { Article } from "@/components/types/article";
 
 export type ArticleBodySubTabConfig = {
@@ -26,4 +27,8 @@ export const sidebarFieldRegistry: ArticleFieldConfig<Article>[] = [
 
 export const footerFieldRegistry: ArticleFieldConfig<Article>[] = [
   ...createCommonFooterFieldRegistry<Article>(),
+];
+
+export const designFieldRegistry: ArticleFieldConfig<Article>[] = [
+  ...createCommonDesignFieldRegistry<Article>(),
 ];

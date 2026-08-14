@@ -6,10 +6,10 @@ import {
 } from "@/components/store/articlesSlice";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useRouter } from "next/router";
-import ArticleEdit from "@/components/ui/ArticleEdit/EditComponents/article-edit";
-import CharacterEdit from "@/components/ui/ArticleEdit/EditComponents/character-edit";
-import MaterialEdit from "@/components/ui/ArticleEdit/EditComponents/material-edit";
-import VehicleEdit from "@/components/ui/ArticleEdit/EditComponents/vehicle-edit";
+import ArticleEdit from "@/components/ui/ArticleEdit/ArticleComponents/article-edit";
+import CharacterEdit from "@/components/ui/ArticleEdit/ArticleComponents/character-edit";
+import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material-edit";
+import VehicleEdit from "@/components/ui/ArticleEdit/ArticleComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useState } from "react";
 

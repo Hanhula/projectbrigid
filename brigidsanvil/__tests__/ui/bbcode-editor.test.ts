@@ -1,5 +1,4 @@
 import {
-  buildToolbarTooltip,
   buildMentionCompletions,
   collectDecorationSpans,
   createBbcodeKeyBindings,
@@ -11,7 +10,8 @@ import {
   normalizeQuoteAuthorDelimiter,
   normalizeMentionQuery,
   normalizeWorldAnvilSingleLineBreaks,
-} from "@/components/ui/ArticleEdit/bbcode-editor";
+} from "@/components/ui/ArticleEdit/EditComponents/utils/bbcode-tags";
+import { buildToolbarTooltip } from "@/components/ui/ArticleEdit/EditComponents/utils/toolbar-buttons";
 
 const iconStub = (() => null) as any;
 

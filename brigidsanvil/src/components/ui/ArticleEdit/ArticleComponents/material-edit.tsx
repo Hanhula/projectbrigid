@@ -1,18 +1,19 @@
-import { Vehicle } from "@/components/types/article-types/vehicle";
+import { Material } from "@/components/types/article-types/material";
+import { ArticleEditPage } from "../EditComponents/article-edit-page";
 import {
   bodyFieldRegistry,
   bodySubTabRegistry,
   footerFieldRegistry,
   sidebarFieldRegistry,
   subtitleFieldRegistry,
-} from "./vehicle-edit-registry";
-import { ArticleEditPage } from "./article-edit-page";
+  designFieldRegistry,
+} from "./material-edit-registry";
 
-const VehicleEdit = ({
+const MaterialEdit = ({
   article,
   resetSignal = 0,
 }: {
-  article: Vehicle;
+  article: Material;
   resetSignal?: number;
 }) => (
   <ArticleEditPage
@@ -22,11 +23,12 @@ const VehicleEdit = ({
     subtitleFieldRegistry={subtitleFieldRegistry}
     sidebarFieldRegistry={sidebarFieldRegistry}
     footerFieldRegistry={footerFieldRegistry}
-    defaultBodySubTabKey="identity"
-    topLevelTabsId="vehicle-edit-tabs"
-    bodyTabsId="vehicle-sub-tabs"
+    designFieldRegistry={designFieldRegistry}
+    defaultBodySubTabKey="properties"
+    topLevelTabsId="material-edit-tabs"
+    bodyTabsId="material-sub-tabs"
     resetSignal={resetSignal}
   />
 );
 
-export default VehicleEdit;
+export default MaterialEdit;

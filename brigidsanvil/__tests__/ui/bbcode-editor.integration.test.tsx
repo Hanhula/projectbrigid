@@ -6,8 +6,8 @@ import { Provider } from "react-redux";
 import {
   normalizeEditorLinebreaks,
   normalizeQuoteAuthorDelimiter,
-} from "@/components/ui/ArticleEdit/bbcode-editor";
-import BBCodeEditor from "@/components/ui/ArticleEdit/bbcode-editor";
+} from "@/components/ui/ArticleEdit/EditComponents/utils/bbcode-tags";
+import BBCodeEditor from "@/components/ui/ArticleEdit/EditComponents/bbcode-editor";
 import { apiSlice } from "@/components/store/apiSlice";
 import {
   articleSlice,

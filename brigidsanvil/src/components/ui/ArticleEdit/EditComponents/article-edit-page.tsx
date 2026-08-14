@@ -25,6 +25,7 @@ export type ArticleEditPageProps<TArticle extends Article> = {
   subtitleFieldRegistry: ArticleFieldConfig<TArticle>[];
   sidebarFieldRegistry: ArticleFieldConfig<TArticle>[];
   footerFieldRegistry: ArticleFieldConfig<TArticle>[];
+  designFieldRegistry: ArticleFieldConfig<TArticle>[];
   defaultBodySubTabKey: string;
   topLevelTabsId: string;
   bodyTabsId: string;
@@ -38,6 +39,7 @@ export function ArticleEditPage<TArticle extends Article>({
   subtitleFieldRegistry,
   sidebarFieldRegistry,
   footerFieldRegistry,
+  designFieldRegistry,
   defaultBodySubTabKey,
   topLevelTabsId,
   bodyTabsId,
@@ -84,6 +86,7 @@ export function ArticleEditPage<TArticle extends Article>({
     subtitle: <>{renderFields(subtitleFieldRegistry)}</>,
     sidebar: <>{renderFields(sidebarFieldRegistry)}</>,
     footer: <>{renderFields(footerFieldRegistry)}</>,
+    design: <>{renderFields(designFieldRegistry)}</>,
   };
 
   return (

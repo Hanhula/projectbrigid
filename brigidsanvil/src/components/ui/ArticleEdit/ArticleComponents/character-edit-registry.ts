@@ -1,11 +1,12 @@
 import { Person } from "@/components/types/article-types/person";
-import { ArticleFieldConfig } from "./article-edit-field-renderer";
+import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
   createCommonBodyFieldRegistry,
   createCommonFooterFieldRegistry,
   createCommonSidebarFieldRegistry,
   createCommonSubtitleFieldRegistry,
-} from "./article-edit-registry-common";
+  createCommonDesignFieldRegistry,
+} from "../EditComponents/article-edit-registry-common";
 
 export type CharacterBodySubTabConfig = {
   eventKey: string;
@@ -468,4 +469,8 @@ export const sidebarFieldRegistry: ArticleFieldConfig<Person>[] = [
 
 export const footerFieldRegistry: ArticleFieldConfig<Person>[] = [
   ...createCommonFooterFieldRegistry<Person>(),
+];
+
+export const designFieldRegistry: ArticleFieldConfig<Person>[] = [
+  ...createCommonDesignFieldRegistry<Person>(),
 ];

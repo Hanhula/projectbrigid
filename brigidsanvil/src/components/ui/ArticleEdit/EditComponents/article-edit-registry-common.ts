@@ -1,7 +1,12 @@
 import { Article } from "@/components/types/article";
 import { ArticleFieldConfig } from "./article-edit-field-renderer";
 
-export type ArticleTopLevelTabKey = "body" | "subtitle" | "sidebar" | "footer";
+export type ArticleTopLevelTabKey =
+  | "body"
+  | "subtitle"
+  | "sidebar"
+  | "footer"
+  | "design";
 
 export type ArticleTopLevelTabConfig = {
   eventKey: ArticleTopLevelTabKey;
@@ -13,34 +18,8 @@ export const articleTopLevelTabRegistry: ArticleTopLevelTabConfig[] = [
   { eventKey: "subtitle", title: "Subheader" },
   { eventKey: "sidebar", title: "Sidebar" },
   { eventKey: "footer", title: "Footer" },
+  { eventKey: "design", title: "Design" },
 ];
-
-// Shared fields that can be reused across multiple article edit pages.
-export const createCommonArticleMetaFieldRegistry = <
-  TArticle extends Article,
->(): ArticleFieldConfig<TArticle>[] => {
-  return [
-    {
-      key: "meta-subheading",
-      kind: "text",
-      fieldIdentifier: "subheading",
-      label: "Subheading",
-    },
-    {
-      key: "meta-pronunciation",
-      kind: "text",
-      fieldIdentifier: "pronunciation",
-      label: "Pronunciation",
-    },
-    {
-      key: "meta-credits",
-      kind: "text",
-      fieldIdentifier: "credits",
-      label: "Credits",
-      helpText: "Common article metadata field.",
-    },
-  ];
-};
 
 export const createCommonBodyFieldRegistry = <
   TArticle extends Article,
@@ -122,8 +101,47 @@ export const createCommonFooterFieldRegistry = <
   ];
 };
 
+export const createCommonDesignFieldRegistry = <
+  TArticle extends Article,
+>(): ArticleFieldConfig<TArticle>[] => {
+  return [
+    {
+      key: "design-excerpt",
+      kind: "text",
+      fieldIdentifier: "excerpt",
+      label: "Excerpt",
+    },
+    {
+      key: "design-icon",
+      kind: "text",
+      fieldIdentifier: "icon",
+      label: "Icon",
+    },
+  ];
+};
+
 export const createCommonSubtitleFieldRegistry = <
   TArticle extends Article,
 >(): ArticleFieldConfig<TArticle>[] => {
-  return [...createCommonArticleMetaFieldRegistry<TArticle>()];
+  return [
+    {
+      key: "subtitle-subheading",
+      kind: "text",
+      fieldIdentifier: "subheading",
+      label: "Subheading",
+    },
+    {
+      key: "subtitle-pronunciation",
+      kind: "text",
+      fieldIdentifier: "pronunciation",
+      label: "Pronunciation",
+    },
+    {
+      key: "subtitle-credits",
+      kind: "text",
+      fieldIdentifier: "credits",
+      label: "Credits",
+      helpText: "Common article metadata field.",
+    },
+  ];
 };
