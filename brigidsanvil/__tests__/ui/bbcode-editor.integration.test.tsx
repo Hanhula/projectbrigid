@@ -185,7 +185,7 @@ test|author[/quote]`);
           fieldIdentifier="content"
           existingContent=""
           onFocus={() => {}}
-          lastFocusedEditor={null}
+          lastFocusedEditor={"content"}
         />
       </Provider>,
     );
@@ -207,7 +207,7 @@ test|author[/quote]`);
           fieldIdentifier="content"
           existingContent=""
           onFocus={() => {}}
-          lastFocusedEditor={null}
+          lastFocusedEditor={"content"}
         />
       </Provider>,
     );
@@ -216,6 +216,7 @@ test|author[/quote]`);
       expect(document.querySelector(".cm-content")).toBeInTheDocument();
     });
 
+    fireEvent.focus(document.querySelector(".cm-content") as HTMLElement);
     const imageButton = screen.getByRole("button", { name: "Image" });
     expect(imageButton).toHaveAttribute(
       "title",
@@ -252,6 +253,7 @@ test|author[/quote]`);
       expect(content).toContain("[quote]server[/quote]");
     });
 
+    fireEvent.focus(document.querySelector(".cm-content") as HTMLElement);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
 
     await waitFor(() => {
@@ -298,6 +300,7 @@ test|author[/quote]`);
       expect(document.querySelector(".cm-content")).toBeInTheDocument();
     });
 
+    fireEvent.focus(document.querySelector(".cm-content") as HTMLElement);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
 
     rerender(
@@ -307,7 +310,7 @@ test|author[/quote]`);
           fieldIdentifier="content"
           existingContent=""
           onFocus={() => {}}
-          lastFocusedEditor={""}
+          lastFocusedEditor={"content"}
         />
       </Provider>,
     );
@@ -342,6 +345,7 @@ test|author[/quote]`);
       expect(document.querySelector(".cm-content")).toBeInTheDocument();
     });
 
+    fireEvent.focus(document.querySelector(".cm-content") as HTMLElement);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
 
     unmount();

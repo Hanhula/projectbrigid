@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button, ButtonGroup, Container } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { minimalSetup } from "codemirror";
 import { Compartment, EditorState } from "@codemirror/state";
-import { EditorView } from "@codemirror/view";
+import { EditorView, lineNumbers } from "@codemirror/view";
 import { selectWorld } from "@/components/store/apiSlice";
 import {
   makeSelectEditedContentValueByID,
@@ -24,7 +24,13 @@ import {
   normalizeEditorLinebreaks,
   normalizeQuoteAuthorDelimiter,
 } from "./utils/bbcode-tags";
-import { bbcodeTheme } from "./utils/bbcode-editor-styles";
+import {
+  bbcodeTheme,
+  collapsedBbcodeTheme,
+  compactBbcodeTheme,
+  contentBbcodeTheme,
+  focusedBbcodeTheme,
+} from "./utils/bbcode-editor-styles";
 
 export type BBCodeEditorProps = {
   fieldIdentifier: string;
@@ -33,6 +39,8 @@ export type BBCodeEditorProps = {
   onFocus: (fieldIdentifier: string) => void;
   lastFocusedEditor: string | null;
   resetSignal?: number;
+  showToolbar?: boolean;
+  compact?: boolean;
 };
 
 const BBCodeEditor = ({
@@ -42,6 +50,8 @@ const BBCodeEditor = ({
   onFocus,
   lastFocusedEditor,
   resetSignal = 0,
+  showToolbar = true,
+  compact = false,
 }: BBCodeEditorProps) => {
   const dispatch = useDispatch();
   const world = useSelector(selectWorld);
@@ -65,6 +75,10 @@ const BBCodeEditor = ({
   );
   const previousResetSignalRef = useRef(resetSignal);
   const mentionCompartmentRef = useRef(new Compartment());
+  const heightCompartmentRef = useRef(new Compartment());
+  const [hasContent, setHasContent] = useState(
+    (editedContent ?? existingContent ?? "").length > 0,
+  );
 
   useEffect(() => {
     editedContentRef.current = editedContent;
@@ -239,6 +253,40 @@ const BBCodeEditor = ({
     [insertListBlock, insertOpaqueBlock, insertTag, insertWrappedTag],
   );
 
+  type EditorHeightMode = "collapsed" | "content" | "focused";
+
+  const reconfigureHeight = useCallback((mode: EditorHeightMode) => {
+    const view = viewRef.current;
+    if (!view) {
+      return;
+    }
+
+    const theme =
+      mode === "focused"
+        ? focusedBbcodeTheme
+        : mode === "content"
+        ? contentBbcodeTheme
+        : collapsedBbcodeTheme;
+
+    view.dispatch({
+      effects: heightCompartmentRef.current.reconfigure(theme),
+    });
+
+    const scroller = view.dom.querySelector<HTMLElement>(".cm-scroller");
+    if (scroller) {
+      scroller.style.minHeight = mode === "focused" ? "17rem" : "2.5rem";
+      scroller.style.maxHeight = mode === "collapsed" ? "2.5rem" : "17rem";
+      scroller.style.overflow = mode === "collapsed" ? "hidden" : "auto";
+    }
+  }, []);
+
+  const initialHeightMode: EditorHeightMode =
+    lastFocusedEditor === fieldIdentifier
+      ? "focused"
+      : hasContent
+      ? "content"
+      : "collapsed";
+
   useEffect(() => {
     if (!editorHostRef.current || viewRef.current) {
       return;
@@ -249,8 +297,17 @@ const BBCodeEditor = ({
         doc: currentValueRef.current,
         extensions: [
           minimalSetup,
+          lineNumbers(),
           EditorView.lineWrapping,
           bbcodeTheme,
+          ...(compact ? [compactBbcodeTheme] : []),
+          heightCompartmentRef.current.of(
+            initialHeightMode === "focused"
+              ? focusedBbcodeTheme
+              : initialHeightMode === "content"
+              ? contentBbcodeTheme
+              : collapsedBbcodeTheme,
+          ),
           bbcodeHighlighter,
           mentionCompartmentRef.current.of(
             mentions(buildMentionCompletions(articlesRef.current)),
@@ -264,15 +321,21 @@ const BBCodeEditor = ({
             if (update.docChanged) {
               const nextValue = update.state.doc.toString();
               currentValueRef.current = nextValue;
+              setHasContent(nextValue.length > 0);
+              reconfigureHeight("focused");
               commitRawValue(nextValue);
             }
           }),
           EditorView.domEventHandlers({
             focus: () => {
+              reconfigureHeight("focused");
               onFocus(fieldIdentifier);
               return false;
             },
             blur: () => {
+              reconfigureHeight(
+                currentValueRef.current.length > 0 ? "content" : "collapsed",
+              );
               commitRawValue(currentValueRef.current);
               onFocus("");
               return false;
@@ -296,7 +359,23 @@ const BBCodeEditor = ({
     insertOpaqueBlock,
     insertTag,
     onFocus,
+    reconfigureHeight,
   ]);
+
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) {
+      return;
+    }
+
+    reconfigureHeight(
+      lastFocusedEditor === fieldIdentifier
+        ? "focused"
+        : hasContent
+        ? "content"
+        : "collapsed",
+    );
+  }, [hasContent, lastFocusedEditor, fieldIdentifier, reconfigureHeight]);
 
   useEffect(() => {
     const view = viewRef.current;
@@ -357,39 +436,50 @@ const BBCodeEditor = ({
     });
 
     currentValueRef.current = resetValue;
+    setHasContent(resetValue.length > 0);
+    reconfigureHeight(resetValue.length > 0 ? "content" : "collapsed");
   }, [existingContent, resetSignal]);
 
   const isFocusedEditor = lastFocusedEditor === fieldIdentifier;
 
   return (
-    <div>
-      <Container className="px-0 mb-2">
-        <ButtonGroup
-          className="flex-wrap"
-          role="toolbar"
-          aria-label="BBCode helpers"
-        >
-          {toolbarButtons.map((button) => (
-            <Button
-              key={button.label}
-              type="button"
-              size="sm"
-              variant="outline-secondary"
-              aria-label={button.label}
-              title={buildToolbarTooltip(button)}
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => runToolbarAction(button.action)}
-            >
-              <button.icon size={16} aria-hidden="true" focusable={false} />
-              <span className="visually-hidden">{button.label}</span>
-            </Button>
-          ))}
-        </ButtonGroup>
-      </Container>
+    <div
+      className={
+        compact ? "bbcode-editor bbcode-editor-compact" : "bbcode-editor"
+      }
+    >
+      {showToolbar && isFocusedEditor && (
+        <Container className="px-0 mb-2">
+          <ButtonGroup
+            className="flex-wrap"
+            role="toolbar"
+            aria-label="BBCode helpers"
+          >
+            {toolbarButtons.map((button) => (
+              <Button
+                key={button.label}
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                aria-label={button.label}
+                title={buildToolbarTooltip(button)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => runToolbarAction(button.action)}
+              >
+                <button.icon size={16} aria-hidden="true" focusable={false} />
+                <span className="visually-hidden">{button.label}</span>
+              </Button>
+            ))}
+          </ButtonGroup>
+        </Container>
+      )}
 
       <div
+        className="bbcode-editor-surface"
         style={{
-          border: isFocusedEditor ? "1px solid #60a5fa" : "1px solid #d0d7de",
+          border: isFocusedEditor
+            ? "1px solid #60a5fa"
+            : "1px solid var(--cm-border)",
           borderRadius: "0.375rem",
           overflow: "visible",
           position: "relative",

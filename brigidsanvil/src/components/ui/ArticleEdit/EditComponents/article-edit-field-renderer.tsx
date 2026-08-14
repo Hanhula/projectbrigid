@@ -21,6 +21,7 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       kind: "text";
       fieldIdentifier: string;
       label: string;
+      mentions?: boolean;
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -137,9 +138,34 @@ export const renderArticleField = <TArticle extends Article>(
     );
   }
 
+  if (field.kind === "text" && field.mentions) {
+    return (
+      <Form key={field.key}>
+        <Form.Label htmlFor={`${article.id}-${field.key}`}>
+          {field.label}
+        </Form.Label>
+        <BBCodeEditor
+          fieldIdentifier={field.fieldIdentifier}
+          id={article.id}
+          existingContent={article[field.fieldIdentifier] ?? ""}
+          onFocus={setLastFocusedEditor}
+          lastFocusedEditor={lastFocusedEditor}
+          resetSignal={resetSignal}
+          showToolbar={false}
+          compact
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
+    );
+  }
+
   return (
     <Form key={field.key}>
-      <Form.Label>{field.label}</Form.Label>
+      <Form.Label htmlFor={`${article.id}-${field.key}`}>
+        {field.label}
+      </Form.Label>
       <DebouncedInput
         world={world}
         article={article}

@@ -2,22 +2,28 @@ import { EditorView } from "@codemirror/view";
 
 export const bbcodeTheme = EditorView.theme({
   "&": {
-    border: "1px solid #d0d7de",
+    border: "1px solid var(--cm-border)",
     borderRadius: "0.375rem",
-    background: "#0f172a",
-    color: "#e5e7eb",
+    background: "var(--background-terror)",
+    color: "var(--cm-fontcolor)",
     overflow: "visible",
+  },
+  ".cm-gutters": {
+    background: "var(--darkest-terror)",
+    borderColor: "var(--cm-border)",
   },
   ".cm-scroller": {
     fontFamily:
-      "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
-    fontSize: "0.95rem",
-    lineHeight: "1.5",
-    minHeight: "18rem",
+      "Open Sans, Helvetica Neue, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji",
+    fontSize: "0.85em",
+    lineHeight: "1.25rem",
+    overflow: "auto",
+    minHeight: "2rem",
+    maxHeight: "17rem",
   },
   ".cm-content": {
     padding: "0.75rem",
-    caretColor: "#f8fafc",
+    caretColor: "var(--cm-cursor)",
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
   },
@@ -25,35 +31,35 @@ export const bbcodeTheme = EditorView.theme({
     outline: "none",
   },
   ".cm-cursor, .cm-dropCursor": {
-    borderLeftColor: "#f8fafc",
+    borderLeftColor: "var(--cm-cursor)",
   },
   ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, .cm-content ::selection":
     {
-      backgroundColor: "rgba(59, 130, 246, 0.35) !important",
+      backgroundColor: "var(--dark-terror) !important",
     },
   ".bbcode-tag": {
-    color: "#d73a49",
+    color: "var(--bbcode-tag)",
     fontWeight: "600",
   },
   ".bbcode-opaque-tag": {
-    color: "#f59e0b",
+    color: "var(--bbcode-opaque-tag)",
     fontWeight: "700",
   },
   ".bbcode-mention": {
-    color: "#6f42c1",
+    color: "var(--bbcode-mention-tag)",
     fontWeight: "600",
   },
   ".bbcode-author": {
-    color: "#0b7285",
+    color: "var(--bbcode-author-tag)",
     fontWeight: "600",
   },
   ".cm-tooltip": {
     zIndex: "2000",
   },
   ".cm-tooltip-autocomplete": {
-    border: "1px solid #1f2937",
-    background: "#111827",
-    color: "#f9fafb",
+    border: "1px solid var(--darkest-terror)",
+    background: "var(--darkest-terror)",
+    color: "var(--lightgrey)",
     boxShadow: "0 12px 24px rgba(0, 0, 0, 0.35)",
   },
   ".cm-tooltip-autocomplete ul": {
@@ -63,7 +69,44 @@ export const bbcodeTheme = EditorView.theme({
     padding: "0.25rem 0.5rem",
   },
   ".cm-tooltip-autocomplete ul li[aria-selected]": {
-    background: "#2563eb",
-    color: "#ffffff",
+    background: "var(--primary-dark) !important",
+    color: "var(--lightest-terror) !important",
+  },
+});
+
+export const compactBbcodeTheme = EditorView.theme({
+  ".cm-scroller": {
+    minHeight: "2.5rem",
+  },
+  ".cm-content": {
+    padding: "0.4rem 0.6rem",
+  },
+});
+
+export const collapsedBbcodeTheme = EditorView.theme({
+  ".cm-scroller": {
+    minHeight: "2.5em",
+    maxHeight: "2.5em",
+    overflow: "hidden",
+  },
+  ".cm-content": {
+    minHeight: "1.7rem",
+    padding: "0.4rem 0.6rem",
+  },
+});
+
+export const contentBbcodeTheme = EditorView.theme({
+  ".cm-scroller": {
+    minHeight: "2.5em",
+    maxHeight: "17rem",
+    overflow: "auto",
+  },
+});
+
+export const focusedBbcodeTheme = EditorView.theme({
+  ".cm-scroller": {
+    minHeight: "17rem",
+    maxHeight: "17rem",
+    overflow: "auto",
   },
 });

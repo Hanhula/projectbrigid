@@ -14,12 +14,14 @@ export interface DebouncedInputProps {
   world: World;
   article: Article | Person;
   fieldIdentifier: string;
+  id?: string;
 }
 
 const DebouncedInput: React.FC<DebouncedInputProps> = ({
   world,
   article,
   fieldIdentifier,
+  id,
 }) => {
   const dispatch = useDispatch();
   const selectEditedContentValueByID = useMemo(
@@ -76,6 +78,7 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
 
   return (
     <Form.Control
+      id={id}
       type="text"
       value={inputValue}
       onChange={handleInputChange}

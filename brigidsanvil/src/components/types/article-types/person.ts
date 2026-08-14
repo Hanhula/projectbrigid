@@ -6,6 +6,7 @@ import { Location } from "./location";
 import { Myth } from "./myth";
 import { Organisation } from "./organisation";
 import { Profession } from "./profession";
+import { Prose } from "./prose";
 import { Species } from "./species";
 import { Vehicle } from "./vehicle";
 
@@ -138,6 +139,8 @@ export type Person = Article & {
   professions: Profession[] | null;
   myths: Myth[] | null;
   vehicles: Vehicle[] | null;
+  relatedorganizations: Organisation[] | null;
+  proses: Prose[] | null;
 };
 
 export class PersonDisplay extends ArticleDisplay {
@@ -334,11 +337,11 @@ export class PersonDisplay extends ArticleDisplay {
         : null,
       birthParents: this.formatParents(
         person.parentBiological1,
-        person.parentBiological2
+        person.parentBiological2,
       ),
       adoptiveParents: this.formatParents(
         person.parentAdopting1,
-        person.parentAdopting2
+        person.parentAdopting2,
       ),
       surrogateParent: person.parentSurrogate
         ? this.formatMention(person.parentSurrogate)
@@ -372,7 +375,7 @@ export class PersonDisplay extends ArticleDisplay {
 
   formatParents(
     parent1: { title: string; entityClass: string; id: string } | null,
-    parent2: { title: string; entityClass: string; id: string } | null
+    parent2: { title: string; entityClass: string; id: string } | null,
   ): string | null {
     if (parent1 && parent2) {
       return `${this.formatMention(parent1)}, ${this.formatMention(parent2)}`;
@@ -422,47 +425,47 @@ export class PersonDisplay extends ArticleDisplay {
 
 let test = [
   {
-    "type": "paragraph",
-    "children": [
+    type: "paragraph",
+    children: [
       {
-        "type": "blockquote",
-        "children": [
+        type: "blockquote",
+        children: [
           {
-            "text": "opening quote|by this person"
-          }
-        ]
+            text: "opening quote|by this person",
+          },
+        ],
       },
-    ]
+    ],
   },
   {
-    "type": "paragraph",
-    "children": [
+    type: "paragraph",
+    children: [
       {
-        "text": "test test :( woooo.... !! aaaaaaaaa!!! "
+        text: "test test :( woooo.... !! aaaaaaaaa!!! ",
       },
       {
-        "text": "YEAH ",
-        "bold": true
+        text: "YEAH ",
+        bold: true,
       },
       {
-        "text": "baby! "
+        text: "baby! ",
       },
-    ]
-  },     
-      {
-        "type": "h1",
-        "children": [
-          {
-            "text": "we are really in it now babes"
-          }
-        ]
-      },
+    ],
+  },
   {
-    "type": "paragraph",
-    "children": [
+    type: "h1",
+    children: [
       {
-        "text": "hell yea hell yea hell yealove it for us like that <3"
-      }
-    ]
-  }
-]
+        text: "we are really in it now babes",
+      },
+    ],
+  },
+  {
+    type: "paragraph",
+    children: [
+      {
+        text: "hell yea hell yea hell yealove it for us like that <3",
+      },
+    ],
+  },
+];

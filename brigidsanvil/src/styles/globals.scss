@@ -74,6 +74,16 @@ a {
   --secondary-light: #0992b1;
   --secondary-lighter: #13c0e7;
   --secondary-lightest: #3dd9fc;
+
+  --bbcode-tag: #38bdcd;
+  --bbcode-mention-tag: #ba89d1;
+  --bbcode-opaque-tag: #75b88b;
+  --bbcode-author-tag: #5b87b1;
+
+  --cm-border: var(--dark-terror);
+  --cm-background: var(--background-terror);
+  --cm-cursor: var(--lightgrey);
+  --cm-fontcolor: #e5e7eb;
 }
 
 @media (prefers-color-scheme: dark) {
