@@ -9,7 +9,8 @@ import { useRouter } from "next/router";
 import ArticleEdit from "@/components/ui/ArticleEdit/ArticleComponents/article-edit";
 import CharacterEdit from "@/components/ui/ArticleEdit/ArticleComponents/character-edit";
 import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material-edit";
-import ConditiionEdit from "@/components/ui/ArticleEdit/ArticleComponents/condition-edit";
+import ConditionEdit from "@/components/ui/ArticleEdit/ArticleComponents/condition-edit";
+import DocumentEdit from "@/components/ui/ArticleEdit/ArticleComponents/document-edit";
 import VehicleEdit from "@/components/ui/ArticleEdit/ArticleComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useState } from "react";
@@ -24,7 +25,8 @@ type ArticleEditPageComponent = (props: {
 
 const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
   Article: ArticleEdit as ArticleEditPageComponent,
-  Condition: ConditiionEdit as ArticleEditPageComponent,
+  Condition: ConditionEdit as ArticleEditPageComponent,
+  Document: DocumentEdit as ArticleEditPageComponent,
   Person: CharacterEdit as ArticleEditPageComponent,
   Material: MaterialEdit as ArticleEditPageComponent,
   Vehicle: VehicleEdit as ArticleEditPageComponent,
