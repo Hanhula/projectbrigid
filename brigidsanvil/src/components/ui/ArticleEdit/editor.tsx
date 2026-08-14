@@ -458,6 +458,8 @@ export const WorldAnvilEditor = ({
     return e;
   });
 
+  const previousEditorModeRef = useRef(editorMode);
+
   const ref = useRef<HTMLDivElement | null>(null);
   const hasInitializedRef = useRef(false);
   const [target, setTarget] = useState<Range | undefined | null>();
@@ -470,6 +472,37 @@ export const WorldAnvilEditor = ({
     setIndex(0);
     hasInitializedRef.current = false;
   }, [editorMode]);
+
+  useEffect(() => {
+    if (editorMode === "raw") {
+      Transforms.deselect(editor);
+      setTarget(null);
+      setSearch("");
+      setIndex(0);
+    }
+  }, [editor, editorMode]);
+
+  useEffect(() => {
+    const previousEditorMode = previousEditorModeRef.current;
+    previousEditorModeRef.current = editorMode;
+
+    if (previousEditorMode === editorMode || editorMode !== "rich") {
+      return;
+    }
+
+    try {
+      const nextValue = canonicalContent
+        ? editUtils.deserialize(canonicalContent)
+        : defaultValue;
+
+      editor.children = nextValue.length > 0 ? nextValue : defaultValue;
+      editor.onChange();
+    } catch (error) {
+      console.error("Error syncing rich editor content:", error);
+      editor.children = defaultValue;
+      editor.onChange();
+    }
+  }, [canonicalContent, defaultValue, editUtils, editor, editorMode]);
 
   const chars = useMemo(
     () =>
@@ -636,6 +669,8 @@ export const WorldAnvilEditor = ({
 
   useEffect(() => {
     return () => {
+      delayedDispatch.flush();
+      delayedRawDispatch.flush();
       delayedDispatch.cancel();
       delayedRawDispatch.cancel();
     };
@@ -651,9 +686,12 @@ export const WorldAnvilEditor = ({
     return highlightBBCode(rawValue);
   }, [isFocusedEditor, isRawMode, rawValue]);
 
-  if (isRawMode) {
-    return (
-      <div>
+  return (
+    <div>
+      <div
+        style={{ display: isRawMode ? "block" : "none" }}
+        aria-hidden={!isRawMode}
+      >
         <textarea
           value={rawValue}
           onFocus={() => onFocus(fieldIdentifier)}
@@ -677,7 +715,7 @@ export const WorldAnvilEditor = ({
               border: "1px solid #d0d7de",
               borderRadius: "0.375rem",
               padding: "0.625rem",
-              background: "#f6f8fa",
+              background: "var(--darkest-terror)",
               fontFamily:
                 "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
               fontSize: "0.875rem",
@@ -688,123 +726,129 @@ export const WorldAnvilEditor = ({
           />
         )}
       </div>
-    );
-  }
 
-  return (
-    <Slate
-      key={`rich-${id}-${fieldIdentifier}`}
-      editor={editor}
-      initialValue={initialValue}
-      onChange={(value) => {
-        if (!hasInitializedRef.current) {
-          hasInitializedRef.current = true;
-          return;
-        }
+      <div
+        style={{ display: isRawMode ? "none" : "block" }}
+        aria-hidden={isRawMode}
+      >
+        <Slate
+          editor={editor}
+          initialValue={initialValue}
+          onChange={(value) => {
+            if (!hasInitializedRef.current) {
+              hasInitializedRef.current = true;
+              return;
+            }
 
-        // Ensure there's always at least one paragraph
-        if (!value || value.length === 0) {
-          editor.children = defaultValue;
-          return;
-        }
+            // Ensure there's always at least one paragraph
+            if (!value || value.length === 0) {
+              editor.children = defaultValue;
+              return;
+            }
 
-        const { selection } = editor;
-        if (selection && Range.isCollapsed(selection)) {
-          const [start] = Range.edges(selection);
-          const wordBefore = Editor.before(editor, start, { unit: "word" });
-          const before = wordBefore && Editor.before(editor, wordBefore);
-          const beforeRange = before && Editor.range(editor, before, start);
-          const beforeText = beforeRange && Editor.string(editor, beforeRange);
-          const beforeMatch = beforeText && beforeText.match(/^@(\w+)$/);
-          const after = Editor.after(editor, start);
-          const afterRange = Editor.range(editor, start, after);
-          const afterText = Editor.string(editor, afterRange);
-          const afterMatch = afterText.match(/^(\s|$)/);
+            const { selection } = editor;
+            if (selection && Range.isCollapsed(selection)) {
+              const [start] = Range.edges(selection);
+              const wordBefore = Editor.before(editor, start, { unit: "word" });
+              const before = wordBefore && Editor.before(editor, wordBefore);
+              const beforeRange = before && Editor.range(editor, before, start);
+              const beforeText =
+                beforeRange && Editor.string(editor, beforeRange);
+              const beforeMatch = beforeText && beforeText.match(/^@(\w+)$/);
+              const after = Editor.after(editor, start);
+              const afterRange = Editor.range(editor, start, after);
+              const afterText = Editor.string(editor, afterRange);
+              const afterMatch = afterText.match(/^(\s|$)/);
 
-          if (beforeMatch && afterMatch) {
-            setTarget(beforeRange);
-            setSearch(beforeMatch[1]);
-            setIndex(0);
-            return;
-          }
-        }
+              if (beforeMatch && afterMatch) {
+                setTarget(beforeRange);
+                setSearch(beforeMatch[1]);
+                setIndex(0);
+                return;
+              }
+            }
 
-        setTarget(null);
+            setTarget(null);
 
-        const isAstChange = editor.operations.some(
-          (op) => op.type !== "set_selection",
-        );
-        if (isAstChange && ReactEditor.isFocused(editor)) {
-          delayedDispatch(value);
-        }
-      }}
-    >
-      {isFocusedEditor && (
-        <Container>
-          <ButtonToolbar>
-            <ButtonGroup className="me-2 flex-wrap" role="toolbar">
-              <MarkButton format="bold" icon="format_bold" />
-              <MarkButton format="italics" icon="format_italic" />
-              <MarkButton format="underline" icon="format_underlined" />
-              <MarkButton format="code" icon="code" />
-              <BlockButton format="h1" icon="format_h1" />
-              <BlockButton format="h2" icon="format_h2" />
-              <BlockButton format="h3" icon="format_h3" />
-              <BlockButton format="h4" icon="format_h4" />
-              <BlockButton format="blockquote" icon="format_quote" />
-              <BlockButton format="ol" icon="format_list_numbered" />
-              <BlockButton format="ul" icon="format_list_bulleted" />
-              <BlockButton format="left" icon="format_align_left" />
-              <BlockButton format="center" icon="format_align_center" />
-              <BlockButton format="right" icon="format_align_right" />
-              <BlockButton format="justify" icon="format_align_justify" />
-            </ButtonGroup>
-          </ButtonToolbar>
-        </Container>
-      )}
-      <Editable
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        onKeyDown={onKeyDown}
-        onFocus={() => onFocus(fieldIdentifier)}
-        className="slate-editor"
-      />
-      {target && chars.length > 0 && (
-        <Portal>
-          <div
-            ref={ref}
-            style={{
-              top: "-9999px",
-              left: "-9999px",
-              position: "absolute",
-              zIndex: 1,
-              padding: "3px",
-              background: "var(--darkest-terror)",
-              borderRadius: "4px",
-              boxShadow: "0 1px 5px rgba(0,0,0,.2)",
+            const isAstChange = editor.operations.some(
+              (op) => op.type !== "set_selection",
+            );
+            if (isAstChange && ReactEditor.isFocused(editor)) {
+              delayedDispatch(value);
+            }
+          }}
+        >
+          {isFocusedEditor && (
+            <Container>
+              <ButtonToolbar>
+                <ButtonGroup className="me-2 flex-wrap" role="toolbar">
+                  <MarkButton format="bold" icon="format_bold" />
+                  <MarkButton format="italics" icon="format_italic" />
+                  <MarkButton format="underline" icon="format_underlined" />
+                  <MarkButton format="code" icon="code" />
+                  <BlockButton format="h1" icon="format_h1" />
+                  <BlockButton format="h2" icon="format_h2" />
+                  <BlockButton format="h3" icon="format_h3" />
+                  <BlockButton format="h4" icon="format_h4" />
+                  <BlockButton format="blockquote" icon="format_quote" />
+                  <BlockButton format="ol" icon="format_list_numbered" />
+                  <BlockButton format="ul" icon="format_list_bulleted" />
+                  <BlockButton format="left" icon="format_align_left" />
+                  <BlockButton format="center" icon="format_align_center" />
+                  <BlockButton format="right" icon="format_align_right" />
+                  <BlockButton format="justify" icon="format_align_justify" />
+                </ButtonGroup>
+              </ButtonToolbar>
+            </Container>
+          )}
+          <Editable
+            renderElement={renderElement}
+            renderLeaf={renderLeaf}
+            onKeyDown={onKeyDown}
+            onFocus={() => onFocus(fieldIdentifier)}
+            onBlur={() => {
+              onFocus("");
             }}
-            data-cy="mentions-portal"
-          >
-            {chars.map((char, i) => (
+            className="slate-editor"
+          />
+          {target && chars.length > 0 && (
+            <Portal>
               <div
-                key={char.id}
-                onClick={() => {
-                  Transforms.select(editor, target);
-                  insertMention(editor, char);
-                  setTarget(null);
-                }}
+                ref={ref}
                 style={{
-                  padding: "1px 3px",
-                  borderRadius: "3px",
-                  background: i === index ? "#B4D5FF" : "transparent",
+                  top: "-9999px",
+                  left: "-9999px",
+                  position: "absolute",
+                  zIndex: 1,
+                  padding: "3px",
+                  background: "var(--darkest-terror)",
+                  borderRadius: "4px",
+                  boxShadow: "0 1px 5px rgba(0,0,0,.2)",
                 }}
+                data-cy="mentions-portal"
               >
-                {char.title}
+                {chars.map((char, i) => (
+                  <div
+                    key={char.id}
+                    onClick={() => {
+                      Transforms.select(editor, target);
+                      insertMention(editor, char);
+                      setTarget(null);
+                    }}
+                    style={{
+                      padding: "1px 3px",
+                      borderRadius: "3px",
+                      background: i === index ? "#B4D5FF" : "transparent",
+                    }}
+                  >
+                    {char.title}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </Portal>
-      )}
-    </Slate>
+            </Portal>
+          )}
+        </Slate>
+      </div>
+    </div>
   );
 };

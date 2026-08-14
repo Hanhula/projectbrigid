@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 import {
-  makeSelectEditedContentByID,
+  makeSelectEditedContentValueByID,
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
 import { World } from "@/components/types/world";
@@ -22,43 +22,49 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
   fieldIdentifier,
 }) => {
   const dispatch = useDispatch();
-  const selectEditedContentByID = makeSelectEditedContentByID(
-    world.id,
-    article.id,
-    fieldIdentifier
+  const selectEditedContentValueByID = useMemo(
+    () =>
+      makeSelectEditedContentValueByID(world.id, article.id, fieldIdentifier),
+    [world.id, article.id, fieldIdentifier],
   );
-  const editedContent = useSelector(selectEditedContentByID);
+  const editedContentValue = useSelector(selectEditedContentValueByID);
+  const editedContent =
+    typeof editedContentValue === "string" ? editedContentValue : undefined;
 
-  const [inputValue, setInputValue] = useState(
-    editedContent || article[fieldIdentifier] || ""
+  const [inputValue, setInputValue] = useState<string>(
+    String(editedContent ?? article[fieldIdentifier] ?? ""),
   );
 
   // Create memoized debounced dispatch function
-  const delayedDispatch = useCallback(
-    debounce((value: string) => {
-      dispatch(
-        setEditedContentByID({
-          world: world,
-          articleID: article.id,
-          fieldIdentifier,
-          editedFields: value,
-        })
-      );
-    }, 500), // Reduced from 2000ms to 500ms for better responsiveness
-    [world.id, article.id, fieldIdentifier]
+  const delayedDispatch = useMemo(
+    () =>
+      debounce((value: string) => {
+        dispatch(
+          setEditedContentByID({
+            world: { id: world.id },
+            articleID: article.id,
+            fieldIdentifier,
+            editedFields: value,
+          }),
+        );
+      }, 500),
+    [dispatch, world.id, article.id, fieldIdentifier],
   );
 
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
+      delayedDispatch.flush();
       delayedDispatch.cancel();
     };
   }, [delayedDispatch]);
 
   // Update local state when editedContent changes
   useEffect(() => {
-    if (editedContent !== undefined && editedContent !== inputValue) {
-      setInputValue(editedContent);
+    if (editedContent !== undefined) {
+      setInputValue((previousValue) =>
+        previousValue === editedContent ? previousValue : editedContent,
+      );
     }
   }, [editedContent]);
 
@@ -69,7 +75,12 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
   };
 
   return (
-    <Form.Control type="text" value={inputValue} onChange={handleInputChange} />
+    <Form.Control
+      type="text"
+      value={inputValue}
+      onChange={handleInputChange}
+      onBlur={() => delayedDispatch.flush()}
+    />
   );
 };
 

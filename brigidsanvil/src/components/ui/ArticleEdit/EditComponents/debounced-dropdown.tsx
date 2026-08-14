@@ -1,8 +1,9 @@
 import Select from "react-select";
 import { useSelector, useDispatch } from "react-redux";
 import { debounce } from "lodash";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
+  makeSelectEditedContentValueByID,
   selectWorldArticlesByWorld,
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
@@ -26,66 +27,83 @@ const DebouncedDropdown = ({
   const dispatch = useDispatch();
   const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
   const currentArticles = worldArticles!.articles;
+  const selectEditedContentValueByID = useMemo(
+    () =>
+      makeSelectEditedContentValueByID(world.id, article.id, fieldIdentifier),
+    [world.id, article.id, fieldIdentifier],
+  );
+  const editedContent = useSelector(selectEditedContentValueByID);
 
   if (!article || article === undefined || article === null) {
-    console.log("No article chosen!");
     return null; // Return null instead of undefined
   }
 
-  const options = currentArticles
-    .filter((a) => entityClass.includes(a.entityClass))
-    .map((a) => ({ value: a.id, label: a.title }));
+  const options = useMemo(
+    () =>
+      currentArticles
+        .filter((a) => entityClass.includes(a.entityClass))
+        .map((a) => ({ value: a.id, label: a.title })),
+    [currentArticles, entityClass],
+  );
 
-  // Calculate initial value from article data
-  const getInitialValueFromArticle = () => {
-    const fieldValue = article[fieldIdentifier];
+  const optionsById = useMemo(
+    () =>
+      options.reduce<Record<string, { value: string; label: string }>>(
+        (acc, option) => {
+          acc[option.value] = option;
+          return acc;
+        },
+        {},
+      ),
+    [options],
+  );
 
-    console.log(`[${fieldIdentifier}] Field value:`, fieldValue);
+  // Calculate current value from edited content first, then fallback to article data.
+  const getInitialValue = () => {
+    const fieldValue = editedContent ?? article[fieldIdentifier];
 
     if (!fieldValue || fieldValue === null || fieldValue === undefined) {
       return isMulti ? [] : null;
     } else if (Array.isArray(fieldValue)) {
-      return fieldValue
-        .map((item) => options.find((option) => option.value === item.id))
-        .filter(Boolean);
+      return fieldValue.map((item) => optionsById[item.id]).filter(Boolean);
     } else {
       const targetId =
         typeof fieldValue === "object" && fieldValue.id
           ? fieldValue.id
           : fieldValue;
 
-      return options.find((option) => option.value === targetId) || null;
+      return optionsById[targetId] || null;
     }
   };
 
   // Use local state to control the dropdown value
-  const [currentValue, setCurrentValue] = useState(() =>
-    getInitialValueFromArticle()
-  );
+  const [currentValue, setCurrentValue] = useState(() => getInitialValue());
 
-  // Update local state when article data changes (from Redux)
+  // Update local state when edited content, article data, or options change.
   useEffect(() => {
-    const articleValue = getInitialValueFromArticle();
+    const articleValue = getInitialValue();
     setCurrentValue(articleValue);
-  }, [article[fieldIdentifier], options.length]); // Re-run when field value or options change
+  }, [editedContent, article[fieldIdentifier], optionsById, isMulti]);
 
-  const delayedDispatch = useCallback(
-    debounce((value: any) => {
-      dispatch(
-        setEditedContentByID({
-          world: world,
-          articleID: article.id,
-          fieldIdentifier,
-          editedFields: value,
-        })
-      );
-    }, 500), // Reduced from 2000ms to 500ms
-    [world.id, article.id, fieldIdentifier]
+  const delayedDispatch = useMemo(
+    () =>
+      debounce((value: any) => {
+        dispatch(
+          setEditedContentByID({
+            world: { id: world.id },
+            articleID: article.id,
+            fieldIdentifier,
+            editedFields: value,
+          }),
+        );
+      }, 500),
+    [dispatch, world.id, article.id, fieldIdentifier],
   );
 
   // Cleanup debounce on unmount
   useEffect(() => {
     return () => {
+      delayedDispatch.flush();
       delayedDispatch.cancel();
     };
   }, [delayedDispatch]);
@@ -96,8 +114,6 @@ const DebouncedDropdown = ({
   }
 
   const handleChange = (newValue: any) => {
-    console.log(`[${fieldIdentifier}] Selection changed to:`, newValue);
-
     // Immediately update local state for responsive UI
     setCurrentValue(newValue);
 
@@ -106,25 +122,15 @@ const DebouncedDropdown = ({
         const selectedValues = newValue.map((option: OptionType) => ({
           id: option.value.toString(),
         }));
-        console.log(
-          `[${fieldIdentifier}] Dispatching multi-select:`,
-          selectedValues
-        );
         delayedDispatch(selectedValues);
       } else {
-        console.log(`[${fieldIdentifier}] Dispatching empty multi-select`);
         delayedDispatch([]);
       }
     } else {
       if (newValue && newValue.value) {
         const selectedValue = { id: newValue.value.toString() };
-        console.log(
-          `[${fieldIdentifier}] Dispatching single-select:`,
-          selectedValue
-        );
         delayedDispatch(selectedValue);
       } else {
-        console.log(`[${fieldIdentifier}] Dispatching null selection`);
         delayedDispatch(null);
       }
     }
@@ -134,6 +140,7 @@ const DebouncedDropdown = ({
     <Select
       options={options}
       onChange={handleChange}
+      onBlur={() => delayedDispatch.flush()}
       value={currentValue}
       styles={selectStyles}
       isMulti={isMulti}

@@ -2,7 +2,6 @@ import { selectIdentity, selectWorld } from "@/components/store/apiSlice";
 import { selectAuthToken } from "@/components/store/authSlice";
 import Head from "next/head";
 import { useDispatch, useSelector } from "react-redux";
-import { WorldAnvilEditor } from "@/components/ui/ArticleEdit/editor";
 import {
   removeEditByID,
   selectCurrentArticles,
@@ -13,6 +12,7 @@ import { useRouter } from "next/router";
 import CharacterEdit from "@/components/ui/ArticleEdit/EditComponents/character-edit";
 import { Person } from "@/components/types/article-types/person";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
+import { useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
@@ -26,6 +26,7 @@ export async function getServerSideProps(context: any) {
 export default function EditPage() {
   const router = useRouter();
   const { slug } = router.query;
+  const [resetSignal, setResetSignal] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -38,7 +39,7 @@ export default function EditPage() {
 
   const handleResetContent = () => {
     dispatch(removeEditByID({ worldID: world.id, articleID: article!.id }));
-    router.reload();
+    setResetSignal((value) => value + 1);
   };
 
   const handleSaveContent = async () => {
@@ -62,7 +63,10 @@ export default function EditPage() {
                 <Button>View on WorldAnvil</Button>
               </Link>
             </div>
-            <CharacterEdit article={article as Person}></CharacterEdit>
+            <CharacterEdit
+              article={article as Person}
+              resetSignal={resetSignal}
+            ></CharacterEdit>
           </Col>
         </Row>
       </Container>

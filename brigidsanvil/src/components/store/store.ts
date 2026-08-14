@@ -37,7 +37,7 @@ const reducers = combineReducers({
 // this is a commit to reupdate the branch
 const persistConfig = {
   key: "root",
-  version: 2,
+  version: 3,
   storage: globalThis.indexedDB
     ? createIdbStorage({ name: "brigidsAnvil", storeName: "brigidStore" })
     : defaultStorage,

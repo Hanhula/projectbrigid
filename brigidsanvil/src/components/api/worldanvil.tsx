@@ -19,6 +19,8 @@ import {
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
 import {
+  ArticleEditState,
+  EditStateByWorld,
   removeEditByID,
   selectCurrentDetailStateByWorld,
   selectWorldArticleMapByWorld,
@@ -65,6 +67,15 @@ export function useWorldAnvilAPI() {
   const currentDetailState = useSelector(currentDetailStateSelector);
   const fetchRequestIdRef = useRef(0);
   const editedArticles = useSelector(editedArticlesSelector);
+  const allEditStateByWorld = useSelector(
+    (state: {
+      articleState?: { editStateByWorld?: Record<string, EditStateByWorld> };
+    }) => state.articleState?.editStateByWorld ?? {},
+  );
+  const allWorldEditStates = useMemo(
+    () => Object.values(allEditStateByWorld),
+    [allEditStateByWorld],
+  );
 
   let articleFetch: Article[] = [];
 
@@ -508,14 +519,46 @@ export function useWorldAnvilAPI() {
 
   async function updateEditedArticleByFields(articleID: string) {
     console.log(articleID);
-    const articleEditState = editedArticles.find(
+    const localArticleEditState = editedArticles.find(
       (article) => article.articleID === articleID,
     );
+
+    let sourceWorldID = world.id;
+    let articleEditState: ArticleEditState | undefined = localArticleEditState;
+
+    if (!articleEditState) {
+      for (const worldEdit of allWorldEditStates) {
+        const editedFields = worldEdit.editedFieldsByArticle?.[articleID];
+
+        if (!editedFields) {
+          continue;
+        }
+
+        const matchedArticleEditState: ArticleEditState = {
+          articleID,
+          fieldsChanged: Object.entries(editedFields).map(
+            ([fieldIdentifier, editedContent]) => ({
+              fieldIdentifier,
+              editedContent,
+            }),
+          ),
+        };
+
+        if (matchedArticleEditState) {
+          articleEditState = matchedArticleEditState;
+          sourceWorldID = worldEdit.world?.id ?? sourceWorldID;
+          break;
+        }
+      }
+    }
 
     console.log(articleEditState);
 
     if (!articleEditState) {
-      throw new Error(`No edit state found for article with ID ${articleID}`);
+      console.warn(
+        `No local edits found for article with ID ${articleID}; skipping save request.`,
+      );
+      return null;
     }
 
     const updateBody: Record<string, any> = {};
@@ -536,9 +579,8 @@ export function useWorldAnvilAPI() {
       );
       console.log("Article to update: ", data);
 
-      let worldID = world.id;
       await getArticle(articleID, true);
-      dispatch(removeEditByID({ worldID, articleID }));
+      dispatch(removeEditByID({ worldID: sourceWorldID, articleID }));
       return data;
     } catch (error) {
       console.error("Error updating article:", error);
