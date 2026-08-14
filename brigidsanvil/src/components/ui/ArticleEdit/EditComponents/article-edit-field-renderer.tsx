@@ -3,6 +3,9 @@ import { World } from "@/components/types/world";
 import { Form } from "react-bootstrap";
 import BBCodeEditor from "./bbcode-editor";
 import DebouncedDropdown from "./debounced-dropdown";
+import DebouncedFieldDropdown, {
+  FieldDropdownOption,
+} from "./debounced-field-dropdown";
 import DebouncedInput from "./debounced-input";
 
 export type ArticleFieldConfig<TArticle extends Article = Article> =
@@ -28,6 +31,15 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       label: string;
       entityClass: string[];
       isMulti?: boolean;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "field-dropdown";
+      fieldIdentifier: string;
+      label: string;
+      options: FieldDropdownOption[];
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -97,6 +109,26 @@ export const renderArticleField = <TArticle extends Article>(
           fieldIdentifier={field.fieldIdentifier}
           entityClass={field.entityClass}
           isMulti={field.isMulti}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
+    );
+  }
+
+  if (field.kind === "field-dropdown") {
+    return (
+      <Form key={field.key}>
+        <Form.Label htmlFor={`${article.id}-${field.key}`}>
+          {field.label}
+        </Form.Label>
+        <DebouncedFieldDropdown
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+          options={field.options}
+          id={`${article.id}-${field.key}`}
         />
         {field.helpText && (
           <Form.Text className="text-muted">{field.helpText}</Form.Text>
