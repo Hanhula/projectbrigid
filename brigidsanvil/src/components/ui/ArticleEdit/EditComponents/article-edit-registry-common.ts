@@ -92,12 +92,6 @@ export const createCommonFooterFieldRegistry = <
       fieldIdentifier: "scrapbook",
       label: "Scrapbook",
     },
-    {
-      key: "footer-credits",
-      kind: "bbcode",
-      fieldIdentifier: "credits",
-      label: "Credits",
-    },
   ];
 };
 
@@ -141,7 +135,6 @@ export const createCommonSubtitleFieldRegistry = <
       kind: "text",
       fieldIdentifier: "credits",
       label: "Credits",
-      helpText: "Common article metadata field.",
     },
   ];
 };

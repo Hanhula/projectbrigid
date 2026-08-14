@@ -141,6 +141,7 @@ export type Person = Article & {
   vehicles: Vehicle[] | null;
   relatedorganizations: Organisation[] | null;
   proses: Prose[] | null;
+  representationLegacy: string | null;
 };
 
 export class PersonDisplay extends ArticleDisplay {
