@@ -256,6 +256,24 @@ export const bodySubTabRegistry: DocumentBodySubTabConfig[] = [
         options: mediumDropdown,
       },
       {
+        key: "body-authoringDate",
+        kind: "text",
+        fieldIdentifier: "authoringDate",
+        label: "Authoring Date",
+      },
+      {
+        key: "body-ratificationDate",
+        kind: "text",
+        fieldIdentifier: "ratificationDate",
+        label: "Ratification Date",
+      },
+      {
+        key: "body-expirationDate",
+        kind: "text",
+        fieldIdentifier: "expirationDate",
+        label: "Expiration Date",
+      },
+      {
         key: "body-relatedlocation",
         kind: "dropdown",
         fieldIdentifier: "relatedlocation",
@@ -282,7 +300,7 @@ export const bodySubTabRegistry: DocumentBodySubTabConfig[] = [
         kind: "dropdown",
         fieldIdentifier: "signatorycharacters",
         label: "Signatory Characters",
-        entityClass: ["Character"],
+        entityClass: ["Person"],
         isMulti: true,
       },
       {
