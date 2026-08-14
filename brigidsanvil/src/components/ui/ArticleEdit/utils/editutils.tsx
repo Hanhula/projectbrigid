@@ -159,7 +159,7 @@ class EditUtils {
     const createFormattedText = (
       text: string,
     ): Array<CustomText | MentionElement> => {
-      const mentionRegex = /^@\[(.*?)\]\((.*?):(.*?)\)/s;
+      const mentionRegex = /^@\[([\s\S]*?)\]\(([\s\S]*?):([\s\S]*?)\)/;
       const activeFormats: Array<
         keyof Pick<CustomText, "bold" | "italics" | "underline" | "code">
       > = [];
