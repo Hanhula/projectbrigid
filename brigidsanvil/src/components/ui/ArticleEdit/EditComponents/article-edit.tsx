@@ -1,32 +1,31 @@
-import { Person } from "@/components/types/article-types/person";
 import {
   bodyFieldRegistry,
-  bodySubTabRegistry,
   footerFieldRegistry,
   sidebarFieldRegistry,
   subtitleFieldRegistry,
-} from "./character-edit-registry";
+} from "./article-edit-registry";
 import { ArticleEditPage } from "./article-edit-page";
+import { Article } from "@/components/types/article";
 
-const CharacterEdit = ({
+const ArticleEdit = ({
   article,
   resetSignal = 0,
 }: {
-  article: Person;
+  article: Article;
   resetSignal?: number;
 }) => (
   <ArticleEditPage
     article={article}
     bodyFieldRegistry={bodyFieldRegistry}
-    bodySubTabRegistry={bodySubTabRegistry}
+    bodySubTabRegistry={[]}
     subtitleFieldRegistry={subtitleFieldRegistry}
     sidebarFieldRegistry={sidebarFieldRegistry}
     footerFieldRegistry={footerFieldRegistry}
-    defaultBodySubTabKey="physDesc"
-    topLevelTabsId="character-edit-tabs"
-    bodyTabsId="character-sub-tabs"
+    defaultBodySubTabKey="identity"
+    topLevelTabsId="article-edit-tabs"
+    bodyTabsId="article-sub-tabs"
     resetSignal={resetSignal}
   />
 );
 
-export default CharacterEdit;
+export default ArticleEdit;

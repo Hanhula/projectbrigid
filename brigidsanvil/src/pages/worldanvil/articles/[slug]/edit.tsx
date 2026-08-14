@@ -1,21 +1,32 @@
-import { selectIdentity, selectWorld } from "@/components/store/apiSlice";
-import { selectAuthToken } from "@/components/store/authSlice";
-import Head from "next/head";
+import { selectWorld } from "@/components/store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   removeEditByID,
   selectCurrentArticles,
-  selectEditState,
 } from "@/components/store/articlesSlice";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useRouter } from "next/router";
+import ArticleEdit from "@/components/ui/ArticleEdit/EditComponents/article-edit";
 import CharacterEdit from "@/components/ui/ArticleEdit/EditComponents/character-edit";
-import { Person } from "@/components/types/article-types/person";
+import MaterialEdit from "@/components/ui/ArticleEdit/EditComponents/material-edit";
+import VehicleEdit from "@/components/ui/ArticleEdit/EditComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
+
+type ArticleEditPageComponent = (props: {
+  article: any;
+  resetSignal?: number;
+}) => JSX.Element;
+
+const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
+  Article: ArticleEdit as ArticleEditPageComponent,
+  Person: CharacterEdit as ArticleEditPageComponent,
+  Material: MaterialEdit as ArticleEditPageComponent,
+  Vehicle: VehicleEdit as ArticleEditPageComponent,
+};
 
 export async function getServerSideProps(context: any) {
   return {
@@ -36,6 +47,11 @@ export default function EditPage() {
   const worldAnvilAPI = useWorldAnvilAPI();
 
   const article = currentArticles.find((article) => article.id === slug);
+  const EditPageComponent = article
+    ? articleEditPageRegistry[
+        article.entityClass as keyof typeof articleEditPageRegistry
+      ]
+    : undefined;
 
   const handleResetContent = () => {
     dispatch(removeEditByID({ worldID: world.id, articleID: article!.id }));
@@ -45,7 +61,7 @@ export default function EditPage() {
   const handleSaveContent = async () => {
     try {
       await worldAnvilAPI.updateEditedArticleByFields(article!.id);
-      console.log("Article updated successfully");
+      console.info("Article updated successfully");
     } catch (error) {
       console.error("Error updating article:", error);
     }
@@ -57,16 +73,21 @@ export default function EditPage() {
         <Row>
           <Col className="editor-col">
             <div>
-              <Button onClick={handleResetContent}>Reset Content</Button>
-              <Button onClick={handleSaveContent}>Save to WorldAnvil</Button>
+              <Button onClick={handleResetContent} className="m-2">
+                Reset Content
+              </Button>
+              <Button onClick={handleSaveContent} className="mp-2">
+                Save to WorldAnvil
+              </Button>
               <Link href={article!.url}>
-                <Button>View on WorldAnvil</Button>
+                <Button className="m-2">View on WorldAnvil</Button>
               </Link>
             </div>
-            <CharacterEdit
-              article={article as Person}
-              resetSignal={resetSignal}
-            ></CharacterEdit>
+            {article && EditPageComponent ? (
+              <EditPageComponent article={article} resetSignal={resetSignal} />
+            ) : (
+              <div className="text-muted m-3">No edit page found!</div>
+            )}
           </Col>
         </Row>
       </Container>

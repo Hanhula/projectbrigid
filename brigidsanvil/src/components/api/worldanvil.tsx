@@ -26,6 +26,7 @@ import {
   selectWorldArticleMapByWorld,
   selectEditedArticlesByWorld,
   selectWorldArticlesByWorld,
+  selectEditStateByWorldMap,
   setWorldArticles,
   updateArticleById,
 } from "../store/articlesSlice";
@@ -62,16 +63,11 @@ export function useWorldAnvilAPI() {
 
   const worldArticles = useSelector(worldArticlesSelector);
   const currentArticleMap = useSelector(worldArticleMapSelector);
-  const currentArticles = worldArticles!.articles;
   const articleFetchProgress = useSelector(selectArticleFetchProgress);
   const currentDetailState = useSelector(currentDetailStateSelector);
   const fetchRequestIdRef = useRef(0);
   const editedArticles = useSelector(editedArticlesSelector);
-  const allEditStateByWorld = useSelector(
-    (state: {
-      articleState?: { editStateByWorld?: Record<string, EditStateByWorld> };
-    }) => state.articleState?.editStateByWorld ?? {},
-  );
+  const allEditStateByWorld = useSelector(selectEditStateByWorldMap);
   const allWorldEditStates = useMemo(
     () => Object.values(allEditStateByWorld),
     [allEditStateByWorld],
@@ -453,7 +449,7 @@ export function useWorldAnvilAPI() {
 
     try {
       const data = await callWorldAnvil(endpoint, CallType.GET);
-      console.log("Article to update: ", data);
+      console.info("Article to update: ", data);
       if (shouldDispatch) {
         let worldArticle: WorldArticle = {
           world: world,
@@ -487,7 +483,7 @@ export function useWorldAnvilAPI() {
         CallType.PATCH,
         JSON.stringify(updateBody),
       );
-      console.log("Article to update: ", data);
+      //console.log("Article to update: ", data);
 
       let worldArticle: WorldArticle = {
         world: world,
@@ -496,7 +492,7 @@ export function useWorldAnvilAPI() {
       dispatch(updateArticleById(worldArticle));
       return data;
     } catch (error) {
-      console.error("Error getting article:", error);
+      //console.error("Error getting article:", error);
       throw error;
     }
   }
@@ -518,7 +514,6 @@ export function useWorldAnvilAPI() {
   }
 
   async function updateEditedArticleByFields(articleID: string) {
-    console.log(articleID);
     const localArticleEditState = editedArticles.find(
       (article) => article.articleID === articleID,
     );
@@ -552,8 +547,6 @@ export function useWorldAnvilAPI() {
       }
     }
 
-    console.log(articleEditState);
-
     if (!articleEditState) {
       console.warn(
         `No local edits found for article with ID ${articleID}; skipping save request.`,
@@ -567,8 +560,6 @@ export function useWorldAnvilAPI() {
       updateBody[fieldChange.fieldIdentifier] = fieldChange.editedContent;
     }
 
-    console.log(updateBody);
-
     const endpoint = `/article?id=${articleID}`;
 
     try {
@@ -577,7 +568,7 @@ export function useWorldAnvilAPI() {
         CallType.PATCH,
         JSON.stringify(updateBody),
       );
-      console.log("Article to update: ", data);
+      //console.log("Article to update: ", data);
 
       await getArticle(articleID, true);
       dispatch(removeEditByID({ worldID: sourceWorldID, articleID }));

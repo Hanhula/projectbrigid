@@ -1,4 +1,5 @@
 import { Article, ArticleDisplay } from "../article";
+import { Formation } from "./formation";
 import { Landmark } from "./landmark";
 import { Location } from "./location";
 import { Myth } from "./myth";
@@ -42,6 +43,7 @@ export type Vehicle = Article & {
   technologiesUsed: Technology[];
   myths: Myth[];
   professions: Profession[];
+  militaryFormationsUsage: Formation[];
 };
 
 export class VehicleDisplay extends ArticleDisplay {

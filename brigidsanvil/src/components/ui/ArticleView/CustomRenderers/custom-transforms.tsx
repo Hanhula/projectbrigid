@@ -42,8 +42,6 @@ export const findIconByString = (iconName: string) => {
     iconName: iconName as IconName,
   });
 
-  console.log(iconDefinition);
-
   if (iconDefinition) {
     return <FontAwesomeIcon icon={iconDefinition} />;
   } else {

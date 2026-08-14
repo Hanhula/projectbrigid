@@ -7,7 +7,7 @@ let authToken: string;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (!appKey) {
     return res.status(500).json({ error: "Application key not found" });
@@ -46,7 +46,7 @@ export default async function handler(
       headers: additionalHeaders,
     };
   } else {
-    console.log(req.body);
+    //console.log(req.body);
     options = {
       method: req.method,
       headers: additionalHeaders,

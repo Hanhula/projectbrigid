@@ -570,6 +570,8 @@ const selectEditStateByWorldState = (state: {
   articleState: Partial<WorldArticlesState>;
 }) => state.articleState?.editStateByWorld ?? {};
 
+const EMPTY_EDIT_STATE_BY_WORLD: Record<string, EditStateByWorld> = {};
+
 const selectWorldId = (
   _state: { articleState: WorldArticlesState },
   worldId: string,
@@ -703,10 +705,14 @@ export const selectCurrentDetailStateByWorld = (worldId: string) =>
 export const selectEditState = (state: { articleState: WorldArticlesState }) =>
   denormalizeEditState(state.articleState.editStateByWorld ?? {});
 
+export const selectEditStateByWorldMap = (state: {
+  articleState?: Partial<WorldArticlesState>;
+}) => state.articleState?.editStateByWorld ?? EMPTY_EDIT_STATE_BY_WORLD;
+
 // Select the edited articles for a specific world
-export const selectEditedArticlesByWorld =
-  (worldId: string) => (state: { articleState: WorldArticlesState }) => {
-    const worldEdit = state.articleState.editStateByWorld?.[worldId];
+export const selectEditedArticlesByWorld = (worldId: string) =>
+  createSelector([selectEditStateByWorldMap], (editStateByWorld) => {
+    const worldEdit = editStateByWorld?.[worldId];
     if (worldEdit) {
       return Object.entries(worldEdit.editedFieldsByArticle).map(
         ([articleID, fields]) => ({
@@ -722,13 +728,12 @@ export const selectEditedArticlesByWorld =
     }
 
     return EMPTY_EDITED_ARTICLES;
-  };
+  });
 
 // Select the edited content for a specific article within a world
-export const selectEditedContentByID =
-  (worldId: string, articleID: string) =>
-  (state: { articleState: WorldArticlesState }) => {
-    const worldEdit = state.articleState.editStateByWorld?.[worldId];
+export const selectEditedContentByID = (worldId: string, articleID: string) =>
+  createSelector([selectEditStateByWorldMap], (editStateByWorld) => {
+    const worldEdit = editStateByWorld?.[worldId];
     const fields = worldEdit?.editedFieldsByArticle?.[articleID];
 
     if (fields) {
@@ -739,7 +744,7 @@ export const selectEditedContentByID =
     }
 
     return EMPTY_FIELD_EDITS;
-  };
+  });
 
 export const makeSelectCurrentArticles = () =>
   createSelector(

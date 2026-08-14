@@ -1,0 +1,118 @@
+import { Article } from "@/components/types/article";
+import { selectWorld } from "@/components/store/apiSlice";
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { Tab, Tabs } from "react-bootstrap";
+import {
+  ArticleFieldConfig,
+  renderArticleField,
+} from "./article-edit-field-renderer";
+import {
+  ArticleTopLevelTabKey,
+  articleTopLevelTabRegistry,
+} from "./article-edit-registry-common";
+
+export type ArticleBodySubTabConfig<TArticle extends Article> = {
+  eventKey: string;
+  title: string;
+  fields: ArticleFieldConfig<TArticle>[];
+};
+
+export type ArticleEditPageProps<TArticle extends Article> = {
+  article: TArticle;
+  bodyFieldRegistry: ArticleFieldConfig<TArticle>[];
+  bodySubTabRegistry: ArticleBodySubTabConfig<TArticle>[];
+  subtitleFieldRegistry: ArticleFieldConfig<TArticle>[];
+  sidebarFieldRegistry: ArticleFieldConfig<TArticle>[];
+  footerFieldRegistry: ArticleFieldConfig<TArticle>[];
+  defaultBodySubTabKey: string;
+  topLevelTabsId: string;
+  bodyTabsId: string;
+  resetSignal?: number;
+};
+
+export function ArticleEditPage<TArticle extends Article>({
+  article,
+  bodyFieldRegistry,
+  bodySubTabRegistry,
+  subtitleFieldRegistry,
+  sidebarFieldRegistry,
+  footerFieldRegistry,
+  defaultBodySubTabKey,
+  topLevelTabsId,
+  bodyTabsId,
+  resetSignal = 0,
+}: ArticleEditPageProps<TArticle>) {
+  const world = useSelector(selectWorld);
+  const [lastFocusedEditor, setLastFocusedEditor] = useState("");
+
+  const renderFields = (fields: ArticleFieldConfig<TArticle>[]) => {
+    return fields.map((field) =>
+      renderArticleField(field, {
+        article,
+        world,
+        lastFocusedEditor,
+        setLastFocusedEditor,
+        resetSignal,
+      }),
+    );
+  };
+
+  const tabContentByKey: Record<ArticleTopLevelTabKey, JSX.Element> = {
+    body: (
+      <>
+        {renderFields(bodyFieldRegistry)}
+        <Tabs
+          defaultActiveKey={defaultBodySubTabKey}
+          id={bodyTabsId}
+          className="mb-3"
+          mountOnEnter
+          unmountOnExit
+        >
+          {bodySubTabRegistry.map((subTab) => (
+            <Tab
+              key={subTab.eventKey}
+              eventKey={subTab.eventKey}
+              title={subTab.title}
+            >
+              {renderFields(subTab.fields)}
+            </Tab>
+          ))}
+        </Tabs>
+      </>
+    ),
+    subtitle: <>{renderFields(subtitleFieldRegistry)}</>,
+    sidebar: <>{renderFields(sidebarFieldRegistry)}</>,
+    footer: <>{renderFields(footerFieldRegistry)}</>,
+  };
+
+  return (
+    <div>
+      <h1>{article.title}</h1>
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <small className="text-muted">
+          Editing via Brigid, not via WorldAnvil. Changes will save locally, but
+          will not be reflected in WorldAnvil until you press Save to
+          WorldAnvil.
+        </small>
+      </div>
+      <Tabs
+        defaultActiveKey="body"
+        id={topLevelTabsId}
+        className="mb-3"
+        mountOnEnter
+        unmountOnExit
+      >
+        {articleTopLevelTabRegistry.map((tabConfig) => (
+          <Tab
+            key={tabConfig.eventKey}
+            eventKey={tabConfig.eventKey}
+            title={tabConfig.title}
+          >
+            {tabContentByKey[tabConfig.eventKey]}
+          </Tab>
+        ))}
+      </Tabs>
+    </div>
+  );
+}

@@ -1,18 +1,18 @@
-import { Person } from "@/components/types/article-types/person";
+import { Material } from "@/components/types/article-types/material";
+import { ArticleEditPage } from "./article-edit-page";
 import {
   bodyFieldRegistry,
   bodySubTabRegistry,
   footerFieldRegistry,
   sidebarFieldRegistry,
   subtitleFieldRegistry,
-} from "./character-edit-registry";
-import { ArticleEditPage } from "./article-edit-page";
+} from "./material-edit-registry";
 
-const CharacterEdit = ({
+const MaterialEdit = ({
   article,
   resetSignal = 0,
 }: {
-  article: Person;
+  article: Material;
   resetSignal?: number;
 }) => (
   <ArticleEditPage
@@ -22,11 +22,11 @@ const CharacterEdit = ({
     subtitleFieldRegistry={subtitleFieldRegistry}
     sidebarFieldRegistry={sidebarFieldRegistry}
     footerFieldRegistry={footerFieldRegistry}
-    defaultBodySubTabKey="physDesc"
-    topLevelTabsId="character-edit-tabs"
-    bodyTabsId="character-sub-tabs"
+    defaultBodySubTabKey="properties"
+    topLevelTabsId="material-edit-tabs"
+    bodyTabsId="material-sub-tabs"
     resetSignal={resetSignal}
   />
 );
 
-export default CharacterEdit;
+export default MaterialEdit;
