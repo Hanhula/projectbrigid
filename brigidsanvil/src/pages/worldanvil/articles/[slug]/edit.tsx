@@ -8,16 +8,17 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 import { useRouter } from "next/router";
 import ArticleEdit from "@/components/ui/ArticleEdit/ArticleComponents/article-edit";
 import CharacterEdit from "@/components/ui/ArticleEdit/ArticleComponents/character-edit";
-import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material-edit";
 import ConditionEdit from "@/components/ui/ArticleEdit/ArticleComponents/condition-edit";
 import DocumentEdit from "@/components/ui/ArticleEdit/ArticleComponents/document-edit";
+import EthnicityEdit from "@/components/ui/ArticleEdit/ArticleComponents/ethnicity-edit";
+import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material-edit";
+import RitualEdit from "@/components/ui/ArticleEdit/ArticleComponents/ritual-edit";
 import VehicleEdit from "@/components/ui/ArticleEdit/ArticleComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
-import RitualEdit from "@/components/ui/ArticleEdit/ArticleComponents/ritual-edit";
 
 type ArticleEditPageComponent = (props: {
   article: any;
@@ -28,6 +29,7 @@ const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
   Article: ArticleEdit as ArticleEditPageComponent,
   Condition: ConditionEdit as ArticleEditPageComponent,
   Document: DocumentEdit as ArticleEditPageComponent,
+  Ethnicity: EthnicityEdit as ArticleEditPageComponent,
   Person: CharacterEdit as ArticleEditPageComponent,
   Material: MaterialEdit as ArticleEditPageComponent,
   Ritual: RitualEdit as ArticleEditPageComponent,
