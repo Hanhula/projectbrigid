@@ -107,9 +107,15 @@ export const createCommonDesignFieldRegistry = <
     },
     {
       key: "design-icon",
-      kind: "text",
+      kind: "icon",
       fieldIdentifier: "icon",
       label: "Icon",
+    },
+    {
+      key: "design-tags",
+      kind: "tags",
+      fieldIdentifier: "tags",
+      label: "Tags",
     },
   ];
 };

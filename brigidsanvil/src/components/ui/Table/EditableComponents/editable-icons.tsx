@@ -57,6 +57,7 @@ function EditableIcons({
   setEditing,
   isTruncated,
   isDisabled,
+  hideTrigger = false,
   ...props
 }: {
   value: string;
@@ -65,6 +66,7 @@ function EditableIcons({
   setEditing: (value: boolean) => void;
   isTruncated?: boolean;
   isDisabled?: boolean;
+  hideTrigger?: boolean;
   showTooltip?: boolean;
   tooltipContent?: React.JSX.Element | string;
 }) {
@@ -90,7 +92,7 @@ function EditableIcons({
   const numIconsOnPage = 24;
 
   const handleFAPageChange: (pageNumber: number) => void = (
-    pageNumber: number
+    pageNumber: number,
   ) => {
     setFAPage(pageNumber);
     setFAPageInput(pageNumber.toString());
@@ -98,7 +100,7 @@ function EditableIcons({
   };
 
   const handleRPGPageChange: (pageNumber: number) => void = (
-    pageNumber: number
+    pageNumber: number,
   ) => {
     setRPGPage(pageNumber);
     setRPGPageInput(pageNumber.toString());
@@ -261,7 +263,7 @@ function EditableIcons({
                   {filterIcons(faIcons)
                     .slice(
                       (faPage - 1) * numIconsOnPage,
-                      faPage * numIconsOnPage
+                      faPage * numIconsOnPage,
                     )
                     .map((icon, index) => {
                       const iconDefinition = findIconDefinition({
@@ -349,14 +351,14 @@ function EditableIcons({
                               handleFAPageChange(
                                 Math.min(
                                   Math.ceil((faPage + 9) / 10) * 10,
-                                  faPages
-                                )
+                                  faPages,
+                                ),
                               )
                             }
                           >
                             {Math.min(
                               Math.ceil((faPage + 9) / 10) * 10,
-                              faPages
+                              faPages,
                             )}
                           </Pagination.Item>
                         )}
@@ -399,7 +401,7 @@ function EditableIcons({
                   {filterIcons(rpgIcons)
                     .slice(
                       (rpgPage - 1) * numIconsOnPage,
-                      rpgPage * numIconsOnPage
+                      rpgPage * numIconsOnPage,
                     )
                     .map((icon, index) => {
                       return (
@@ -478,14 +480,14 @@ function EditableIcons({
                               handleRPGPageChange(
                                 Math.min(
                                   Math.ceil((rpgPage + 9) / 10) * 10,
-                                  rpgPages
-                                )
+                                  rpgPages,
+                                ),
                               )
                             }
                           >
                             {Math.min(
                               Math.ceil((rpgPage + 9) / 10) * 10,
-                              rpgPages
+                              rpgPages,
                             )}
                           </Pagination.Item>
                         )}
@@ -543,7 +545,7 @@ function EditableIcons({
             </Button>
           </Modal.Footer>
         </Modal>
-      ) : (
+      ) : hideTrigger ? null : (
         <div>
           <OverlayTrigger
             overlay={
@@ -556,7 +558,7 @@ function EditableIcons({
                       .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
                       .replace(/^-/, "");
                     const isIconInList = faIcons.some(
-                      (icon) => icon.icon === iconName
+                      (icon) => icon.icon === iconName,
                     );
                     if (isIconInList) {
                       return (

@@ -584,30 +584,27 @@ export function ArticleTable({
       cell: (info) => {
         const value = info.getValue() !== null ? String(info.getValue()) : "";
         const [editing, setEditing] = useState(false);
-        if (value !== "") {
-          return (
-            <div className="icon-container">
-              <EditableIcons
-                value={value}
-                onSave={async (newIcon) => {
-                  const paginationState = table.getState().pagination;
-                  const articleID = info.row.original.id;
-                  await worldAnvilAPI.updateArticleByField(
-                    articleID,
-                    "icon",
-                    newIcon,
-                  );
-                  table.setPagination(paginationState);
-                  await worldAnvilAPI.getArticle(articleID, true);
-                  table.setPagination(paginationState);
-                }}
-                editing={editing}
-                setEditing={setEditing}
-              ></EditableIcons>
-            </div>
-          );
-        }
-        return "";
+        return (
+          <div className="icon-container">
+            <EditableIcons
+              value={value}
+              onSave={async (newIcon) => {
+                const paginationState = table.getState().pagination;
+                const articleID = info.row.original.id;
+                await worldAnvilAPI.updateArticleByField(
+                  articleID,
+                  "icon",
+                  newIcon,
+                );
+                table.setPagination(paginationState);
+                await worldAnvilAPI.getArticle(articleID, true);
+                table.setPagination(paginationState);
+              }}
+              editing={editing}
+              setEditing={setEditing}
+            ></EditableIcons>
+          </div>
+        );
       },
       header: "Icon",
       footer: (props) => props.column.id,

@@ -7,6 +7,8 @@ import DebouncedFieldDropdown, {
   FieldDropdownOption,
 } from "./debounced-field-dropdown";
 import DebouncedInput from "./debounced-input";
+import ArticleTagsInput from "./article-tags-input";
+import ArticleIconInput from "./article-icon-input";
 
 export type ArticleFieldConfig<TArticle extends Article = Article> =
   | {
@@ -22,6 +24,22 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       fieldIdentifier: string;
       label: string;
       mentions?: boolean;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "tags";
+      fieldIdentifier: string;
+      label: string;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "icon";
+      fieldIdentifier: string;
+      label: string;
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -97,6 +115,39 @@ export const renderArticleField = <TArticle extends Article>(
       <Form key={field.key}>
         <Form.Label>{field.label}</Form.Label>
         <div className="text-muted small">{field.message}</div>
+      </Form>
+    );
+  }
+
+  if (field.kind === "tags") {
+    return (
+      <Form key={field.key}>
+        <Form.Label>{field.label}</Form.Label>
+        <ArticleTagsInput
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+          resetSignal={resetSignal}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
+    );
+  }
+
+  if (field.kind === "icon") {
+    return (
+      <Form key={field.key}>
+        <Form.Label>{field.label}</Form.Label>
+        <ArticleIconInput
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
       </Form>
     );
   }
