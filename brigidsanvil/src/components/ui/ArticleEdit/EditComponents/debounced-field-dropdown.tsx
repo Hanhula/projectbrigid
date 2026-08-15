@@ -17,6 +17,7 @@ export type DebouncedFieldDropdownProps = {
   fieldIdentifier: string;
   options: FieldDropdownOption[];
   id: string;
+  valueAsReference?: boolean;
 };
 
 const getOptionValue = (option: FieldDropdownOption) =>
@@ -31,6 +32,7 @@ const DebouncedFieldDropdown = ({
   fieldIdentifier,
   options,
   id,
+  valueAsReference = false,
 }: DebouncedFieldDropdownProps) => {
   const dispatch = useDispatch();
   const selectEditedContentValueByID = useMemo(
@@ -40,13 +42,17 @@ const DebouncedFieldDropdown = ({
   );
   const editedContent = useSelector(selectEditedContentValueByID);
   const articleValue = article[fieldIdentifier];
+  const getCurrentValue = (value: unknown) =>
+    typeof value === "object" && value !== null && "id" in value
+      ? String(value.id)
+      : String(value ?? "");
   const [currentValue, setCurrentValue] = useState(
-    String(editedContent ?? articleValue ?? ""),
+    getCurrentValue(editedContent ?? articleValue),
   );
 
   useEffect(() => {
     const nextValue = editedContent ?? article[fieldIdentifier] ?? "";
-    setCurrentValue(String(nextValue));
+    setCurrentValue(getCurrentValue(nextValue));
   }, [editedContent, article, fieldIdentifier]);
 
   const delayedDispatch = useMemo(
@@ -57,11 +63,11 @@ const DebouncedFieldDropdown = ({
             world: { id: world.id },
             articleID: article.id,
             fieldIdentifier,
-            editedFields: value,
+            editedFields: valueAsReference && value ? { id: value } : value,
           }),
         );
       }, 500),
-    [dispatch, world.id, article.id, fieldIdentifier],
+    [dispatch, world.id, article.id, fieldIdentifier, valueAsReference],
   );
 
   useEffect(() => {
