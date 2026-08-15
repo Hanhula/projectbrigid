@@ -16,12 +16,6 @@ export type RitualBodySubTabConfig = {
 
 export const bodyFieldRegistry: ArticleFieldConfig<Ritual>[] = [
   ...createCommonBodyFieldRegistry<Ritual>(),
-  {
-    key: "body-purpose",
-    kind: "bbcode",
-    fieldIdentifier: "purpose",
-    label: "Purpose",
-  },
 ];
 
 export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
@@ -66,24 +60,24 @@ export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
-        key: "body-primaryrelatedlocation",
+        key: "body-location",
         kind: "dropdown",
-        fieldIdentifier: "primaryRelatedLocation",
+        fieldIdentifier: "location",
         label: "Related Location",
-        entityClass: ["Location"],
+        entityClass: ["Location", "Settlement", "Landmark"],
       },
       {
         key: "body-importantLocations",
         kind: "dropdown",
         fieldIdentifier: "importantLocations",
         label: "Important Locations",
-        entityClass: ["Location"],
+        entityClass: ["Location", "Settlement", "Landmark"],
         isMulti: true,
       },
       {
         key: "body-organisations",
         kind: "dropdown",
-        fieldIdentifier: "relatedOrganisations",
+        fieldIdentifier: "organizations",
         label: "Related Organisations",
         entityClass: ["Organization"],
         isMulti: true,
@@ -91,7 +85,7 @@ export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
       {
         key: "body-ethnicities",
         kind: "dropdown",
-        fieldIdentifier: "relatedEthnicities",
+        fieldIdentifier: "ethnicities",
         label: "Related Ethnicities",
         entityClass: ["Ethnicity"],
         isMulti: true,

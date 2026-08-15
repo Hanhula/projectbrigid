@@ -17,6 +17,7 @@ import { useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
+import RitualEdit from "@/components/ui/ArticleEdit/ArticleComponents/ritual-edit";
 
 type ArticleEditPageComponent = (props: {
   article: any;
@@ -29,6 +30,7 @@ const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
   Document: DocumentEdit as ArticleEditPageComponent,
   Person: CharacterEdit as ArticleEditPageComponent,
   Material: MaterialEdit as ArticleEditPageComponent,
+  Ritual: RitualEdit as ArticleEditPageComponent,
   Vehicle: VehicleEdit as ArticleEditPageComponent,
 };
 
