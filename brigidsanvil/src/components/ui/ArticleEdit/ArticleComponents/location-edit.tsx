@@ -15,23 +15,20 @@ const LocationEdit = ({
 }: {
   article: Location;
   resetSignal?: number;
-}) => {
-  console.log(article.type);
-  return (
-    <ArticleEditPage
-      article={article}
-      bodyFieldRegistry={bodyFieldRegistry}
-      bodySubTabRegistry={bodySubTabRegistry}
-      subtitleFieldRegistry={subtitleFieldRegistry}
-      sidebarFieldRegistry={sidebarFieldRegistry}
-      footerFieldRegistry={footerFieldRegistry}
-      designFieldRegistry={designFieldRegistry}
-      defaultBodySubTabKey="information"
-      topLevelTabsId="location-edit-tabs"
-      bodyTabsId="location-sub-tabs"
-      resetSignal={resetSignal}
-    />
-  );
-};
+}) => (
+  <ArticleEditPage
+    article={article}
+    bodyFieldRegistry={bodyFieldRegistry}
+    bodySubTabRegistry={bodySubTabRegistry}
+    subtitleFieldRegistry={subtitleFieldRegistry}
+    sidebarFieldRegistry={sidebarFieldRegistry}
+    footerFieldRegistry={footerFieldRegistry}
+    designFieldRegistry={designFieldRegistry}
+    defaultBodySubTabKey="information"
+    topLevelTabsId="location-edit-tabs"
+    bodyTabsId="location-sub-tabs"
+    resetSignal={resetSignal}
+  />
+);
 
 export default LocationEdit;
