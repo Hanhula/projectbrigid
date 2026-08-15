@@ -19,11 +19,13 @@ import * as ethnicityRegistry from "./ethnicity-edit-registry";
 import * as formationRegistry from "./formation-edit-registry";
 import * as itemRegistry from "./item-edit-registry";
 import * as lawRegistry from "./law-edit-registry";
+import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
 import * as technologyRegistry from "./technology-edit-registry";
 import * as vehicleRegistry from "./vehicle-edit-registry";
+import LocationEdit from "./location-edit";
 
 type ArticleEditPageComponent = (props: {
   article: any;
@@ -61,6 +63,7 @@ export const articleEditPageRegistry: Record<
   Formation: { Component: FormationEdit, fields: formationRegistry },
   Item: { Component: ItemEdit, fields: itemRegistry },
   Law: { Component: LawEdit, fields: lawRegistry },
+  Location: { Component: LocationEdit, fields: locationRegistry },
   Material: { Component: MaterialEdit, fields: materialRegistry },
   Myth: { Component: MythEdit, fields: mythRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
