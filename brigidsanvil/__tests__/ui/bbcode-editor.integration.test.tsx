@@ -1,6 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import {
@@ -278,6 +284,54 @@ test|author[/quote]`);
       const content = document.querySelector(".cm-content")?.textContent ?? "";
       expect(content).toContain("[quote]server[/quote]");
       expect(content).not.toContain("[img:image-id]");
+    });
+  });
+
+  test("restore resetSignal loads imported local content", async () => {
+    const store = createTestStore();
+
+    const { rerender } = render(
+      <Provider store={store}>
+        <BBCodeEditor
+          id="article-1"
+          fieldIdentifier="content"
+          existingContent="[quote]current server value[/quote]"
+          onFocus={() => {}}
+          lastFocusedEditor="content"
+          resetSignal={0}
+        />
+      </Provider>,
+    );
+
+    act(() => {
+      store.dispatch({
+        type: "articleState/setEditedContentByID",
+        payload: {
+          world: { id: "world-1" },
+          articleID: "article-1",
+          fieldIdentifier: "content",
+          editedFields: "[quote]imported backup value[/quote]",
+        },
+      });
+    });
+
+    rerender(
+      <Provider store={store}>
+        <BBCodeEditor
+          id="article-1"
+          fieldIdentifier="content"
+          existingContent="[quote]current server value[/quote]"
+          onFocus={() => {}}
+          lastFocusedEditor="content"
+          resetSignal={-1}
+        />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      const content = document.querySelector(".cm-content")?.textContent ?? "";
+      expect(content).toContain("[quote]imported backup value[/quote]");
+      expect(content).not.toContain("[quote]current server value[/quote]");
     });
   });
 

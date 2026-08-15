@@ -4,8 +4,15 @@ import {
   removeEditByID,
   selectCurrentArticles,
   selectEditedArticlesByWorld,
+  setEditedArticle,
 } from "@/components/store/articlesSlice";
 import { addNotification } from "@/components/store/notificationsSlice";
+import {
+  ArticleEditorBackup,
+  articleBackupFilename,
+  createArticleEditorBackup,
+  parseArticleEditorBackup,
+} from "@/components/ui/ArticleEdit/EditComponents/article-edit-backup";
 import { Button, Col, Container, Modal, Row, Spinner } from "react-bootstrap";
 import { useRouter } from "next/router";
 import ArticleEdit from "@/components/ui/ArticleEdit/ArticleComponents/article-edit";
@@ -19,7 +26,7 @@ import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material
 import RitualEdit from "@/components/ui/ArticleEdit/ArticleComponents/ritual-edit";
 import VehicleEdit from "@/components/ui/ArticleEdit/ArticleComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
@@ -56,6 +63,9 @@ export default function EditPage() {
     "reset" | "refresh" | null
   >(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [importedBackup, setImportedBackup] =
+    useState<ArticleEditorBackup | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useDispatch();
 
@@ -80,6 +90,16 @@ export default function EditPage() {
         article.entityClass as keyof typeof articleEditPageRegistry
       ]
     : undefined;
+  const currentEditedFields = article
+    ? (
+        editedArticles.find(
+          (editedArticle) => editedArticle.articleID === article.id,
+        )?.fieldsChanged ?? []
+      ).reduce<Record<string, unknown>>((fields, field) => {
+        fields[field.fieldIdentifier] = field.editedContent;
+        return fields;
+      }, {})
+    : {};
 
   const resetContent = () => {
     if (!article) {
@@ -87,7 +107,7 @@ export default function EditPage() {
     }
 
     dispatch(removeEditByID({ worldID: world.id, articleID: article.id }));
-    setResetSignal((value) => value + 1);
+    setResetSignal((value) => Math.abs(value) + 1);
   };
 
   const handleResetContent = () => {
@@ -151,6 +171,99 @@ export default function EditPage() {
     }
   };
 
+  const handleExportBackup = () => {
+    if (!article) {
+      return;
+    }
+
+    try {
+      const backup = createArticleEditorBackup({
+        article,
+        worldId: world.id,
+        editedFields: currentEditedFields,
+      });
+      const downloadUrl = URL.createObjectURL(
+        new Blob([JSON.stringify(backup, null, 2)], {
+          type: "application/json",
+        }),
+      );
+      const downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = articleBackupFilename(article);
+      downloadLink.click();
+      URL.revokeObjectURL(downloadUrl);
+      dispatch(addNotification("Article backup exported.", "success"));
+    } catch (error) {
+      console.error("Error exporting article backup:", error);
+      dispatch(addNotification("Unable to export article backup.", "danger"));
+    }
+  };
+
+  const handleImportFile = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file || !article) {
+      return;
+    }
+
+    try {
+      const backup = parseArticleEditorBackup(JSON.parse(await file.text()));
+      if (
+        backup.worldId !== world.id ||
+        backup.articleId !== article.id ||
+        backup.entityClass !== article.entityClass
+      ) {
+        throw new Error("This backup belongs to a different article.");
+      }
+      setImportedBackup(backup);
+    } catch (error) {
+      console.error("Error importing article backup:", error);
+      dispatch(
+        addNotification(
+          error instanceof Error
+            ? error.message
+            : "Unable to read article backup.",
+          "danger",
+        ),
+      );
+    }
+  };
+
+  const restoreBackupFields = (
+    fields: Record<string, unknown>,
+    message: string,
+  ) => {
+    if (!article) {
+      return;
+    }
+
+    const fieldsChanged = Object.entries(fields).map(
+      ([fieldIdentifier, editedContent]) => ({
+        fieldIdentifier,
+        editedContent,
+      }),
+    );
+
+    if (fieldsChanged.length === 0) {
+      dispatch(removeEditByID({ worldID: world.id, articleID: article.id }));
+    } else {
+      dispatch(
+        setEditedArticle({
+          world,
+          articleID: article.id,
+          fieldsChanged,
+        }),
+      );
+    }
+
+    setResetSignal((value) => -(Math.abs(value) + 1));
+    setImportedBackup(null);
+    dispatch(addNotification(message, "success"));
+  };
+
   return (
     <div className="editpage">
       <Container>
@@ -176,6 +289,27 @@ export default function EditPage() {
               <Button onClick={handleSaveContent} className="mp-2">
                 Save to WorldAnvil
               </Button>
+              <Button
+                onClick={handleExportBackup}
+                className="m-2"
+                disabled={!article}
+              >
+                Export Backup
+              </Button>
+              <Button
+                onClick={() => importInputRef.current?.click()}
+                className="m-2"
+                disabled={!article}
+              >
+                Import Backup
+              </Button>
+              <input
+                ref={importInputRef}
+                type="file"
+                accept="application/json,.json"
+                onChange={handleImportFile}
+                className="d-none"
+              />
               <Link href={article!.url}>
                 <Button className="m-2">View on WorldAnvil</Button>
               </Link>
@@ -211,6 +345,56 @@ export default function EditPage() {
           </Button>
           <Button variant="danger" onClick={confirmDiscardAction}>
             {discardAction === "refresh" ? "Refresh Content" : "Reset Content"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={importedBackup !== null}
+        onHide={() => setImportedBackup(null)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Restore article backup?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            This backup was exported for {importedBackup?.articleTitle}. Choose
+            whether to restore only its Brigid draft edits or all editor fields
+            captured from WorldAnvil at export time.
+          </p>
+          {importedBackup?.sourceUpdateDate &&
+            article?.updateDate?.date !== importedBackup.sourceUpdateDate && (
+              <p className="text-warning mb-0">
+                The currently loaded article has a different WorldAnvil update
+                date than this backup.
+              </p>
+            )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setImportedBackup(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() =>
+              restoreBackupFields(
+                importedBackup?.editedFields ?? {},
+                "Draft edits restored from backup.",
+              )
+            }
+          >
+            Restore Draft Edits
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() =>
+              restoreBackupFields(
+                importedBackup?.sourceFields ?? {},
+                "Exported field values restored from backup.",
+              )
+            }
+          >
+            Restore Exported Fields
           </Button>
         </Modal.Footer>
       </Modal>

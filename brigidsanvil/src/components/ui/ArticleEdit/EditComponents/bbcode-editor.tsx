@@ -422,7 +422,10 @@ const BBCodeEditor = ({
     }
     previousResetSignalRef.current = resetSignal;
 
-    const resetValue = existingContent ?? "";
+    const resetValue =
+      resetSignal < 0
+        ? editedContent ?? existingContent ?? ""
+        : existingContent ?? "";
 
     view.dispatch({
       changes: {
@@ -438,7 +441,7 @@ const BBCodeEditor = ({
     currentValueRef.current = resetValue;
     setHasContent(resetValue.length > 0);
     reconfigureHeight(resetValue.length > 0 ? "content" : "collapsed");
-  }, [existingContent, resetSignal]);
+  }, [editedContent, existingContent, resetSignal]);
 
   const isFocusedEditor = lastFocusedEditor === fieldIdentifier;
 
