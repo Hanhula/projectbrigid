@@ -19,6 +19,7 @@ import { useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
+import FormationEdit from "@/components/ui/ArticleEdit/ArticleComponents/formation-edit";
 
 type ArticleEditPageComponent = (props: {
   article: any;
@@ -30,6 +31,7 @@ const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
   Condition: ConditionEdit as ArticleEditPageComponent,
   Document: DocumentEdit as ArticleEditPageComponent,
   Ethnicity: EthnicityEdit as ArticleEditPageComponent,
+  Formation: FormationEdit as ArticleEditPageComponent,
   Person: CharacterEdit as ArticleEditPageComponent,
   Material: MaterialEdit as ArticleEditPageComponent,
   Ritual: RitualEdit as ArticleEditPageComponent,
