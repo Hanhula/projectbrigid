@@ -6,6 +6,7 @@ import EthnicityEdit from "./ethnicity-edit";
 import FormationEdit from "./formation-edit";
 import ItemEdit from "./item-edit";
 import MaterialEdit from "./material-edit";
+import MythEdit from "./myth-edit";
 import RitualEdit from "./ritual-edit";
 import TechnologyEdit from "./technology-edit";
 import VehicleEdit from "./vehicle-edit";
@@ -17,6 +18,7 @@ import * as ethnicityRegistry from "./ethnicity-edit-registry";
 import * as formationRegistry from "./formation-edit-registry";
 import * as itemRegistry from "./item-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
+import * as mythRegistry from "./myth-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
 import * as technologyRegistry from "./technology-edit-registry";
 import * as vehicleRegistry from "./vehicle-edit-registry";
@@ -57,6 +59,7 @@ export const articleEditPageRegistry: Record<
   Formation: { Component: FormationEdit, fields: formationRegistry },
   Item: { Component: ItemEdit, fields: itemRegistry },
   Material: { Component: MaterialEdit, fields: materialRegistry },
+  Myth: { Component: MythEdit, fields: mythRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
   Technology: { Component: TechnologyEdit, fields: technologyRegistry },
