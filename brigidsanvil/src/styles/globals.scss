@@ -84,6 +84,10 @@ a {
   --cm-background: var(--background-terror);
   --cm-cursor: var(--lightgrey);
   --cm-fontcolor: #e5e7eb;
+
+  --danger-red: #84121d;
+  --danger-red-dark: #5c0c14;
+  --danger-red-light: #b71c2a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -142,6 +146,17 @@ td a {
   --bs-btn-active-border-color: var(--primary-dark);
   --bs-btn-disabled-bg: var(--primary);
   --bs-btn-disabled-border-color: var(--primary);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--danger-red);
+  --bs-btn-border-color: var(--danger-red);
+  --bs-btn-hover-bg: var(--danger-red-light);
+  --bs-btn-hover-border-color: var(--danger-red-dark);
+  --bs-btn-active-bg: var(--danger-red-dark);
+  --bs-btn-active-border-color: var(--danger-red-dark);
+  --bs-btn-disabled-bg: var(--danger-red);
+  --bs-btn-disabled-border-color: var(--danger-red);
 }
 
 .pagination {

@@ -270,13 +270,18 @@ export default function EditPage() {
         <Row>
           <Col className="editor-col">
             <div>
-              <Button onClick={handleResetContent} className="m-2">
+              <Button
+                onClick={handleResetContent}
+                className="mp-2"
+                variant="danger"
+              >
                 Reset Content
               </Button>
               <Button
                 onClick={handleRefreshContent}
                 className="m-2"
                 disabled={isRefreshing || !article}
+                variant="danger"
               >
                 {isRefreshing ? (
                   <>
@@ -298,7 +303,7 @@ export default function EditPage() {
               </Button>
               <Button
                 onClick={() => importInputRef.current?.click()}
-                className="m-2"
+                className="mp-2"
                 disabled={!article}
               >
                 Import Backup
@@ -312,6 +317,9 @@ export default function EditPage() {
               />
               <Link href={article!.url}>
                 <Button className="m-2">View on WorldAnvil</Button>
+              </Link>
+              <Link href={`/worldanvil/articles/${article!.id}/view`}>
+                <Button className="mp-2">View on Brigid</Button>
               </Link>
             </div>
             {article && EditPageComponent ? (
