@@ -14,6 +14,36 @@ export type MaterialBodySubTabConfig = {
   fields: ArticleFieldConfig<Material>[];
 };
 
+const materialType = [
+  "Biomaterial",
+  "Ceramic",
+  "Composite",
+  "Concrete",
+  "Electronic",
+  "Elemental / Molecular",
+  "Glass",
+  "Livestock",
+  "Metal",
+  "Metaphysical",
+  "Metamaterial",
+  "Mineral",
+  "Nanomaterial",
+  "Organic",
+  "Ore",
+  "Ore/Mineral",
+  "Optic",
+  "Polymer",
+  "Plastic",
+  "Rock",
+  "Rock, Igneous",
+  "Rock, Metamorphic",
+  "Rock, Sedimentary",
+  "Semiconductor",
+  "Stone",
+  "Textile",
+  "Wood",
+];
+
 export const bodyFieldRegistry: ArticleFieldConfig<Material>[] =
   createCommonBodyFieldRegistry<Material>();
 
@@ -234,7 +264,8 @@ export const bodySubTabRegistry: MaterialBodySubTabConfig[] = [
       },
       {
         key: "sidebar-type",
-        kind: "text",
+        kind: "field-dropdown",
+        options: materialType,
         fieldIdentifier: "type",
         label: "Type",
       },
