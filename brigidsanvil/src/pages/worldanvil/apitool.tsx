@@ -20,7 +20,7 @@ const APITool = () => {
   const world = useSelector(selectWorld);
 
   return (
-    <Container className="apitool p-4">
+    <Container className="apitool p-4" fluid="md">
       <Head>
         <title>Articles Explorer</title>
       </Head>

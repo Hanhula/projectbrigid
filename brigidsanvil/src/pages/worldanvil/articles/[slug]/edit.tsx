@@ -15,39 +15,13 @@ import {
 } from "@/components/ui/ArticleEdit/EditComponents/article-edit-backup";
 import { Button, Col, Container, Modal, Row, Spinner } from "react-bootstrap";
 import { useRouter } from "next/router";
-import ArticleEdit from "@/components/ui/ArticleEdit/ArticleComponents/article-edit";
-import CharacterEdit from "@/components/ui/ArticleEdit/ArticleComponents/character-edit";
-import ConditionEdit from "@/components/ui/ArticleEdit/ArticleComponents/condition-edit";
-import DocumentEdit from "@/components/ui/ArticleEdit/ArticleComponents/document-edit";
-import EthnicityEdit from "@/components/ui/ArticleEdit/ArticleComponents/ethnicity-edit";
-import FormationEdit from "@/components/ui/ArticleEdit/ArticleComponents/formation-edit";
-import ItemEdit from "@/components/ui/ArticleEdit/ArticleComponents/item-edit";
-import MaterialEdit from "@/components/ui/ArticleEdit/ArticleComponents/material-edit";
-import RitualEdit from "@/components/ui/ArticleEdit/ArticleComponents/ritual-edit";
-import VehicleEdit from "@/components/ui/ArticleEdit/ArticleComponents/vehicle-edit";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useMemo, useRef, useState } from "react";
 
 import "./edit.scss";
 import Link from "next/link";
-
-type ArticleEditPageComponent = (props: {
-  article: any;
-  resetSignal?: number;
-}) => JSX.Element;
-
-const articleEditPageRegistry: Record<string, ArticleEditPageComponent> = {
-  Article: ArticleEdit as ArticleEditPageComponent,
-  Condition: ConditionEdit as ArticleEditPageComponent,
-  Document: DocumentEdit as ArticleEditPageComponent,
-  Ethnicity: EthnicityEdit as ArticleEditPageComponent,
-  Formation: FormationEdit as ArticleEditPageComponent,
-  Item: ItemEdit as ArticleEditPageComponent,
-  Person: CharacterEdit as ArticleEditPageComponent,
-  Material: MaterialEdit as ArticleEditPageComponent,
-  Ritual: RitualEdit as ArticleEditPageComponent,
-  Vehicle: VehicleEdit as ArticleEditPageComponent,
-};
+import Head from "next/head";
+import { articleEditPageRegistry } from "@/components/ui/ArticleEdit/ArticleComponents/article-edit-page-registry";
 
 export async function getServerSideProps(context: any) {
   return {
@@ -86,9 +60,7 @@ export default function EditPage() {
       )
     : false;
   const EditPageComponent = article
-    ? articleEditPageRegistry[
-        article.entityClass as keyof typeof articleEditPageRegistry
-      ]
+    ? articleEditPageRegistry[article.entityClass]?.Component
     : undefined;
   const currentEditedFields = article
     ? (
@@ -266,8 +238,15 @@ export default function EditPage() {
 
   return (
     <div className="editpage">
-      <Container>
-        <Row>
+      <Head>
+        <title>
+          {article?.title
+            ? `Editing ${article.title} | Brigid's Anvil`
+            : "Edit Article | Brigid's Anvil"}
+        </title>
+      </Head>
+      <Container fluid="md" className="edit-container">
+        <Row className="edit-row">
           <Col className="editor-col">
             <div>
               <Button
