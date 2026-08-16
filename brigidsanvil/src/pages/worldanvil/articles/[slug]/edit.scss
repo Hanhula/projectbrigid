@@ -1,5 +1,5 @@
 .editpage {
-  height: 100%;
+  min-height: 100dvh;
 
   .blockquote {
     background: var(--dark-terror);
@@ -16,6 +16,7 @@
 
   .editor-col {
     background: var(--darkest-terror);
+    min-height: 100dvh;
     padding-bottom: 1em;
   }
 
@@ -81,11 +82,5 @@
       text-decoration: none;
       transition: 0.2s;
     }
-  }
-
-  .edit-container,
-  .edit-row,
-  .editor-col {
-    min-height: 100%;
   }
 }

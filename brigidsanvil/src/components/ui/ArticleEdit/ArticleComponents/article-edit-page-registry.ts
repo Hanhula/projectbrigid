@@ -7,6 +7,7 @@ import FormationEdit from "./formation-edit";
 import ItemEdit from "./item-edit";
 import LawEdit from "./law-edit";
 import LandmarkEdit from "./landmark-edit";
+import LanguageEdit from "./language-edit";
 import LocationEdit from "./location-edit";
 import MaterialEdit from "./material-edit";
 import MythEdit from "./myth-edit";
@@ -22,6 +23,7 @@ import * as formationRegistry from "./formation-edit-registry";
 import * as itemRegistry from "./item-edit-registry";
 import * as lawRegistry from "./law-edit-registry";
 import * as landmarkRegistry from "./landmark-edit-registry";
+import * as languageRegistry from "./language-edit-registry";
 import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
@@ -66,6 +68,7 @@ export const articleEditPageRegistry: Record<
   Item: { Component: ItemEdit, fields: itemRegistry },
   Law: { Component: LawEdit, fields: lawRegistry },
   Landmark: { Component: LandmarkEdit, fields: landmarkRegistry },
+  Language: { Component: LanguageEdit, fields: languageRegistry },
   Location: { Component: LocationEdit, fields: locationRegistry },
   Material: { Component: MaterialEdit, fields: materialRegistry },
   Myth: { Component: MythEdit, fields: mythRegistry },
