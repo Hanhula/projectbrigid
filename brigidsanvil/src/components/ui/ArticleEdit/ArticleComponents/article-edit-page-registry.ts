@@ -13,6 +13,7 @@ import MaterialEdit from "./material-edit";
 import MythEdit from "./myth-edit";
 import ProseEdit from "./prose-edit";
 import RitualEdit from "./ritual-edit";
+import SpellEdit from "./spell-edit";
 import TechnologyEdit from "./technology-edit";
 import VehicleEdit from "./vehicle-edit";
 import * as articleRegistry from "./article-edit-registry";
@@ -30,6 +31,7 @@ import * as materialRegistry from "./material-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
+import * as spellRegistry from "./spell-edit-registry";
 import * as technologyRegistry from "./technology-edit-registry";
 import * as vehicleRegistry from "./vehicle-edit-registry";
 
@@ -77,6 +79,7 @@ export const articleEditPageRegistry: Record<
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
+  Spell: { Component: SpellEdit, fields: spellRegistry },
   Technology: { Component: TechnologyEdit, fields: technologyRegistry },
   Vehicle: { Component: VehicleEdit, fields: vehicleRegistry },
 };
