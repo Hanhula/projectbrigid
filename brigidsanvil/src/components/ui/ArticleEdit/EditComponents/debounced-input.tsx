@@ -15,13 +15,22 @@ export interface DebouncedInputProps {
   article: Article | Person;
   fieldIdentifier: string;
   id?: string;
+  type?: "text" | "number";
+  valueAsReference?: boolean;
 }
+
+const getReferenceId = (value: unknown) =>
+  typeof value === "object" && value !== null && "id" in value
+    ? String((value as { id: unknown }).id)
+    : String(value ?? "");
 
 const DebouncedInput: React.FC<DebouncedInputProps> = ({
   world,
   article,
   fieldIdentifier,
   id,
+  type = "text",
+  valueAsReference = false,
 }) => {
   const dispatch = useDispatch();
   const selectEditedContentValueByID = useMemo(
@@ -30,11 +39,18 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
     [world.id, article.id, fieldIdentifier],
   );
   const editedContentValue = useSelector(selectEditedContentValueByID);
-  const editedContent =
-    typeof editedContentValue === "string" ? editedContentValue : undefined;
+  const editedContent = valueAsReference
+    ? editedContentValue !== undefined
+      ? getReferenceId(editedContentValue)
+      : undefined
+    : typeof editedContentValue === "string"
+    ? editedContentValue
+    : undefined;
 
   const [inputValue, setInputValue] = useState<string>(
-    String(editedContent ?? article[fieldIdentifier] ?? ""),
+    valueAsReference
+      ? getReferenceId(editedContentValue ?? article[fieldIdentifier])
+      : String(editedContent ?? article[fieldIdentifier] ?? ""),
   );
 
   // Create memoized debounced dispatch function
@@ -46,11 +62,11 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
             world: { id: world.id },
             articleID: article.id,
             fieldIdentifier,
-            editedFields: value,
+            editedFields: valueAsReference && value ? { id: value } : value,
           }),
         );
       }, 500),
-    [dispatch, world.id, article.id, fieldIdentifier],
+    [dispatch, world.id, article.id, fieldIdentifier, valueAsReference],
   );
 
   // Cleanup debounce on unmount
@@ -79,7 +95,7 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
   return (
     <Form.Control
       id={id}
-      type="text"
+      type={type}
       value={inputValue}
       onChange={handleInputChange}
       onBlur={() => delayedDispatch.flush()}

@@ -38,6 +38,15 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
     }
   | {
       key: string;
+      kind: "numerical";
+      fieldIdentifier: string;
+      label: string;
+      valueAsReference?: boolean;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
       kind: "checkbox";
       fieldIdentifier: string;
       label: string;
@@ -117,6 +126,27 @@ export const renderArticleField = <TArticle extends Article>(
         />
         <br />
       </div>
+    );
+  }
+
+  if (field.kind === "numerical") {
+    return (
+      <Form key={field.key}>
+        <Form.Label htmlFor={`${article.id}-${field.key}`}>
+          {field.label}
+        </Form.Label>
+        <DebouncedInput
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+          id={`${article.id}-${field.key}`}
+          type="number"
+          valueAsReference={field.valueAsReference}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
     );
   }
 

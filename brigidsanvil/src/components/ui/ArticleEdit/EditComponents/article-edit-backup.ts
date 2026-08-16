@@ -55,7 +55,8 @@ const sourceValueForField = (article: Article, field: BackupFieldConfig) => {
 
   if (
     field.kind === "dropdown" ||
-    (field.kind === "field-dropdown" && field.valueAsReference)
+    (field.kind === "field-dropdown" && field.valueAsReference) ||
+    (field.kind === "numerical" && field.valueAsReference)
   ) {
     return asReference(value);
   }

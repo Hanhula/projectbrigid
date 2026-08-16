@@ -285,6 +285,14 @@ export const bodySubTabRegistry: OrganisationBodySubTabConfig[] = [
     title: "Sidebar - General",
     fields: [
       {
+        key: "sidebar-flag",
+        kind: "numerical",
+        fieldIdentifier: "flag",
+        label: "Flag",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "sidebar-type",
         kind: "field-dropdown",
         fieldIdentifier: "type",

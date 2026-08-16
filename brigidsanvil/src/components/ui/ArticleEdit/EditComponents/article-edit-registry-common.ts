@@ -117,6 +117,14 @@ export const createCommonDesignFieldRegistry = <
       fieldIdentifier: "tags",
       label: "Tags",
     },
+    {
+      key: "design-cover",
+      kind: "numerical",
+      fieldIdentifier: "cover",
+      label: "Cover",
+      valueAsReference: true,
+      helpText: "Enter the numeric ID, like 7929092!",
+    },
   ];
 };
 
