@@ -1,4 +1,4 @@
-import { LandmarkType } from "./landmark";
+import { LandmarkType } from "../landmark";
 
 export const LandmarkTypes: LandmarkType[] = [
   {
