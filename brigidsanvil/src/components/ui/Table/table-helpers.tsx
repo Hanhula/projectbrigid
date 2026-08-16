@@ -120,7 +120,7 @@ export const getDateTime = (dateString: string) => {
   }
 
   if (dateString && dateString.length < 8) {
-    console.log(
+    console.error(
       `Congratulations, you found an error! Incorrect date string is: ${dateString}`,
     );
     return null;

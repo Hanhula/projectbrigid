@@ -5,15 +5,15 @@ import {
   sidebarFieldRegistry,
   subtitleFieldRegistry,
   bodySubTabRegistry,
-} from "./landmark-edit-registry";
+} from "./organisation-edit-registry";
 import { ArticleEditPage } from "../EditComponents/article-edit-page";
-import { Landmark } from "@/components/types/article-types/landmark";
+import { Organisation } from "@/components/types/article-types/organisation";
 
-const LandmarkEdit = ({
+const OrganisationEdit = ({
   article,
   resetSignal = 0,
 }: {
-  article: Landmark;
+  article: Organisation;
   resetSignal?: number;
 }) => (
   <ArticleEditPage
@@ -25,10 +25,10 @@ const LandmarkEdit = ({
     footerFieldRegistry={footerFieldRegistry}
     designFieldRegistry={designFieldRegistry}
     defaultBodySubTabKey="information"
-    topLevelTabsId="landmark-edit-tabs"
-    bodyTabsId="landmark-sub-tabs"
+    topLevelTabsId="organisation-edit-tabs"
+    bodyTabsId="organisation-sub-tabs"
     resetSignal={resetSignal}
   />
 );
 
-export default LandmarkEdit;
+export default OrganisationEdit;

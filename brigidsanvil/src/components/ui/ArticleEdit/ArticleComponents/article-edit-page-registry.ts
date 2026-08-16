@@ -12,6 +12,7 @@ import LocationEdit from "./location-edit";
 import MaterialEdit from "./material-edit";
 import MilitaryConflictEdit from "./militaryconflict-edit";
 import MythEdit from "./myth-edit";
+import OrganisationEdit from "./organisation-edit";
 import ProseEdit from "./prose-edit";
 import RankEdit from "./rank-edit";
 import RitualEdit from "./ritual-edit";
@@ -33,6 +34,7 @@ import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
 import * as militaryConflictRegistry from "./militaryconflict-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
+import * as organisationRegistry from "./organisation-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
 import * as rankRegistry from "./rank-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
@@ -86,6 +88,7 @@ export const articleEditPageRegistry: Record<
     fields: militaryConflictRegistry,
   },
   Myth: { Component: MythEdit, fields: mythRegistry },
+  Organization: { Component: OrganisationEdit, fields: organisationRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },
   Rank: { Component: RankEdit, fields: rankRegistry },

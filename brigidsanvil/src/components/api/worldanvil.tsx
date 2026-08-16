@@ -483,7 +483,7 @@ export function useWorldAnvilAPI() {
         CallType.PATCH,
         JSON.stringify(updateBody),
       );
-      //console.log("Article to update: ", data);
+      console.log("Article to update: ", data);
 
       let worldArticle: WorldArticle = {
         world: world,
@@ -568,7 +568,7 @@ export function useWorldAnvilAPI() {
         CallType.PATCH,
         JSON.stringify(updateBody),
       );
-      //console.log("Article to update: ", data);
+      console.log("Article to update: ", data);
 
       await getArticle(articleID, true);
       dispatch(removeEditByID({ worldID: sourceWorldID, articleID }));
