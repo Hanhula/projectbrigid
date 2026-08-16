@@ -60,14 +60,14 @@ export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
-        key: "body-location",
+        key: "sidebar-location",
         kind: "dropdown",
         fieldIdentifier: "location",
         label: "Related Location",
         entityClass: ["Location", "Settlement", "Landmark"],
       },
       {
-        key: "body-importantLocations",
+        key: "sidebar-importantLocations",
         kind: "dropdown",
         fieldIdentifier: "importantLocations",
         label: "Important Locations",
@@ -75,7 +75,7 @@ export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
         isMulti: true,
       },
       {
-        key: "body-organisations",
+        key: "sidebar-organisations",
         kind: "dropdown",
         fieldIdentifier: "organizations",
         label: "Related Organisations",
@@ -83,7 +83,7 @@ export const bodySubTabRegistry: RitualBodySubTabConfig[] = [
         isMulti: true,
       },
       {
-        key: "body-ethnicities",
+        key: "sidebar-ethnicities",
         kind: "dropdown",
         fieldIdentifier: "ethnicities",
         label: "Related Ethnicities",

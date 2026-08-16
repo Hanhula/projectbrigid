@@ -12,6 +12,7 @@ import LocationEdit from "./location-edit";
 import MaterialEdit from "./material-edit";
 import MythEdit from "./myth-edit";
 import ProseEdit from "./prose-edit";
+import RankEdit from "./rank-edit";
 import RitualEdit from "./ritual-edit";
 import SpellEdit from "./spell-edit";
 import SpeciesEdit from "./species-edit";
@@ -31,6 +32,7 @@ import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
+import * as rankRegistry from "./rank-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
 import * as spellRegistry from "./spell-edit-registry";
 import * as speciesRegistry from "./species-edit-registry";
@@ -80,6 +82,7 @@ export const articleEditPageRegistry: Record<
   Myth: { Component: MythEdit, fields: mythRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },
+  Rank: { Component: RankEdit, fields: rankRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
   Spell: { Component: SpellEdit, fields: spellRegistry },
   Species: { Component: SpeciesEdit, fields: speciesRegistry },
