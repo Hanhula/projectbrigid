@@ -10,6 +10,7 @@ import LandmarkEdit from "./landmark-edit";
 import LanguageEdit from "./language-edit";
 import LocationEdit from "./location-edit";
 import MaterialEdit from "./material-edit";
+import MilitaryConflictEdit from "./militaryconflict-edit";
 import MythEdit from "./myth-edit";
 import ProseEdit from "./prose-edit";
 import RankEdit from "./rank-edit";
@@ -30,6 +31,7 @@ import * as landmarkRegistry from "./landmark-edit-registry";
 import * as languageRegistry from "./language-edit-registry";
 import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
+import * as militaryConflictRegistry from "./militaryconflict-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
 import * as rankRegistry from "./rank-edit-registry";
@@ -79,6 +81,10 @@ export const articleEditPageRegistry: Record<
   Language: { Component: LanguageEdit, fields: languageRegistry },
   Location: { Component: LocationEdit, fields: locationRegistry },
   Material: { Component: MaterialEdit, fields: materialRegistry },
+  MilitaryConflict: {
+    Component: MilitaryConflictEdit,
+    fields: militaryConflictRegistry,
+  },
   Myth: { Component: MythEdit, fields: mythRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },

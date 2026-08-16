@@ -139,7 +139,7 @@ export const bodySubTabRegistry: RankBodySubTabConfig[] = [
         kind: "field-dropdown",
         fieldIdentifier: "type",
         label: "Type",
-        options: rankTypes.map((type) => ({ label: type, value: type })),
+        options: rankTypes,
       },
       {
         key: "sidebar-rankStatus",
