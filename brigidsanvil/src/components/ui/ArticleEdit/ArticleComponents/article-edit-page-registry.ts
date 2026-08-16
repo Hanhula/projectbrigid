@@ -11,6 +11,7 @@ import LanguageEdit from "./language-edit";
 import LocationEdit from "./location-edit";
 import MaterialEdit from "./material-edit";
 import MythEdit from "./myth-edit";
+import ProseEdit from "./prose-edit";
 import RitualEdit from "./ritual-edit";
 import TechnologyEdit from "./technology-edit";
 import VehicleEdit from "./vehicle-edit";
@@ -27,6 +28,7 @@ import * as languageRegistry from "./language-edit-registry";
 import * as locationRegistry from "./location-edit-registry";
 import * as materialRegistry from "./material-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
+import * as proseRegistry from "./prose-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
 import * as technologyRegistry from "./technology-edit-registry";
 import * as vehicleRegistry from "./vehicle-edit-registry";
@@ -73,6 +75,7 @@ export const articleEditPageRegistry: Record<
   Material: { Component: MaterialEdit, fields: materialRegistry },
   Myth: { Component: MythEdit, fields: mythRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
+  Prose: { Component: ProseEdit, fields: proseRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
   Technology: { Component: TechnologyEdit, fields: technologyRegistry },
   Vehicle: { Component: VehicleEdit, fields: vehicleRegistry },

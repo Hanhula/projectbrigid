@@ -89,6 +89,14 @@ export function ArticleEditPage<TArticle extends Article>({
     design: <>{renderFields(designFieldRegistry)}</>,
   };
 
+  const hasFieldsByTabKey: Record<ArticleTopLevelTabKey, boolean> = {
+    body: bodyFieldRegistry.length > 0 || bodySubTabRegistry.length > 0,
+    subtitle: subtitleFieldRegistry.length > 0,
+    sidebar: sidebarFieldRegistry.length > 0,
+    footer: footerFieldRegistry.length > 0,
+    design: designFieldRegistry.length > 0,
+  };
+
   return (
     <div>
       <h1>{article.title}</h1>
@@ -106,15 +114,17 @@ export function ArticleEditPage<TArticle extends Article>({
         mountOnEnter
         unmountOnExit
       >
-        {articleTopLevelTabRegistry.map((tabConfig) => (
-          <Tab
-            key={tabConfig.eventKey}
-            eventKey={tabConfig.eventKey}
-            title={tabConfig.title}
-          >
-            {tabContentByKey[tabConfig.eventKey]}
-          </Tab>
-        ))}
+        {articleTopLevelTabRegistry
+          .filter((tabConfig) => hasFieldsByTabKey[tabConfig.eventKey])
+          .map((tabConfig) => (
+            <Tab
+              key={tabConfig.eventKey}
+              eventKey={tabConfig.eventKey}
+              title={tabConfig.title}
+            >
+              {tabContentByKey[tabConfig.eventKey]}
+            </Tab>
+          ))}
       </Tabs>
     </div>
   );
