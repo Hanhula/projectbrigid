@@ -9,6 +9,7 @@ import DebouncedFieldDropdown, {
 import DebouncedInput from "./debounced-input";
 import ArticleTagsInput from "./article-tags-input";
 import ArticleIconInput from "./article-icon-input";
+import DebouncedCheckbox from "./debounced-checkbox";
 
 export type ArticleFieldConfig<TArticle extends Article = Article> =
   | {
@@ -33,6 +34,15 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       fieldIdentifier: string;
       label: string;
       helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "checkbox";
+      fieldIdentifier: string;
+      label: string;
+      helpText?: string;
+      header?: string;
       showWhen?: (article: TArticle) => boolean;
     }
   | {
@@ -128,6 +138,24 @@ export const renderArticleField = <TArticle extends Article>(
           article={article}
           fieldIdentifier={field.fieldIdentifier}
           resetSignal={resetSignal}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
+    );
+  }
+
+  if (field.kind === "checkbox") {
+    return (
+      <Form key={field.key}>
+        <DebouncedCheckbox
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+          label={field.label}
+          header={field.header}
+          id={`${article.id}-${field.key}`}
         />
         {field.helpText && (
           <Form.Text className="text-muted">{field.helpText}</Form.Text>
