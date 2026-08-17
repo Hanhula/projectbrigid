@@ -16,6 +16,7 @@ import OrganisationEdit from "./organisation-edit";
 import ProseEdit from "./prose-edit";
 import PlotEdit from "./plot-edit";
 import RankEdit from "./rank-edit";
+import ReportEdit from "./report-edit";
 import RitualEdit from "./ritual-edit";
 import SpellEdit from "./spell-edit";
 import SpeciesEdit from "./species-edit";
@@ -39,6 +40,7 @@ import * as organisationRegistry from "./organisation-edit-registry";
 import * as plotRegistry from "./plot-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
 import * as rankRegistry from "./rank-edit-registry";
+import * as reportRegistry from "./report-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
 import * as spellRegistry from "./spell-edit-registry";
 import * as speciesRegistry from "./species-edit-registry";
@@ -95,6 +97,7 @@ export const articleEditPageRegistry: Record<
   Plot: { Component: PlotEdit, fields: plotRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },
   Rank: { Component: RankEdit, fields: rankRegistry },
+  Report: { Component: ReportEdit, fields: reportRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
   Spell: { Component: SpellEdit, fields: spellRegistry },
   Species: { Component: SpeciesEdit, fields: speciesRegistry },

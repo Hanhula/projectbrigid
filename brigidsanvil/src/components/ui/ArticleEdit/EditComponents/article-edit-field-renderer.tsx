@@ -7,6 +7,7 @@ import DebouncedFieldDropdown, {
   FieldDropdownOption,
 } from "./debounced-field-dropdown";
 import DebouncedInput from "./debounced-input";
+import DebouncedDateInput from "./debounced-date-input";
 import ArticleTagsInput from "./article-tags-input";
 import ArticleIconInput from "./article-icon-input";
 import DebouncedCheckbox from "./debounced-checkbox";
@@ -42,6 +43,14 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       fieldIdentifier: string;
       label: string;
       valueAsReference?: boolean;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "date";
+      fieldIdentifier: string;
+      label: string;
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -142,6 +151,25 @@ export const renderArticleField = <TArticle extends Article>(
           id={`${article.id}-${field.key}`}
           type="number"
           valueAsReference={field.valueAsReference}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
+      </Form>
+    );
+  }
+
+  if (field.kind === "date") {
+    return (
+      <Form key={field.key}>
+        <Form.Label htmlFor={`${article.id}-${field.key}`}>
+          {field.label}
+        </Form.Label>
+        <DebouncedDateInput
+          world={world}
+          article={article}
+          fieldIdentifier={field.fieldIdentifier}
+          id={`${article.id}-${field.key}`}
         />
         {field.helpText && (
           <Form.Text className="text-muted">{field.helpText}</Form.Text>
