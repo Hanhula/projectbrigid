@@ -13,15 +13,15 @@ import {
   createArticleEditorBackup,
   parseArticleEditorBackup,
 } from "@/components/ui/ArticleEdit/EditComponents/article-edit-backup";
-import { Button, Col, Container, Modal, Row, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Modal, Row } from "react-bootstrap";
 import { useRouter } from "next/router";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
 import { useMemo, useRef, useState } from "react";
 
 import "./edit.scss";
-import Link from "next/link";
 import Head from "next/head";
 import { articleEditPageRegistry } from "@/components/ui/ArticleEdit/ArticleComponents/article-edit-page-registry";
+import ArticleEditToolbar from "@/components/ui/ArticleEdit/EditComponents/article-edit-toolbar";
 
 export async function getServerSideProps(context: any) {
   return {
@@ -248,59 +248,17 @@ export default function EditPage() {
       <Container fluid="md" className="edit-container">
         <Row className="edit-row">
           <Col className="editor-col">
-            <div>
-              <Button
-                onClick={handleResetContent}
-                className="mp-2"
-                variant="danger"
-              >
-                Reset Content
-              </Button>
-              <Button
-                onClick={handleRefreshContent}
-                className="m-2"
-                disabled={isRefreshing || !article}
-                variant="danger"
-              >
-                {isRefreshing ? (
-                  <>
-                    <Spinner animation="border" size="sm" /> Refreshing...
-                  </>
-                ) : (
-                  "Refresh Content"
-                )}
-              </Button>
-              <Button onClick={handleSaveContent} className="mp-2">
-                Save to WorldAnvil
-              </Button>
-              <Button
-                onClick={handleExportBackup}
-                className="m-2"
-                disabled={!article}
-              >
-                Export Backup
-              </Button>
-              <Button
-                onClick={() => importInputRef.current?.click()}
-                className="mp-2"
-                disabled={!article}
-              >
-                Import Backup
-              </Button>
-              <input
-                ref={importInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={handleImportFile}
-                className="d-none"
-              />
-              <Link href={article!.url}>
-                <Button className="m-2">View on WorldAnvil</Button>
-              </Link>
-              <Link href={`/worldanvil/articles/${article!.id}/view`}>
-                <Button className="mp-2">View on Brigid</Button>
-              </Link>
-            </div>
+            <ArticleEditToolbar
+              article={article}
+              isRefreshing={isRefreshing}
+              importInputRef={importInputRef}
+              onReset={handleResetContent}
+              onRefresh={handleRefreshContent}
+              onSave={handleSaveContent}
+              onExportBackup={handleExportBackup}
+              onImportBackup={() => importInputRef.current?.click()}
+              onImportFile={handleImportFile}
+            />
             {article && EditPageComponent ? (
               <EditPageComponent article={article} resetSignal={resetSignal} />
             ) : (

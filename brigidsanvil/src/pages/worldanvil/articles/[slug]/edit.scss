@@ -1,6 +1,36 @@
 .editpage {
   min-height: 100dvh;
 
+  &-toolbar {
+    background: var(--darker-terror);
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  &-toolbar-toggle {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-toolbar-actions-buttons {
+    margin-top: 0.6rem;
+  }
+
+  @media (min-width: 768px) {
+    #article-edit-toolbar-actions.collapse:not(.show) {
+      display: block !important;
+    }
+
+    &-toolbar-actions-buttons {
+      margin-top: 0rem;
+    }
+  }
+
   .blockquote {
     background: var(--dark-terror);
     padding: 1em;

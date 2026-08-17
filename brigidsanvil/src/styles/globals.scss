@@ -149,6 +149,17 @@ td a {
   --bs-btn-disabled-border-color: var(--primary);
 }
 
+.btn-tertiary {
+  --bs-btn-bg: var(--secondary);
+  --bs-btn-border-color: var(--secondary);
+  --bs-btn-hover-bg: var(--secondary-light);
+  --bs-btn-hover-border-color: var(--secondary-dark);
+  --bs-btn-active-bg: var(--secondary-dark);
+  --bs-btn-active-border-color: var(--secondary-dark);
+  --bs-btn-disabled-bg: var(--secondary);
+  --bs-btn-disabled-border-color: var(--secondary);
+}
+
 .btn-danger {
   --bs-btn-bg: var(--danger-red);
   --bs-btn-border-color: var(--danger-red);
@@ -158,6 +169,17 @@ td a {
   --bs-btn-active-border-color: var(--danger-red-dark);
   --bs-btn-disabled-bg: var(--danger-red);
   --bs-btn-disabled-border-color: var(--danger-red);
+}
+
+.btn-options {
+  --bs-btn-bg: var(--light-terror);
+  --bs-btn-border-color: var(--dark-terror);
+  --bs-btn-hover-bg: var(--dark-terror);
+  --bs-btn-hover-border-color: var(--darker-terror);
+  --bs-btn-active-bg: var(--lighter-terror);
+  --bs-btn-active-border-color: var(--light-terror);
+  --bs-btn-disabled-bg: var(--lighter-terror);
+  --bs-btn-disabled-border-color: var(--light-terror);
 }
 
 .pagination {

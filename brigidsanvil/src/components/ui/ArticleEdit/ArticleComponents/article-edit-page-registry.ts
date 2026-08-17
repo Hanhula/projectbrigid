@@ -14,6 +14,7 @@ import MilitaryConflictEdit from "./militaryconflict-edit";
 import MythEdit from "./myth-edit";
 import OrganisationEdit from "./organisation-edit";
 import ProseEdit from "./prose-edit";
+import ProfessionEdit from "./profession-edit";
 import PlotEdit from "./plot-edit";
 import RankEdit from "./rank-edit";
 import ReportEdit from "./report-edit";
@@ -38,6 +39,7 @@ import * as militaryConflictRegistry from "./militaryconflict-edit-registry";
 import * as mythRegistry from "./myth-edit-registry";
 import * as organisationRegistry from "./organisation-edit-registry";
 import * as plotRegistry from "./plot-edit-registry";
+import * as professionRegistry from "./profession-edit-registry";
 import * as proseRegistry from "./prose-edit-registry";
 import * as rankRegistry from "./rank-edit-registry";
 import * as reportRegistry from "./report-edit-registry";
@@ -95,6 +97,7 @@ export const articleEditPageRegistry: Record<
   Organization: { Component: OrganisationEdit, fields: organisationRegistry },
   Person: { Component: CharacterEdit, fields: characterRegistry },
   Plot: { Component: PlotEdit, fields: plotRegistry },
+  Profession: { Component: ProfessionEdit, fields: professionRegistry },
   Prose: { Component: ProseEdit, fields: proseRegistry },
   Rank: { Component: RankEdit, fields: rankRegistry },
   Report: { Component: ReportEdit, fields: reportRegistry },
