@@ -176,12 +176,24 @@ describe("BBCodeEditor utilities", () => {
     );
   });
 
-  test("normalizeQuoteAuthorDelimiter keeps quote author separator WA-friendly", () => {
-    const input = "[quote]test\n\ntesttest\ntest\n|author[/quote]";
+  test("normalizeQuoteAuthorDelimiter keeps quote and spoiler author separators WA-friendly", () => {
+    const quoteInput = "[quote]test\n\ntesttest\ntest\n|author[/quote]";
+    const spoilerInput = "[spoiler]test\n\ntesttest\ntest\n|author[/spoiler]";
 
-    expect(normalizeQuoteAuthorDelimiter(input)).toBe(
+    expect(normalizeQuoteAuthorDelimiter(quoteInput)).toBe(
       "[quote]test\n\ntesttest\ntest|author[/quote]",
     );
+    expect(normalizeQuoteAuthorDelimiter(spoilerInput)).toBe(
+      "[spoiler]test\n\ntesttest\ntest|author[/spoiler]",
+    );
+  });
+
+  test("collectDecorationSpans recognizes spoiler title suffixes", () => {
+    const input = "[spoiler]secret text|Spoiler Title[/spoiler]";
+    const spans = collectDecorationSpans(input);
+
+    expect(spans.some((span) => span.kind === "author")).toBe(true);
+    expect(spans.some((span) => span.kind === "opaque")).toBe(true);
   });
 
   test("normalizeWorldAnvilSingleLineBreaks is available for explicit [br] insertion only", () => {
@@ -231,5 +243,54 @@ describe("BBCodeEditor utilities", () => {
 
     expect(runResult).toBe(true);
     expect(insertLineBreakTag).toHaveBeenCalledTimes(1);
+  });
+
+  test("safe numeric layout and list hotkeys work without browser conflicts", () => {
+    const insertTag = jest.fn(() => true);
+    const insertOpaqueBlock = jest.fn(() => true);
+    const insertList = jest.fn(() => true);
+
+    const bindings = createBbcodeKeyBindings({
+      insertTag,
+      insertOpaqueBlock,
+      insertList,
+    });
+
+    const unorderedListBinding = bindings.find(
+      (binding) => binding.key === "Mod-Alt-8",
+    );
+    const orderedListBinding = bindings.find(
+      (binding) => binding.key === "Mod-Alt-9",
+    );
+    const rowBinding = bindings.find(
+      (binding) => binding.key === "Mod-Shift-2",
+    );
+    const columnBinding = bindings.find(
+      (binding) => binding.key === "Mod-Shift-3",
+    );
+    const containerBinding = bindings.find(
+      (binding) => binding.key === "Mod-Shift-1",
+    );
+
+    expect(unorderedListBinding?.preventDefault).toBe(true);
+    expect(orderedListBinding?.preventDefault).toBe(true);
+    expect(rowBinding?.preventDefault).toBe(true);
+    expect(columnBinding?.preventDefault).toBe(true);
+    expect(containerBinding?.preventDefault).toBe(true);
+
+    expect(unorderedListBinding?.run!({} as any)).toBe(true);
+    expect(insertList).toHaveBeenCalledWith("ul");
+
+    expect(orderedListBinding?.run!({} as any)).toBe(true);
+    expect(insertList).toHaveBeenCalledWith("ol");
+
+    expect(rowBinding?.run!({} as any)).toBe(true);
+    expect(insertOpaqueBlock).toHaveBeenCalledWith("[row]");
+
+    expect(columnBinding?.run!({} as any)).toBe(true);
+    expect(insertOpaqueBlock).toHaveBeenCalledWith("[col]");
+
+    expect(containerBinding?.run!({} as any)).toBe(true);
+    expect(insertOpaqueBlock).toHaveBeenCalledWith("[container]");
   });
 });

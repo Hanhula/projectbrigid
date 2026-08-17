@@ -79,8 +79,19 @@ export const customTransform = (domNode: DOMNode) => {
       },
     );
 
+    const isExternal = domNode.attribs.href?.startsWith("http");
+    if (isExternal) {
+      return (
+        <a href={domNode.attribs.href}>
+          {reactChildren.filter((child: any) => child !== null)}
+        </a>
+      );
+    }
+
+    const articleId = domNode.attribs.href;
+    const fullPath = `/worldanvil/articles/${articleId}/view`;
     return (
-      <Link href={domNode.attribs.href}>
+      <Link href={fullPath}>
         {reactChildren.filter((child: any) => child !== null)}
       </Link>
     );

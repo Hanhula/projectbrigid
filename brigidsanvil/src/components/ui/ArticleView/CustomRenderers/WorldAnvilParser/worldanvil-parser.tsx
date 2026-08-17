@@ -79,7 +79,6 @@ class WorldAnvilParser extends yabbcode {
       type: "replace",
       open: (attr) => {
         const id = attr || "";
-
         return `<customUrl href="${id}">`;
       },
       close: "</customUrl>",

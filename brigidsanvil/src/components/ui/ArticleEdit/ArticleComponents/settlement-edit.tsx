@@ -15,23 +15,20 @@ const SettlementEdit = ({
 }: {
   article: Settlement;
   resetSignal?: number;
-}) => {
-  console.log(article.type);
-  return (
-    <ArticleEditPage
-      article={article}
-      bodyFieldRegistry={bodyFieldRegistry}
-      bodySubTabRegistry={bodySubTabRegistry}
-      subtitleFieldRegistry={subtitleFieldRegistry}
-      sidebarFieldRegistry={sidebarFieldRegistry}
-      footerFieldRegistry={footerFieldRegistry}
-      designFieldRegistry={designFieldRegistry}
-      defaultBodySubTabKey="information"
-      topLevelTabsId="settlement-edit-tabs"
-      bodyTabsId="settlement-sub-tabs"
-      resetSignal={resetSignal}
-    />
-  );
-};
+}) => (
+  <ArticleEditPage
+    article={article}
+    bodyFieldRegistry={bodyFieldRegistry}
+    bodySubTabRegistry={bodySubTabRegistry}
+    subtitleFieldRegistry={subtitleFieldRegistry}
+    sidebarFieldRegistry={sidebarFieldRegistry}
+    footerFieldRegistry={footerFieldRegistry}
+    designFieldRegistry={designFieldRegistry}
+    defaultBodySubTabKey="information"
+    topLevelTabsId="settlement-edit-tabs"
+    bodyTabsId="settlement-sub-tabs"
+    resetSignal={resetSignal}
+  />
+);
 
 export default SettlementEdit;

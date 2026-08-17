@@ -8,6 +8,7 @@ import {
   keymap,
   ViewPlugin,
 } from "@codemirror/view";
+import { toolbarButtons, type ToolbarAction } from "./toolbar-buttons";
 
 const tagDecoration = Decoration.mark({ class: "bbcode-tag" });
 const opaqueTagDecoration = Decoration.mark({ class: "bbcode-opaque-tag" });
@@ -147,10 +148,10 @@ export const normalizeEditorLinebreaks = (value: string) => {
 
 export const normalizeQuoteAuthorDelimiter = (value: string) => {
   return value.replace(
-    /\[quote\]([\s\S]*?)\[\/quote\]/gi,
-    (_match, rawBody) => {
+    /\[(quote|spoiler)\]([\s\S]*?)\[\/\1\]/gi,
+    (_match, tagName, rawBody) => {
       const body = String(rawBody).replace(/\r\n/g, "\n");
-      return `[quote]${body.replace(/\n\|([^\n]*)$/, "|$1")}[/quote]`;
+      return `[${tagName}]${body.replace(/\n\|([^\n]*)$/, "|$1")}[/${tagName}]`;
     },
   );
 };
@@ -220,39 +221,46 @@ const overlaps = (
   );
 };
 
-export const collectDecorationSpans = (text: string): DecorationSpan[] => {
-  const patterns: Array<{
-    regex: RegExp;
-    kind: DecorationKind;
-    priority: number;
-  }> = [
-    {
-      regex: /@\[[^\]\n]+\]\([^)]+\)/g,
-      kind: "mention",
-      priority: 3,
-    },
-    {
-      regex:
-        /\[(?:row|\/row|col|\/col|container(?::[^\]]+)?|\/container|section|\/section|img(?::[^\]]+)?|url(?::[^\]]+)?|\/url)\]/g,
-      kind: "opaque",
-      priority: 2,
-    },
-    {
-      // Broad token matcher for WA BBCode tags, including parameterized variants.
-      regex: /\[[^\]\n]+\]/g,
-      kind: "tag",
-      priority: 1,
-    },
-    {
-      regex: /\|[^\n\[]+/g,
-      kind: "author",
-      priority: 0,
-    },
-  ];
+// Moved to module scope: this array was previously rebuilt on every
+// keystroke inside collectDecorationSpans for no reason.
+const DECORATION_PATTERNS: Array<{
+  regex: RegExp;
+  kind: DecorationKind;
+  priority: number;
+}> = [
+  {
+    // @[Title](entityClass:id) mentions
+    regex: /@\[[^\]\n]+\]\([^)]+\)/g,
+    kind: "mention",
+    priority: 3,
+  },
+  {
+    // Structural tags that wrap raw, non-BBCode content
+    regex:
+      /\[(?:row|\/row|col|\/col|container(?::[^\]]+)?|\/container|section|\/section|img(?::[^\]]+)?|url(?::[^\]]+)?|\/url|spoiler|\/spoiler)\]/g,
+    kind: "opaque",
+    priority: 2,
+  },
+  {
+    // Any other bracketed BBCode tag, e.g. [b], [h1], [quote]
+    regex: /\[[^\]\n]+\]/g,
+    kind: "tag",
+    priority: 1,
+  },
+  {
+    // Quote/spoiler author suffix only: the "|Title" segment that sits
+    // directly before a closing [/quote] or [/spoiler]. We keep it
+    // scoped to those blocks so unrelated table text isn't styled.
+    regex: /\|[^\n\[\]]*(?=\[\/(?:quote|spoiler)\])/gi,
+    kind: "author",
+    priority: 0,
+  },
+];
 
+export const collectDecorationSpans = (text: string): DecorationSpan[] => {
   const candidates: DecorationSpan[] = [];
 
-  for (const pattern of patterns) {
+  for (const pattern of DECORATION_PATTERNS) {
     pattern.regex.lastIndex = 0;
     let match: RegExpExecArray | null;
 
@@ -266,6 +274,12 @@ export const collectDecorationSpans = (text: string): DecorationSpan[] => {
         kind: pattern.kind,
         priority: pattern.priority,
       });
+
+      // Zero-length matches (possible with the author lookahead) would
+      // otherwise spin exec() forever at the same index.
+      if (match[0].length === 0) {
+        pattern.regex.lastIndex += 1;
+      }
     }
   }
 
@@ -324,34 +338,64 @@ export const bbcodeHighlighter = ViewPlugin.fromClass(
   },
 );
 
-export const createBbcodeKeyBindings = (handlers: {
+/**
+ * Handlers a host component implements to actually mutate the editor.
+ * `insertWrappedTag` and `insertList` are optional: if omitted,
+ * wrappedTag actions fall back to `insertTag`, and list actions become
+ * a no-op key (falls through to CodeMirror's default handling) until
+ * the host wires them up.
+ */
+export type BbcodeCommandHandlers = {
   insertTag: (openTag: string, closeTag: string) => boolean;
+  insertWrappedTag?: (openTag: string, closeTag: string) => boolean;
   insertOpaqueBlock: (tag: string) => boolean;
+  insertList?: (listTag: "ul" | "ol") => boolean;
   insertLineBreakTag?: () => boolean;
-}): KeyBinding[] => {
-  return [
-    { key: "Mod-b", run: () => handlers.insertTag("[b]", "[/b]") },
-    { key: "Mod-i", run: () => handlers.insertTag("[i]", "[/i]") },
-    { key: "Mod-u", run: () => handlers.insertTag("[u]", "[/u]") },
-    {
-      key: "Shift-Enter",
-      run: () =>
-        handlers.insertLineBreakTag ? handlers.insertLineBreakTag() : false,
-    },
-    { key: "Mod-Alt-q", run: () => handlers.insertTag("[quote]", "[/quote]") },
-    { key: "Mod-Alt-r", run: () => handlers.insertOpaqueBlock("[row]") },
-    {
-      key: "Mod-Alt-c",
-      run: () => handlers.insertOpaqueBlock("[container]"),
-    },
-    { key: "Mod-Alt-i", run: () => handlers.insertOpaqueBlock("[img]") },
-  ];
 };
 
-export const createBbcodeKeymapExtension = (handlers: {
-  insertTag: (openTag: string, closeTag: string) => boolean;
-  insertOpaqueBlock: (tag: string) => boolean;
-  insertLineBreakTag?: () => boolean;
-}): Extension => {
-  return Prec.high(keymap.of(createBbcodeKeyBindings(handlers)));
+const resolveActionRunner = (
+  action: ToolbarAction,
+  handlers: BbcodeCommandHandlers,
+): (() => boolean) => {
+  switch (action.type) {
+    case "tag":
+      if (action.openTag === "[br]" && handlers.insertLineBreakTag) {
+        return () => handlers.insertLineBreakTag!();
+      }
+      return () => handlers.insertTag(action.openTag, action.closeTag);
+    case "wrappedTag":
+      return () =>
+        (handlers.insertWrappedTag ?? handlers.insertTag)(
+          action.openTag,
+          action.closeTag,
+        );
+    case "opaque":
+      return () => handlers.insertOpaqueBlock(action.tag);
+    case "list":
+      return () => handlers.insertList?.(action.listTag) ?? false;
+    default:
+      return () => false;
+  }
 };
+
+/**
+ * Builds the editor keymap directly from `toolbarButtons`, so a
+ * toolbar button's hotkey is guaranteed to match what pressing that
+ * key actually does — there's no separate list to keep in sync.
+ */
+export const createBbcodeKeyBindings = (
+  handlers: BbcodeCommandHandlers,
+): KeyBinding[] =>
+  toolbarButtons
+    .filter((button): button is typeof button & { hotkey: string } =>
+      Boolean(button.hotkey),
+    )
+    .map((button) => ({
+      key: button.hotkey,
+      preventDefault: true,
+      run: resolveActionRunner(button.action, handlers),
+    }));
+
+export const createBbcodeKeymapExtension = (
+  handlers: BbcodeCommandHandlers,
+): Extension => Prec.high(keymap.of(createBbcodeKeyBindings(handlers)));

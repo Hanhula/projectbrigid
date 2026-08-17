@@ -314,7 +314,9 @@ const BBCodeEditor = ({
           ),
           createBbcodeKeymapExtension({
             insertTag,
+            insertWrappedTag,
             insertOpaqueBlock,
+            insertList: insertListBlock,
             insertLineBreakTag,
           }),
           EditorView.updateListener.of((update) => {
