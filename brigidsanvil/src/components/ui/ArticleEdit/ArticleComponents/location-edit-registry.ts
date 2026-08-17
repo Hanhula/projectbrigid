@@ -1,3 +1,4 @@
+import { LocationTypes } from "@/components/types/article-types/utils/LocationTypes";
 import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
   createCommonBodyFieldRegistry,
@@ -6,10 +7,7 @@ import {
   createCommonSubtitleFieldRegistry,
   createCommonDesignFieldRegistry,
 } from "../EditComponents/article-edit-registry-common";
-import {
-  Location,
-  LocationTypes,
-} from "@/components/types/article-types/location";
+import { Location } from "@/components/types/article-types/location";
 
 export type LocationBodySubTabConfig = {
   eventKey: string;
