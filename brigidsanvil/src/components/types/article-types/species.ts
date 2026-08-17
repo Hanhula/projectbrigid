@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Image } from "../image";
 import { Ethnicity } from "./ethnicity";
 import { Location } from "./location";
 import { Organisation } from "./organisation";
@@ -60,6 +61,7 @@ export type Species = Article & {
   relatedOrganizations: Organisation[];
   ethnicities: Ethnicity[];
   parents: Species[];
+  portrait: Image | null;
 };
 
 export class SpeciesDisplay extends ArticleDisplay {
@@ -103,6 +105,7 @@ export class SpeciesDisplay extends ArticleDisplay {
   sidebar: {
     extinct: string | null;
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     geneticAncestors: string | null;
     scientificName: string | null;
@@ -142,38 +145,68 @@ export class SpeciesDisplay extends ArticleDisplay {
       socialStructure: species.socialstructure ? species.socialstructure : null,
       domestication: species.domestication ? species.domestication : null,
       usesProductsAndExploitation: species.uses ? species.uses : null,
-      facialCharacteristics: species.facialCharacteristics ? species.facialCharacteristics : null,
-      geographicOriginAndDistribution: species.geographicalOrigin ? species.geographicalOrigin : null,
-      averageIntelligence: species.averageIntelligence ? species.averageIntelligence : null,
-      perceptionAndSensoryCapabilities: species.perception ? species.perception : null,
-      symbioticAndParasiticOrganisms: species.symbiotic ? species.symbiotic : null,
-      namingTraditions: species.namingTraditions ? species.namingTraditions : null,
-      majorOrganisations: species.majorOrganizations ? species.majorOrganizations : null,
+      facialCharacteristics: species.facialCharacteristics
+        ? species.facialCharacteristics
+        : null,
+      geographicOriginAndDistribution: species.geographicalOrigin
+        ? species.geographicalOrigin
+        : null,
+      averageIntelligence: species.averageIntelligence
+        ? species.averageIntelligence
+        : null,
+      perceptionAndSensoryCapabilities: species.perception
+        ? species.perception
+        : null,
+      symbioticAndParasiticOrganisms: species.symbiotic
+        ? species.symbiotic
+        : null,
+      namingTraditions: species.namingTraditions
+        ? species.namingTraditions
+        : null,
+      majorOrganisations: species.majorOrganizations
+        ? species.majorOrganizations
+        : null,
       beautyIdeals: species.beautyIdeals ? species.beautyIdeals : null,
       genderIdeals: species.genderIdeals ? species.genderIdeals : null,
       courtshipIdeals: species.courtshipIdeals ? species.courtshipIdeals : null,
-      relationshipIdeals: species.relationshipsIdeals ? species.relationshipsIdeals : null,
-      averageTechnologicalLevel: species.technologicalLevel ? species.technologicalLevel : null,
-      majorLanguageGroupsAndDialects: species.languages ? species.languages : null,
+      relationshipIdeals: species.relationshipsIdeals
+        ? species.relationshipsIdeals
+        : null,
+      averageTechnologicalLevel: species.technologicalLevel
+        ? species.technologicalLevel
+        : null,
+      majorLanguageGroupsAndDialects: species.languages
+        ? species.languages
+        : null,
       commonEtiquetteRules: species.etiquette ? species.etiquette : null,
       commonDressCode: species.dresscode ? species.dresscode : null,
       cultureAndCulturalHeritage: species.culture ? species.culture : null,
-      commonCustomsTraditionsAndRituals: species.customs ? species.customs : null,
+      commonCustomsTraditionsAndRituals: species.customs
+        ? species.customs
+        : null,
       commonTaboos: species.taboos ? species.taboos : null,
       history: species.history ? species.history : null,
-      historicalFigures: species.historicalFigures ? species.historicalFigures : null,
-      commonMythsAndLegends: species.mythsAndLegends ? species.mythsAndLegends : null,
-      interspeciesRelationsAndAssumptions: species.interspeciesRelations ? species.interspeciesRelations : null,
-   
+      historicalFigures: species.historicalFigures
+        ? species.historicalFigures
+        : null,
+      commonMythsAndLegends: species.mythsAndLegends
+        ? species.mythsAndLegends
+        : null,
+      interspeciesRelationsAndAssumptions: species.interspeciesRelations
+        ? species.interspeciesRelations
+        : null,
     };
 
     this.sidebar = {
       extinct: species.isExtinct ? "EXTINCT" : null,
       sidebarcontent: species.sidebarcontent ? species.sidebarcontent : null,
+      portrait: this.formatImage(species.portrait),
       sidepanelcontenttop: species.sidepanelcontenttop
         ? species.sidepanelcontenttop
         : null,
-      geneticAncestors: species.parents ? this.formatMentions(species.parents) : null,
+      geneticAncestors: species.parents
+        ? this.formatMentions(species.parents)
+        : null,
       scientificName: species.trinominal ? species.trinominal : null,
       originAndOrAncestry: species.ancenstry ? species.ancenstry : null,
       lifespan: species.lifespan ? species.lifespan : null,

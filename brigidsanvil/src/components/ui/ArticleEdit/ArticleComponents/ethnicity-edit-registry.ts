@@ -174,6 +174,14 @@ export const bodySubTabRegistry: EthnicityBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "body-parent-ethnicities",
         kind: "dropdown",
         fieldIdentifier: "parents",

@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Image } from "../image";
 import { Location } from "./location";
 import { Person } from "./person";
 import { Rank } from "./rank";
@@ -95,6 +96,7 @@ export type Organisation = Article & {
   relatedSpecies: Species[];
   ethnicities: Ethnicity[];
   organizationformations: Formation[];
+  flag: Image | null;
 };
 
 export class OrganisationDisplay extends ArticleDisplay {
@@ -133,6 +135,7 @@ export class OrganisationDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     sidepanelcontent: string | null;
     sidebarcontentbottom: string | null;
@@ -233,6 +236,9 @@ export class OrganisationDisplay extends ArticleDisplay {
     this.sidebar = {
       sidebarcontent: organisation.sidebarcontent
         ? organisation.sidebarcontent
+        : null,
+      portrait: organisation.flag?.url
+        ? this.formatImage(organisation.flag)
         : null,
       disbanded: organisation.disbandment ? "Disbanded / Dissolved" : null,
       motto: organisation.motto ? organisation.motto : null,

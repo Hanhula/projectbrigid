@@ -5,6 +5,7 @@ import {
   Article,
   ArticleDisplay,
   ArticleTypes,
+  ImageFieldValue,
 } from "@/components/types/article";
 
 import "./article-view.scss";
@@ -92,6 +93,14 @@ function titleFormatting(title: string) {
     .replace(/^(.)/, (match) => match.toUpperCase()) // Capitalize the first letter
     .replace(/\bAnd\b/g, "&") // Replace "And" with "&"
     .replace(/\bOr\b/g, "/"); // Replace "Or" with "/"
+}
+
+function isImageField(field: unknown): field is ImageFieldValue {
+  return (
+    typeof field === "object" &&
+    field !== null &&
+    (field as ImageFieldValue).kind === "image"
+  );
 }
 
 const ArticleView: React.FC<ArticleViewProps> = React.memo(
@@ -218,10 +227,15 @@ const ArticleView: React.FC<ArticleViewProps> = React.memo(
                 fieldName !== "sidepanelcontent" &&
                 fieldName !== "sidebarcontentbottom" &&
                 fieldName !== "motto" &&
-                fieldName !== "disbanded" && (
-                  <dt>{titleFormatting(fieldName)}</dt>
+                fieldName !== "disbanded" &&
+                !isImageField(field) && <dt>{titleFormatting(fieldName)}</dt>}
+              <dd>
+                {isImageField(field) ? (
+                  <Image src={field.url} fluid />
+                ) : (
+                  WorldAnvilParser.parseField(field, generateHTML)
                 )}
-              <dd>{WorldAnvilParser.parseField(field, generateHTML)}</dd>
+              </dd>
             </div>
           );
 

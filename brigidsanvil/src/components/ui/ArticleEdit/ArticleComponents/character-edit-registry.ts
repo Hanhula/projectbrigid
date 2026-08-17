@@ -363,6 +363,14 @@ export const bodySubTabRegistry: CharacterBodySubTabConfig[] = [
     title: "Sidebar - Presentation",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092!",
+      },
+      {
         key: "sidebar-eyes",
         kind: "text",
         fieldIdentifier: "eyes",

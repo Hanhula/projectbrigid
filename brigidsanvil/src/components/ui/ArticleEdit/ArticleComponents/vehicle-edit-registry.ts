@@ -23,6 +23,14 @@ export const bodySubTabRegistry: VehicleBodySubTabConfig[] = [
     title: "Sidebar - Identity",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "body-class",
         kind: "dropdown",
         fieldIdentifier: "parent",

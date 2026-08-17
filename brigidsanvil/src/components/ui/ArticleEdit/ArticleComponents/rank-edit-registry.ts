@@ -135,6 +135,14 @@ export const bodySubTabRegistry: RankBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "sidebar-type",
         kind: "field-dropdown",
         fieldIdentifier: "type",

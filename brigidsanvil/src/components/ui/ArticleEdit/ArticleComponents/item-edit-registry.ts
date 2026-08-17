@@ -1,4 +1,4 @@
-import { Item, ItemTypes } from "@/components/types/article-types/item";
+import { Item } from "@/components/types/article-types/item";
 import { ArticleFieldConfig } from "../EditComponents/article-edit-field-renderer";
 import {
   createCommonBodyFieldRegistry,
@@ -7,6 +7,7 @@ import {
   createCommonSubtitleFieldRegistry,
   createCommonDesignFieldRegistry,
 } from "../EditComponents/article-edit-registry-common";
+import { ItemTypes } from "@/components/types/article-types/utils/ItemTypes";
 
 export type ItemBodySubTabConfig = {
   eventKey: string;
@@ -53,6 +54,14 @@ export const bodySubTabRegistry: ItemBodySubTabConfig[] = [
     eventKey: "sidebar-connections",
     title: "Sidebar - Connections",
     fields: [
+      {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
       {
         key: "sidebar-type",
         kind: "field-dropdown",

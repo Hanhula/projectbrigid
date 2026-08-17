@@ -1,4 +1,4 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
 import { Document } from "./document";
 import { Ethnicity } from "./ethnicity";
 import { Item } from "./item";
@@ -15,6 +15,7 @@ import { Report } from "./report";
 import { Ritual } from "./ritual";
 import { Species } from "./species";
 import { Vehicle } from "./vehicle";
+import { Image } from "../image";
 
 export type Location = Article & {
   alternativename: string | null;
@@ -79,6 +80,7 @@ export type Location = Article & {
   professions: Profession[] | null;
   ethnicities: Ethnicity[] | null;
   species: Species[] | null;
+  portrait: Image | null;
 };
 
 export type LocationType = {
@@ -117,6 +119,7 @@ export class LocationDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     alternativeNames: string | null;
     type: string | null;
@@ -165,6 +168,7 @@ export class LocationDisplay extends ArticleDisplay {
 
     this.sidebar = {
       sidebarcontent: location.sidebarcontent ? location.sidebarcontent : null,
+      portrait: this.formatImage(location.portrait),
       sidepanelcontenttop: location.sidepanelcontenttop
         ? location.sidepanelcontenttop
         : null,

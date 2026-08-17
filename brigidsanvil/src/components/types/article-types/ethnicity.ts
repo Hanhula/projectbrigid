@@ -1,8 +1,9 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
 import { Location } from "./location";
 import { Myth } from "./myth";
 import { Organisation } from "./organisation";
 import { Species } from "./species";
+import { Image } from "../image";
 
 export type Ethnicity = Article & {
   malenames: string | null;
@@ -36,6 +37,7 @@ export type Ethnicity = Article & {
   myths: Myth[] | null;
   organizations: Organisation[] | null;
   species: Species[] | null;
+  portrait: Image | null;
 };
 
 export class EthnicityDisplay extends ArticleDisplay {
@@ -66,6 +68,7 @@ export class EthnicityDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     parentEthnicities: string | null;
     encompassedSpecies: string | null;
@@ -113,23 +116,40 @@ export class EthnicityDisplay extends ArticleDisplay {
         : null,
       beautyIdeals: ethnicity.beautyIdeals ? ethnicity.beautyIdeals : null,
       genderIdeals: ethnicity.genderIdeals ? ethnicity.genderIdeals : null,
-      courtshipIdeals: ethnicity.courtshipIdeals ? ethnicity.courtshipIdeals : null,
-      relationshipIdeals: ethnicity.relationshipsIdeals ? ethnicity.relationshipsIdeals : null,
-      majorOrganisations: ethnicity.majorOrganizations ? ethnicity.majorOrganizations : null,
+      courtshipIdeals: ethnicity.courtshipIdeals
+        ? ethnicity.courtshipIdeals
+        : null,
+      relationshipIdeals: ethnicity.relationshipsIdeals
+        ? ethnicity.relationshipsIdeals
+        : null,
+      majorOrganisations: ethnicity.majorOrganizations
+        ? ethnicity.majorOrganizations
+        : null,
     };
 
     this.sidebar = {
       sidebarcontent: ethnicity.sidebarcontent
         ? ethnicity.sidebarcontent
         : null,
+      portrait: this.formatImage(ethnicity.portrait),
       sidepanelcontenttop: ethnicity.sidepanelcontenttop
         ? ethnicity.sidepanelcontenttop
         : null,
-        parentEthnicities: ethnicity.parents ? this.formatMentions(ethnicity.parents) : null,
-        encompassedSpecies: ethnicity.species ? this.formatMentions(ethnicity.species) : null,
-        relatedOrganisations: ethnicity.organizations ? this.formatMentions(ethnicity.organizations) : null,
-        relatedMyths: ethnicity.myths ? this.formatMentions(ethnicity.myths) : null,
-        relatedLocations: ethnicity.locations ? this.formatMentions(ethnicity.locations) : null,
+      parentEthnicities: ethnicity.parents
+        ? this.formatMentions(ethnicity.parents)
+        : null,
+      encompassedSpecies: ethnicity.species
+        ? this.formatMentions(ethnicity.species)
+        : null,
+      relatedOrganisations: ethnicity.organizations
+        ? this.formatMentions(ethnicity.organizations)
+        : null,
+      relatedMyths: ethnicity.myths
+        ? this.formatMentions(ethnicity.myths)
+        : null,
+      relatedLocations: ethnicity.locations
+        ? this.formatMentions(ethnicity.locations)
+        : null,
       sidepanelcontent: ethnicity.sidepanelcontent
         ? ethnicity.sidepanelcontent
         : null,

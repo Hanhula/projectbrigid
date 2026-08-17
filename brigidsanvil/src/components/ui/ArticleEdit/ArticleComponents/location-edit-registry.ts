@@ -85,6 +85,14 @@ export const bodySubTabRegistry: LocationBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "sidebar-alternativename",
         kind: "text",
         fieldIdentifier: "alternativename",

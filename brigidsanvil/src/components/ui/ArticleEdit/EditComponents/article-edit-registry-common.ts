@@ -123,7 +123,14 @@ export const createCommonDesignFieldRegistry = <
       fieldIdentifier: "cover",
       label: "Cover",
       valueAsReference: true,
-      helpText: "Enter the numeric ID, like 7929092!",
+      helpText:
+        "Enter the numeric ID, like 7929092! Want your default cover? Set it to -1!",
+    },
+    {
+      key: "design-cssClasses",
+      kind: "text",
+      fieldIdentifier: "cssClasses",
+      label: "CSS Classes",
     },
   ];
 };

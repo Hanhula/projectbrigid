@@ -77,14 +77,21 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
     };
   }, [delayedDispatch]);
 
-  // Update local state when editedContent changes
+  // Update local state when editedContent or the underlying article value changes
   useEffect(() => {
-    if (editedContent !== undefined) {
-      setInputValue((previousValue) =>
-        previousValue === editedContent ? previousValue : editedContent,
-      );
-    }
-  }, [editedContent]);
+    const nextValue = valueAsReference
+      ? getReferenceId(editedContentValue ?? article[fieldIdentifier])
+      : String(editedContent ?? article[fieldIdentifier] ?? "");
+    setInputValue((previousValue) =>
+      previousValue === nextValue ? previousValue : nextValue,
+    );
+  }, [
+    editedContent,
+    editedContentValue,
+    article,
+    fieldIdentifier,
+    valueAsReference,
+  ]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;

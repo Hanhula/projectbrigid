@@ -245,6 +245,14 @@ export const bodySubTabRegistry: MaterialBodySubTabConfig[] = [
     title: "Sidebar Properties",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "sidebar-elementNumber",
         kind: "text",
         fieldIdentifier: "elementNumber",

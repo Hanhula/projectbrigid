@@ -15,20 +15,23 @@ const ItemEdit = ({
 }: {
   article: Item;
   resetSignal?: number;
-}) => (
-  <ArticleEditPage
-    article={article}
-    bodyFieldRegistry={bodyFieldRegistry}
-    bodySubTabRegistry={bodySubTabRegistry}
-    subtitleFieldRegistry={subtitleFieldRegistry}
-    sidebarFieldRegistry={sidebarFieldRegistry}
-    footerFieldRegistry={footerFieldRegistry}
-    designFieldRegistry={designFieldRegistry}
-    defaultBodySubTabKey="generic"
-    topLevelTabsId="item-edit-tabs"
-    bodyTabsId="item-sub-tabs"
-    resetSignal={resetSignal}
-  />
-);
+}) => {
+  console.log(article.cssClasses);
+  return (
+    <ArticleEditPage
+      article={article}
+      bodyFieldRegistry={bodyFieldRegistry}
+      bodySubTabRegistry={bodySubTabRegistry}
+      subtitleFieldRegistry={subtitleFieldRegistry}
+      sidebarFieldRegistry={sidebarFieldRegistry}
+      footerFieldRegistry={footerFieldRegistry}
+      designFieldRegistry={designFieldRegistry}
+      defaultBodySubTabKey="generic"
+      topLevelTabsId="item-edit-tabs"
+      bodyTabsId="item-sub-tabs"
+      resetSignal={resetSignal}
+    />
+  );
+};
 
 export default ItemEdit;

@@ -115,6 +115,14 @@ export const bodySubTabRegistry: LandmarkBodySubTabConfig[] = [
     title: "Sidebar Details",
     fields: [
       {
+        key: "sidebar-portrait",
+        kind: "numerical",
+        fieldIdentifier: "portrait",
+        label: "Portrait",
+        valueAsReference: true,
+        helpText: "Enter the numeric ID, like 7929092",
+      },
+      {
         key: "sidebar-constructed",
         kind: "text",
         fieldIdentifier: "constructed",

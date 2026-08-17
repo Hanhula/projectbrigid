@@ -1,8 +1,9 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
 import { Organisation } from "./organisation";
 import { Person } from "./person";
 import { Rank } from "./rank";
 import { Vehicle } from "./vehicle";
+import { Image } from "../image";
 
 export type LandmarkType = {
   id: string;
@@ -38,7 +39,7 @@ export type Landmark = Article & {
   history: string | null;
   tourism: string | null;
   industry: string | null;
-  architecture: string;
+  architecture: string | null;
   government: string | null;
   assets: string | null;
   locationTemplateType: string | null;
@@ -71,6 +72,7 @@ export type Landmark = Article & {
   additionalRulers: Person[] | null;
   contenders: Organisation[] | null;
   connectedRooms: Landmark[] | null;
+  portrait: Image | null;
 };
 
 export class LandmarkDisplay extends ArticleDisplay {
@@ -94,6 +96,7 @@ export class LandmarkDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     ruinedStructure: string | null;
     foundingDate: string | null;
@@ -135,6 +138,7 @@ export class LandmarkDisplay extends ArticleDisplay {
 
     this.sidebar = {
       sidebarcontent: landmark.sidebarcontent ? landmark.sidebarcontent : null,
+      portrait: this.formatImage(landmark.portrait),
       sidepanelcontenttop: landmark.sidepanelcontenttop
         ? landmark.sidepanelcontenttop
         : null,
