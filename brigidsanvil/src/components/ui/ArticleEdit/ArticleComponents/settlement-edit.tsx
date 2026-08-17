@@ -5,15 +5,15 @@ import {
   sidebarFieldRegistry,
   subtitleFieldRegistry,
   bodySubTabRegistry,
-} from "./item-edit-registry";
+} from "./settlement-edit-registry";
 import { ArticleEditPage } from "../EditComponents/article-edit-page";
-import { Item } from "@/components/types/article-types/item";
+import { Settlement } from "@/components/types/article-types/settlement";
 
-const ItemEdit = ({
+const SettlementEdit = ({
   article,
   resetSignal = 0,
 }: {
-  article: Item;
+  article: Settlement;
   resetSignal?: number;
 }) => (
   <ArticleEditPage
@@ -24,11 +24,11 @@ const ItemEdit = ({
     sidebarFieldRegistry={sidebarFieldRegistry}
     footerFieldRegistry={footerFieldRegistry}
     designFieldRegistry={designFieldRegistry}
-    defaultBodySubTabKey="generic"
-    topLevelTabsId="item-edit-tabs"
-    bodyTabsId="item-sub-tabs"
+    defaultBodySubTabKey="information"
+    topLevelTabsId="settlement-edit-tabs"
+    bodyTabsId="settlement-sub-tabs"
     resetSignal={resetSignal}
   />
 );
 
-export default ItemEdit;
+export default SettlementEdit;

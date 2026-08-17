@@ -19,6 +19,7 @@ import PlotEdit from "./plot-edit";
 import RankEdit from "./rank-edit";
 import ReportEdit from "./report-edit";
 import RitualEdit from "./ritual-edit";
+import SettlementEdit from "./settlement-edit";
 import SpellEdit from "./spell-edit";
 import SpeciesEdit from "./species-edit";
 import TechnologyEdit from "./technology-edit";
@@ -44,6 +45,7 @@ import * as proseRegistry from "./prose-edit-registry";
 import * as rankRegistry from "./rank-edit-registry";
 import * as reportRegistry from "./report-edit-registry";
 import * as ritualRegistry from "./ritual-edit-registry";
+import * as settlementRegistry from "./settlement-edit-registry";
 import * as spellRegistry from "./spell-edit-registry";
 import * as speciesRegistry from "./species-edit-registry";
 import * as technologyRegistry from "./technology-edit-registry";
@@ -102,6 +104,7 @@ export const articleEditPageRegistry: Record<
   Rank: { Component: RankEdit, fields: rankRegistry },
   Report: { Component: ReportEdit, fields: reportRegistry },
   Ritual: { Component: RitualEdit, fields: ritualRegistry },
+  Settlement: { Component: SettlementEdit, fields: settlementRegistry },
   Spell: { Component: SpellEdit, fields: spellRegistry },
   Species: { Component: SpeciesEdit, fields: speciesRegistry },
   Technology: { Component: TechnologyEdit, fields: technologyRegistry },
