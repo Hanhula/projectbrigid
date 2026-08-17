@@ -7,7 +7,7 @@ import { Person } from "./person";
 import { Rank } from "./rank";
 import { Vehicle } from "./vehicle";
 
-type SettlementType = {
+export type SettlementType = {
   id: string;
   title: string;
   slug: string | null;
@@ -86,6 +86,8 @@ export class SettlementDisplay extends ArticleDisplay {
     districts: string | null;
     assets: string | null;
     guildsAndFactions: string | null;
+    history: string | null;
+    pointsOfInterest: string | null;
     tourism: string | null;
     architecture: string | null;
     geography: string | null;
@@ -128,6 +130,10 @@ export class SettlementDisplay extends ArticleDisplay {
       districts: settlement.district ? settlement.district : null,
       assets: settlement.assets ? settlement.assets : null,
       guildsAndFactions: settlement.guilds ? settlement.guilds : null,
+      history: settlement.history ? settlement.history : null,
+      pointsOfInterest: settlement.pointOfInterest
+        ? settlement.pointOfInterest
+        : null,
       tourism: settlement.tourism ? settlement.tourism : null,
       architecture: settlement.architecture ? settlement.architecture : null,
       geography: settlement.geography ? settlement.geography : null,
