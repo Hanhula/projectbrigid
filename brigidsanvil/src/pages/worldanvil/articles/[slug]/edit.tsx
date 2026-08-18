@@ -73,13 +73,18 @@ export default function EditPage() {
       }, {})
     : {};
 
-  const resetContent = () => {
+  const resetContent = (notify = true) => {
     if (!article) {
       return;
     }
 
     dispatch(removeEditByID({ worldID: world.id, articleID: article.id }));
     setResetSignal((value) => Math.abs(value) + 1);
+    if (notify) {
+      dispatch(
+        addNotification("Content reset to the loaded version.", "success"),
+      );
+    }
   };
 
   const handleResetContent = () => {
@@ -92,11 +97,19 @@ export default function EditPage() {
   };
 
   const handleSaveContent = async () => {
+    if (!article) {
+      return;
+    }
+
     try {
-      await worldAnvilAPI.updateEditedArticleByFields(article!.id);
+      await worldAnvilAPI.updateEditedArticleByFields(article.id);
       console.info("Article updated successfully");
+      dispatch(addNotification("Content saved to WorldAnvil.", "success"));
     } catch (error) {
       console.error("Error updating article:", error);
+      dispatch(
+        addNotification("Unable to save content to WorldAnvil.", "danger"),
+      );
     }
   };
 
@@ -106,7 +119,7 @@ export default function EditPage() {
     }
 
     setIsRefreshing(true);
-    resetContent();
+    resetContent(false);
 
     try {
       await worldAnvilAPI.getArticle(article.id, true);

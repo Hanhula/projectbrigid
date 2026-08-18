@@ -203,7 +203,7 @@ test|author[/quote]`);
     expect(screen.queryByText(/mention-debug/i)).not.toBeInTheDocument();
   });
 
-  test("Image helper inserts WA-compatible [img:image-id]", async () => {
+  test("Image helper inserts WA-compatible [img:]", async () => {
     const store = createTestStore();
 
     render(
@@ -234,7 +234,7 @@ test|author[/quote]`);
 
     await waitFor(() => {
       const content = document.querySelector(".cm-content")?.textContent ?? "";
-      expect(content).toContain("[img:image-id]");
+      expect(content).toContain("[img:]");
     });
   });
 
@@ -264,7 +264,7 @@ test|author[/quote]`);
 
     await waitFor(() => {
       const content = document.querySelector(".cm-content")?.textContent ?? "";
-      expect(content).toContain("[img:image-id]");
+      expect(content).toContain("[img:]");
     });
 
     rerender(
@@ -283,7 +283,7 @@ test|author[/quote]`);
     await waitFor(() => {
       const content = document.querySelector(".cm-content")?.textContent ?? "";
       expect(content).toContain("[quote]server[/quote]");
-      expect(content).not.toContain("[img:image-id]");
+      expect(content).not.toContain("[img:]");
     });
   });
 
@@ -376,7 +376,7 @@ test|author[/quote]`);
         "content",
       );
       const edited = selectEditedContent(store.getState() as any);
-      expect(edited).toContain("[img:image-id]");
+      expect(edited).toContain("[img:]");
     });
   });
 
@@ -410,7 +410,7 @@ test|author[/quote]`);
       "content",
     );
     const edited = selectEditedContent(store.getState() as any);
-    expect(edited).toContain("[img:image-id]");
+    expect(edited).toContain("[img:]");
   });
 
   test("does not wipe restored local edits on initial mount", async () => {

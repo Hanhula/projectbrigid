@@ -50,7 +50,7 @@ describe("BBCodeEditor utilities", () => {
   test("getOpaqueInsert uses WA image format", () => {
     const result = getOpaqueInsert("[img]", "");
 
-    expect(result.insert).toBe("[img:image-id]");
+    expect(result.insert).toBe("[img:]");
     expect(result.cursorOffset).toBe("[img:".length);
   });
 
@@ -59,12 +59,15 @@ describe("BBCodeEditor utilities", () => {
     const container = getOpaqueInsert("[container]", "body");
     const section = getOpaqueInsert("[section]", "body");
     const url = getOpaqueInsert("[url]", "body");
+    const spoiler = getOpaqueInsert("[spoiler]", "body");
 
     expect(row.insert).toBe("[row]\nbody\n[/row]");
     expect(container.insert).toBe("[container]\nbody\n[/container]");
     expect(section.insert).toBe("[section]\nbody\n[/section]");
     expect(url.insert).toBe("[url:url-data]\nbody\n[/url]");
     expect(url.cursorOffset).toBe("[url:url-data]\n".length + "body".length);
+    expect(spoiler.insert).toBe("[spoiler]body|Spoiler Title[/spoiler]");
+    expect(spoiler.cursorOffset).toBe("[spoiler]body|".length);
   });
 
   test("buildToolbarTooltip includes hotkey when provided", () => {
@@ -243,6 +246,18 @@ describe("BBCodeEditor utilities", () => {
 
     expect(runResult).toBe(true);
     expect(insertLineBreakTag).toHaveBeenCalledTimes(1);
+  });
+
+  test("key bindings keep Tab inside the editor", () => {
+    const bindings = createBbcodeKeyBindings({
+      insertTag: jest.fn(() => true),
+      insertOpaqueBlock: jest.fn(() => true),
+    });
+    const tabBinding = bindings.find((binding) => binding.key === "Tab");
+
+    expect(tabBinding).toBeDefined();
+    expect(tabBinding?.preventDefault).toBe(true);
+    expect(tabBinding?.run).toBeDefined();
   });
 
   test("safe numeric layout and list hotkeys work without browser conflicts", () => {

@@ -1,5 +1,6 @@
 import { Article } from "@/components/types/article";
 import { Extension, Prec, RangeSetBuilder } from "@codemirror/state";
+import { acceptCompletion, completionStatus } from "@codemirror/autocomplete";
 import {
   KeyBinding,
   Decoration,
@@ -173,7 +174,7 @@ const defaultOpaqueInsertDefinition: OpaqueInsertDefinition = {
 
 const opaqueInsertRegistry: Record<string, OpaqueInsertDefinition> = {
   "[img]": {
-    getInsert: () => "[img:image-id]",
+    getInsert: () => "[img:]",
     getCursorOffset: () => "[img:".length,
   },
   "[row]": {
@@ -198,6 +199,12 @@ const opaqueInsertRegistry: Record<string, OpaqueInsertDefinition> = {
     getInsert: (selectedText) => `[url:url-data]\n${selectedText}\n[/url]`,
     getCursorOffset: (selectedText) =>
       "[url:url-data]\n".length + selectedText.length,
+  },
+  "[spoiler]": {
+    getInsert: (selectedText) =>
+      `[spoiler]${selectedText}|Spoiler Title[/spoiler]`,
+    getCursorOffset: (selectedText) =>
+      "[spoiler]".length + selectedText.length + "|".length,
   },
 };
 
@@ -353,6 +360,19 @@ export type BbcodeCommandHandlers = {
   insertLineBreakTag?: () => boolean;
 };
 
+const handleEditorTab = (view: EditorView) => {
+  if (completionStatus(view.state) === "active") {
+    return acceptCompletion(view);
+  }
+
+  const selection = view.state.selection.main;
+  view.dispatch({
+    changes: { from: selection.from, to: selection.to, insert: "\t" },
+    selection: { anchor: selection.from + 1 },
+  });
+  return true;
+};
+
 const resolveActionRunner = (
   action: ToolbarAction,
   handlers: BbcodeCommandHandlers,
@@ -385,8 +405,9 @@ const resolveActionRunner = (
  */
 export const createBbcodeKeyBindings = (
   handlers: BbcodeCommandHandlers,
-): KeyBinding[] =>
-  toolbarButtons
+): KeyBinding[] => [
+  { key: "Tab", preventDefault: true, run: handleEditorTab },
+  ...toolbarButtons
     .filter((button): button is typeof button & { hotkey: string } =>
       Boolean(button.hotkey),
     )
@@ -394,7 +415,8 @@ export const createBbcodeKeyBindings = (
       key: button.hotkey,
       preventDefault: true,
       run: resolveActionRunner(button.action, handlers),
-    }));
+    })),
+];
 
 export const createBbcodeKeymapExtension = (
   handlers: BbcodeCommandHandlers,
