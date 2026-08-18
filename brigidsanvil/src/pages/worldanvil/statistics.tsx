@@ -9,7 +9,7 @@ export default function Statistics() {
   const identity = useSelector(selectIdentity);
 
   return (
-    <div>
+    <div className="statistics-page">
       <Head>
         <title>Statistics</title>
       </Head>

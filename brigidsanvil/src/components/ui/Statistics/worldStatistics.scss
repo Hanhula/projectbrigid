@@ -1,3 +1,8 @@
+.statistics-page {
+  min-height: calc(100vh - 6rem);
+  overflow: auto;
+}
+
 .world-statistics-container {
   .article-type-list-count,
   .article-date-list-count,
