@@ -23,7 +23,6 @@ const ArticleEdit = ({
     sidebarFieldRegistry={sidebarFieldRegistry}
     footerFieldRegistry={footerFieldRegistry}
     designFieldRegistry={designFieldRegistry}
-    defaultBodySubTabKey="identity"
     topLevelTabsId="article-edit-tabs"
     bodyTabsId="article-sub-tabs"
     resetSignal={resetSignal}

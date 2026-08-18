@@ -22,7 +22,6 @@ const ProseEdit = ({
     sidebarFieldRegistry={[]}
     footerFieldRegistry={footerFieldRegistry}
     designFieldRegistry={designFieldRegistry}
-    defaultBodySubTabKey="information"
     topLevelTabsId="prose-edit-tabs"
     bodyTabsId="prose-sub-tabs"
     resetSignal={resetSignal}

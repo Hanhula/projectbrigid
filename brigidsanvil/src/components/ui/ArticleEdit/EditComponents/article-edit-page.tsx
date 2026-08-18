@@ -27,7 +27,7 @@ export type ArticleEditPageProps<TArticle extends Article> = {
   sidebarFieldRegistry: ArticleFieldConfig<TArticle>[];
   footerFieldRegistry: ArticleFieldConfig<TArticle>[];
   designFieldRegistry: ArticleFieldConfig<TArticle>[];
-  defaultBodySubTabKey: string;
+  defaultBodySubTabKey?: string;
   topLevelTabsId: string;
   bodyTabsId: string;
   resetSignal?: number;
