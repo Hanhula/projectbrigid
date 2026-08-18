@@ -18,6 +18,7 @@ export type DebouncedFieldDropdownProps = {
   options: FieldDropdownOption[];
   id: string;
   valueAsReference?: boolean;
+  valueAsBoolean?: boolean;
 };
 
 const getOptionValue = (option: FieldDropdownOption) =>
@@ -33,6 +34,7 @@ const DebouncedFieldDropdown = ({
   options,
   id,
   valueAsReference = false,
+  valueAsBoolean = false,
 }: DebouncedFieldDropdownProps) => {
   const dispatch = useDispatch();
   const selectEditedContentValueByID = useMemo(
@@ -63,11 +65,23 @@ const DebouncedFieldDropdown = ({
             world: { id: world.id },
             articleID: article.id,
             fieldIdentifier,
-            editedFields: valueAsReference && value ? { id: value } : value,
+            editedFields:
+              valueAsReference && value
+                ? { id: value }
+                : valueAsBoolean
+                ? value === "true"
+                : value,
           }),
         );
       }, 500),
-    [dispatch, world.id, article.id, fieldIdentifier, valueAsReference],
+    [
+      dispatch,
+      world.id,
+      article.id,
+      fieldIdentifier,
+      valueAsReference,
+      valueAsBoolean,
+    ],
   );
 
   useEffect(() => {

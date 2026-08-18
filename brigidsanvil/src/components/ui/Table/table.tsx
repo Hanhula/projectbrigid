@@ -2,8 +2,9 @@ import * as React from "react";
 import { Article } from "@/components/types/article";
 
 import { selectCurrentDetailStateByWorld } from "@/components/store/articlesSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectWorld } from "@/components/store/apiSlice";
+import { addNotification } from "@/components/store/notificationsSlice";
 
 import {
   useReactTable,
@@ -51,6 +52,7 @@ import { Filter } from "./filter";
 
 import "react-tagsinput/react-tagsinput.css";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import EditableCell from "./EditableComponents/editable-cell";
 import EditableTags from "./EditableComponents/editable-tags";
 
@@ -82,6 +84,8 @@ export function ArticleTable({
   const [useSelectFilter, setUseSelectFilter] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState({});
   const worldAnvilAPI = useWorldAnvilAPI();
+  const router = useRouter();
+  const dispatch = useDispatch();
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -152,20 +156,54 @@ export function ArticleTable({
     {
       id: "editBrigid",
       accessorFn: (row) => row.id,
-      cell: (info: any) => (
-        <Link href={`/worldanvil/articles/${info.getValue() as string}/edit`}>
+      cell: (info: any) => {
+        const [isLoading, setIsLoading] = useState(false);
+        const articleId = info.getValue() as string;
+        const articleTitle = info.row.original.title;
+
+        const handleEdit = async () => {
+          if (isLoading) {
+            return;
+          }
+
+          setIsLoading(true);
+          try {
+            await worldAnvilAPI.getArticle(articleId, true);
+            await router.push(`/worldanvil/articles/${articleId}/edit`);
+          } catch (error) {
+            console.error("Error loading article for Brigid editor:", error);
+            dispatch(
+              addNotification(
+                `Unable to load ${articleTitle} for editing.`,
+                "danger",
+              ),
+            );
+            setIsLoading(false);
+          }
+        };
+
+        return (
           <Button
-            as="a"
-            href={`/worldanvil/articles/${info.getValue() as string}/edit`}
+            type="button"
+            onClick={() => void handleEdit()}
             className="edit-url-brigid"
             variant="secondary"
-            title={`Edit ${info.row.original.title} in Brigid`}
-            aria-label={`Edit ${info.row.original.title} in Brigid`}
+            disabled={isLoading}
+            title={
+              isLoading
+                ? `Loading ${articleTitle} for editing`
+                : `Edit ${articleTitle} in Brigid`
+            }
+            aria-label={
+              isLoading
+                ? `Loading ${articleTitle} for editing`
+                : `Edit ${articleTitle} in Brigid`
+            }
           >
             <FontAwesomeIcon icon={faFileEdit} />
           </Button>
-        </Link>
-      ),
+        );
+      },
       header: "Brigid Edit",
       footer: (props) => props.column.id,
       enableColumnFilter: false,

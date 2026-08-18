@@ -7,6 +7,7 @@ import persistStoreWrapper, { wrapper } from "@/components/store/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Loading from "@/components/ui/Loading/loading";
 import GlobalNotifications from "@/components/ui/Notifications/global-notifications";
+import Footer from "@/components/ui/Footer/footer";
 import { useMemo } from "react";
 
 // The following import prevents a Font Awesome icon server-side rendering bug,
@@ -26,6 +27,7 @@ function App({ Component, ...rest }: AppProps) {
         <div className="global-container">
           <NavBar />
           <Component {...pageProps} />
+          <Footer />
           <GlobalNotifications />
         </div>
       </PersistGate>

@@ -100,6 +100,27 @@ export const createCommonDesignFieldRegistry = <
 >(): ArticleFieldConfig<TArticle>[] => {
   return [
     {
+      key: "design-privacy",
+      kind: "field-dropdown",
+      fieldIdentifier: "state",
+      label: "Privacy",
+      options: [
+        { value: "public", label: "Public" },
+        { value: "private", label: "Private" },
+      ],
+    },
+    {
+      key: "design-publication-status",
+      kind: "field-dropdown",
+      fieldIdentifier: "isDraft",
+      label: "Publication Status",
+      options: [
+        { value: "true", label: "Draft" },
+        { value: "false", label: "Published" },
+      ],
+      valueAsBoolean: true,
+    },
+    {
       key: "design-excerpt",
       kind: "text",
       fieldIdentifier: "excerpt",

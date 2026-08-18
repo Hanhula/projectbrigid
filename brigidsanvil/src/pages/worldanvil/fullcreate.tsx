@@ -156,7 +156,9 @@ export default function FullCreate() {
           <Col md={8} lg={6}>
             <h1>Full Create</h1>
             <p className="text-muted">
-              Create the article shell, then continue in the complete editor.
+              Create your article! Either let Brigid create it on WorldAnvil for
+              you, or create it locally and save it to WorldAnvil later. We aim
+              to save local drafts, but can't guarantee their safety!
             </p>
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3" controlId="full-create-title">
@@ -202,13 +204,24 @@ export default function FullCreate() {
               </Button>
               <Button
                 type="button"
-                variant="outline-secondary"
+                variant="secondary"
                 className="ms-2"
                 onClick={() => void handleCreateLocally()}
                 disabled={isSubmitting || !hasSelectedWorld}
               >
                 Create locally and save to World Anvil later
               </Button>
+              <p className="text-muted">
+                Please remember that this is a beta feature, and all data is
+                stored locally on your machine!
+              </p>
+              <p className="text-muted">
+                We autosave all changes locally, but will NEVER update
+                WorldAnvil without permission. If you need to navigate away from
+                Brigid and aren't sure if your device will save your data,
+                remember you can always export your changes and import them
+                later!
+              </p>
             </Form>
           </Col>
         </Row>

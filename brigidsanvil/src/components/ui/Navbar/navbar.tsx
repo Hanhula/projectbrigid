@@ -22,21 +22,34 @@ import {
   resetArticleState,
   selectWorldArticlesByWorld,
 } from "@/components/store/articlesSlice";
-import {
-  faCloud,
-  faCoins,
-  faSignOut,
-  fas,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 import { Button, Dropdown, Modal, Navbar } from "react-bootstrap";
 
 library.add(fas);
 import "rpg-awesome/css/rpg-awesome.min.css";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faDiscord } from "@fortawesome/free-brands-svg-icons";
 import Cookies from "universal-cookie";
 import persistStoreWrapper, { AppStore } from "@/components/store/store";
+import {
+  BarChart3,
+  BookOpen,
+  Boxes,
+  ExternalLink,
+  FilePlus2,
+  FileText,
+  Github,
+  Home,
+  Link2,
+  LogOut,
+  Menu,
+  MessageCircle,
+  PencilLine,
+  Search,
+  Settings2,
+  Trash2,
+  User,
+  Zap,
+} from "lucide-react";
 
 const NavBar = () => {
   const router = useRouter();
@@ -104,11 +117,16 @@ const NavBar = () => {
               <i className="ra ra-anvil"> </i>
               Brigid
             </Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse>
-              <Nav>
+            <Navbar.Toggle aria-controls="primary-navbar-nav">
+              <Menu size={20} aria-hidden="true" />
+              <span className="visually-hidden">Toggle navigation</span>
+            </Navbar.Toggle>
+
+            <Navbar.Collapse id="primary-navbar-nav">
+              <Nav className="primary-nav">
                 <Nav.Item>
-                  <Nav.Link as={Link} eventKey="1" href="/">
+                  <Nav.Link as={Link} eventKey="1" href="/" title="Go to Home">
+                    <Home size={16} aria-hidden="true" />
                     Home
                   </Nav.Link>
                 </Nav.Item>
@@ -118,7 +136,9 @@ const NavBar = () => {
                     eventKey="1"
                     href="/worldanvil/apitool"
                     disabled={!world.success && articles.length > 1}
+                    title="Browse and edit articles"
                   >
+                    <BookOpen size={16} aria-hidden="true" />
                     Articles Explorer
                   </Nav.Link>
                 </Nav.Item>
@@ -128,12 +148,20 @@ const NavBar = () => {
                     eventKey="1"
                     href="/worldanvil/statistics"
                     disabled={!world.success && articles.length > 1}
+                    title="View world statistics"
                   >
+                    <BarChart3 size={16} aria-hidden="true" />
                     World Statistics
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link as={Link} eventKey="1" href="/worldanvil/search">
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
+                    href="/worldanvil/search"
+                    title="Search this world"
+                  >
+                    <Search size={16} aria-hidden="true" />
                     Search
                   </Nav.Link>
                 </Nav.Item>
@@ -141,17 +169,10 @@ const NavBar = () => {
                   <Nav.Link
                     as={Link}
                     eventKey="1"
-                    href="/worldanvil/quicklinks"
-                  >
-                    Quick Links
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link
-                    as={Link}
-                    eventKey="1"
                     href="/worldanvil/quickcreate"
+                    title="Create a simple article quickly"
                   >
+                    <Zap size={16} aria-hidden="true" />
                     Quick Create
                   </Nav.Link>
                 </Nav.Item>
@@ -160,7 +181,9 @@ const NavBar = () => {
                     as={Link}
                     eventKey="1"
                     href="/worldanvil/fullcreate"
+                    title="Create an article in the full editor"
                   >
+                    <FilePlus2 size={16} aria-hidden="true" />
                     Full Create
                   </Nav.Link>
                 </Nav.Item>
@@ -169,17 +192,10 @@ const NavBar = () => {
                     as={Link}
                     eventKey="1"
                     href="/worldanvil/local-drafts"
+                    title="Open locally stored drafts"
                   >
+                    <PencilLine size={16} aria-hidden="true" />
                     Local Drafts
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link
-                    as={Link}
-                    eventKey="1"
-                    href="/worldanvil/markdownpreview"
-                  >
-                    Markdown Preview
                   </Nav.Link>
                 </Nav.Item>
                 {worlds.success && (
@@ -192,61 +208,118 @@ const NavBar = () => {
                 {world.success && (
                   <Nav.Item className="nav-current-world">
                     <div className="current-world">
-                      <dd>{`Currently selected world: `}</dd>
+                      <Boxes size={16} aria-hidden="true" />
+                      <dd>{`World: `}</dd>
                       <dt>{world.title}</dt>
                     </div>
                   </Nav.Item>
                 )}
-                <Nav.Item className="nav-dev-updates">
-                  <Nav.Link href="https://bsky.app/profile/brigid.hanhula.com">
-                    <FontAwesomeIcon icon={faCloud} />
-                    Bluesky
-                  </Nav.Link>
-                </Nav.Item>
-                {identity.success && (
-                  <Nav.Item className="nav-dev-updates">
-                    <Nav.Link href="https://discord.gg/KKtKuyqwFs">
-                      <FontAwesomeIcon icon={faDiscord} />
-                      Discord
-                    </Nav.Link>
-                  </Nav.Item>
-                )}
-                <Nav.Item className="nav-dev-updates">
-                  <Nav.Link href="https://ko-fi.com/hanhula">
-                    <FontAwesomeIcon icon={faCoins} />
-                    Support Me!
-                  </Nav.Link>
-                </Nav.Item>
-                {identity.success && (
-                  <Nav.Item className="nav-current-user">
-                    <div className="current-user">
-                      <dd>{"Logged in as:"}</dd>
-                      <dt>{identity.username}</dt>
-                    </div>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        variant="primary"
-                        id="account-actions-dropdown"
-                      >
-                        <FontAwesomeIcon icon={faSignOut} />
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu align="end">
-                        <Dropdown.Item onClick={() => logoutButton()}>
-                          Log out
-                        </Dropdown.Item>
-                        <Dropdown.Divider />
-                        <Dropdown.Item
-                          className="text-danger"
-                          onClick={() => setShowClearModal(true)}
-                        >
-                          Clear data
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </Nav.Item>
-                )}
               </Nav>
             </Navbar.Collapse>
+            <div className="navbar-utility">
+              <Dropdown>
+                <Dropdown.Toggle
+                  variant="secondary"
+                  id="navbar-more-menu"
+                  title="More tools and links"
+                  aria-label="More tools and links"
+                >
+                  <Settings2 size={17} aria-hidden="true" />
+                  <span className="d-none d-sm-inline ms-1">More</span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu align="end">
+                  <Dropdown.Header>Tools</Dropdown.Header>
+                  <Dropdown.Item
+                    as={Link}
+                    href="/worldanvil/quicklinks"
+                    title="Open Quick Links"
+                  >
+                    <Link2 size={16} aria-hidden="true" />
+                    Quick Links
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    as={Link}
+                    href="/worldanvil/markdownpreview"
+                    title="Open Markdown Preview"
+                  >
+                    <FileText size={16} aria-hidden="true" />
+                    Markdown Preview
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item
+                    as="a"
+                    href="https://github.com/Hanhula/projectbrigid"
+                    target="_blank"
+                    rel="noreferrer"
+                    title="View Project Brigid on GitHub"
+                  >
+                    <Github size={16} aria-hidden="true" />
+                    GitHub
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Header>Community</Dropdown.Header>
+                  <Dropdown.Item
+                    as="a"
+                    href="https://bsky.app/profile/brigid.hanhula.com"
+                    title="Open Bluesky"
+                  >
+                    <MessageCircle size={16} aria-hidden="true" />
+                    Bluesky
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    as="a"
+                    href="https://discord.gg/KKtKuyqwFs"
+                    title="Open Discord"
+                  >
+                    <MessageCircle size={16} aria-hidden="true" />
+                    Discord
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    as="a"
+                    href="https://ko-fi.com/hanhula"
+                    title="Open Support Me"
+                  >
+                    <Zap size={16} aria-hidden="true" />
+                    Support Me
+                    <ExternalLink size={13} aria-hidden="true" />
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              {identity.success && (
+                <Dropdown>
+                  <Dropdown.Toggle
+                    variant="primary"
+                    id="account-actions-dropdown"
+                    title={`Account: ${identity.username}`}
+                    aria-label={`Account: ${identity.username}`}
+                  >
+                    <User size={17} aria-hidden="true" />
+                    <span className="d-none d-sm-inline ms-1">Account</span>
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu align="end">
+                    <Dropdown.Header>{identity.username}</Dropdown.Header>
+                    <Dropdown.Item
+                      onClick={() => logoutButton()}
+                      title="Log out"
+                    >
+                      <LogOut size={16} aria-hidden="true" />
+                      Log out
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="text-danger"
+                      onClick={() => setShowClearModal(true)}
+                      title="Clear locally stored app data"
+                    >
+                      <Trash2 size={16} aria-hidden="true" />
+                      Clear data
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              )}
+            </div>
           </Navbar>
         )}
       </div>

@@ -20,8 +20,9 @@ export default function LocalDrafts() {
         <h1>Local Drafts</h1>
         <p className="text-muted">
           These articles are stored locally and have not been saved to World
-          Anvil. Open one to continue editing, export it, or save it to World
-          Anvil.
+          Anvil! Open one to continue editing, export it, or save it to World
+          Anvil. Note that these will only persist as long as the browser data
+          does - if it gets wiped, these will be lost!
         </p>
         {localDrafts.length === 0 ? (
           <p>No local drafts for {world.title || "the current world"}.</p>

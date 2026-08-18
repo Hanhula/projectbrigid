@@ -88,6 +88,7 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       label: string;
       options: FieldDropdownOption[];
       valueAsReference?: boolean;
+      valueAsBoolean?: boolean;
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -269,6 +270,7 @@ export const renderArticleField = <TArticle extends Article>(
           options={field.options}
           id={`${article.id}-${field.key}`}
           valueAsReference={field.valueAsReference}
+          valueAsBoolean={field.valueAsBoolean}
         />
         {field.helpText && (
           <Form.Text className="text-muted">{field.helpText}</Form.Text>
