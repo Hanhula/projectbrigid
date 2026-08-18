@@ -30,6 +30,7 @@ export type Article = {
   [fieldIdentifier: string]: any; // index signature
   id: string;
   title: string;
+  isLocalDraft?: boolean;
   slug: string;
   state: string;
   isWip: boolean;

@@ -150,6 +150,27 @@ export function ArticleTable({
       footer: (props) => props.column.id,
     },
     {
+      id: "editBrigid",
+      accessorFn: (row) => row.id,
+      cell: (info: any) => (
+        <Link href={`/worldanvil/articles/${info.getValue() as string}/edit`}>
+          <Button
+            as="a"
+            href={`/worldanvil/articles/${info.getValue() as string}/edit`}
+            className="edit-url-brigid"
+            variant="secondary"
+            title={`Edit ${info.row.original.title} in Brigid`}
+            aria-label={`Edit ${info.row.original.title} in Brigid`}
+          >
+            <FontAwesomeIcon icon={faFileEdit} />
+          </Button>
+        </Link>
+      ),
+      header: "Brigid Edit",
+      footer: (props) => props.column.id,
+      enableColumnFilter: false,
+    },
+    {
       id: "copyblock",
       cell: (info: any) => {
         return generateMention(

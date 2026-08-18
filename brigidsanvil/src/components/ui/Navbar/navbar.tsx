@@ -159,6 +159,24 @@ const NavBar = () => {
                   <Nav.Link
                     as={Link}
                     eventKey="1"
+                    href="/worldanvil/fullcreate"
+                  >
+                    Full Create
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
+                    href="/worldanvil/local-drafts"
+                  >
+                    Local Drafts
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
                     href="/worldanvil/markdownpreview"
                   >
                     Markdown Preview

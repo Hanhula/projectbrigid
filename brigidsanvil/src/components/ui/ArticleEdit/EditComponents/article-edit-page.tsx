@@ -11,6 +11,7 @@ import {
   ArticleTopLevelTabKey,
   articleTopLevelTabRegistry,
 } from "./article-edit-registry-common";
+import DebouncedInput from "./debounced-input";
 
 export type ArticleBodySubTabConfig<TArticle extends Article> = {
   eventKey: string;
@@ -99,7 +100,20 @@ export function ArticleEditPage<TArticle extends Article>({
 
   return (
     <div>
-      <h1>{article.title}</h1>
+      <h2 className="article-edit-header mt-2">
+        Editing {article.entityClass}: {article.title}
+      </h2>
+      <div className="mb-3">
+        <label htmlFor={`article-title-${article.id}`} className="form-label">
+          Title
+        </label>
+        <DebouncedInput
+          world={world}
+          article={article}
+          fieldIdentifier="title"
+          id={`article-title-${article.id}`}
+        />
+      </div>
       <div className="d-flex align-items-center gap-2 mb-3">
         <small className="text-muted">
           Editing via Brigid, not via WorldAnvil. Changes will save locally, but

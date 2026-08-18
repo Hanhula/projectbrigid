@@ -399,22 +399,78 @@ export const articleSlice = createSlice({
       const updatedArticleObj: WorldArticle = action.payload;
       const worldId = updatedArticleObj.world.id;
       const worldArticlesByIdEntry = state.worldArticlesById[worldId];
-
-      if (!worldArticlesByIdEntry) {
-        console.error(`World with ID ${worldId} not found.`);
-        return;
-      }
-
-      const articleRecord = state.articlesByIdByWorld[worldId] ?? {};
+      const articleRecord =
+        state.articlesByIdByWorld[worldId] ??
+        worldArticlesByIdEntry?.articles.reduce<Record<string, Article>>(
+          (articlesById, existingArticle) => {
+            articlesById[existingArticle.id] = existingArticle;
+            return articlesById;
+          },
+          {},
+        ) ??
+        {};
       const articleId = updatedArticleObj.article.id;
 
       articleRecord[articleId] = updatedArticleObj.article;
       state.articlesByIdByWorld[worldId] = articleRecord;
       state.articleIdsByWorld[worldId] = Object.keys(articleRecord);
-      state.worldArticlesById[worldId] = {
+      state.worldArticlesById[worldId] = worldArticlesByIdEntry
+        ? {
+            ...worldArticlesByIdEntry,
+            articles: Object.values(articleRecord),
+          }
+        : {
+            world: updatedArticleObj.world,
+            articles: Object.values(articleRecord),
+          };
+      state.currentWorldArticles = state.worldArticlesById[worldId];
+    },
+    addArticleToWorld(state, action) {
+      const { world, article } = action.payload as WorldArticle;
+      const worldId = world.id;
+      const worldArticlesByIdEntry = state.worldArticlesById[worldId];
+      const articleRecord =
+        state.articlesByIdByWorld[worldId] ??
+        worldArticlesByIdEntry?.articles.reduce<Record<string, Article>>(
+          (articlesById, existingArticle) => {
+            articlesById[existingArticle.id] = existingArticle;
+            return articlesById;
+          },
+          {},
+        ) ??
+        {};
+
+      articleRecord[article.id] = article;
+      state.articlesByIdByWorld[worldId] = articleRecord;
+      state.articleIdsByWorld[worldId] = Object.keys(articleRecord);
+
+      if (worldArticlesByIdEntry) {
+        state.worldArticlesById[worldId] = {
+          ...worldArticlesByIdEntry,
+          articles: Object.values(articleRecord),
+        };
+      } else {
+        state.worldArticlesById[worldId] = { world, articles: [article] };
+      }
+
+      state.currentWorldArticles = state.worldArticlesById[worldId];
+    },
+    removeArticleById(state, action) {
+      const { worldID, articleID } = action.payload;
+      const articleRecord = state.articlesByIdByWorld[worldID];
+      const worldArticlesByIdEntry = state.worldArticlesById[worldID];
+
+      if (!articleRecord || !worldArticlesByIdEntry) {
+        return;
+      }
+
+      delete articleRecord[articleID];
+      state.articleIdsByWorld[worldID] = Object.keys(articleRecord);
+      state.worldArticlesById[worldID] = {
         ...worldArticlesByIdEntry,
         articles: Object.values(articleRecord),
       };
+      state.currentWorldArticles = state.worldArticlesById[worldID];
     },
     setEditStateByWorld(state, action) {
       const { world, editedArticles } = action.payload;
@@ -546,6 +602,8 @@ export const {
   setDetailState,
   resetArticleState,
   updateArticleById,
+  addArticleToWorld,
+  removeArticleById,
   setEditStateByWorld,
   setEditedArticle,
   setEditedContentByID,

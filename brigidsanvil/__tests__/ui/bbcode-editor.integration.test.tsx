@@ -226,7 +226,7 @@ test|author[/quote]`);
     const imageButton = screen.getByRole("button", { name: "Image" });
     expect(imageButton).toHaveAttribute(
       "title",
-      "Image reference (Ctrl/Cmd+Alt+I)",
+      "Image reference (Ctrl+Shift+I)",
     );
     expect(imageButton.querySelector("svg")).toBeInTheDocument();
 

@@ -21,6 +21,10 @@
     margin-top: 0.6rem;
   }
 
+  h2.article-edit-header {
+    font-size: 1.5em;
+  }
+
   @media (min-width: 768px) {
     #article-edit-toolbar-actions.collapse:not(.show) {
       display: block !important;

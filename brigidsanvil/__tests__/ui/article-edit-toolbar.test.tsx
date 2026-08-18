@@ -28,19 +28,19 @@ describe("ArticleEditToolbar", () => {
       screen.getByRole("button", { name: "Hide options" }),
     ).toHaveAttribute("title", "Hide options");
     expect(
-      screen.getByRole("button", { name: "Reset article content" }),
-    ).toHaveAttribute("title", "Reset article content");
+      screen.getByRole("button", { name: "Reset content" }),
+    ).toHaveAttribute("title", "Reset content");
     expect(
-      screen.getByRole("button", { name: "Refresh article content" }),
-    ).toHaveAttribute("title", "Refresh article content");
+      screen.getByRole("button", { name: "Refresh content" }),
+    ).toHaveAttribute("title", "Refresh content");
     expect(
-      screen.getByRole("button", { name: "Save article to WorldAnvil" }),
-    ).toHaveAttribute("title", "Save article to WorldAnvil");
+      screen.getByRole("button", { name: "Save to WorldAnvil" }),
+    ).toHaveAttribute("title", "Save to WorldAnvil");
     expect(
-      screen.getByRole("button", { name: "Export article backup" }),
-    ).toHaveAttribute("title", "Export article backup");
+      screen.getByRole("button", { name: "Export backup" }),
+    ).toHaveAttribute("title", "Export backup");
     expect(
-      screen.getByRole("button", { name: "Import article backup" }),
-    ).toHaveAttribute("title", "Import article backup");
+      screen.getByRole("button", { name: "Import backup" }),
+    ).toHaveAttribute("title", "Import backup");
   });
 });

@@ -2,6 +2,7 @@ import { selectWorld } from "@/components/store/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   removeEditByID,
+  removeArticleById,
   selectCurrentArticles,
   selectEditedArticlesByWorld,
   setEditedArticle,
@@ -16,7 +17,8 @@ import {
 import { Button, Col, Container, Modal, Row } from "react-bootstrap";
 import { useRouter } from "next/router";
 import { useWorldAnvilAPI } from "@/components/api/worldanvil";
-import { useMemo, useRef, useState } from "react";
+import { CreateArticle } from "@/components/types/article";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./edit.scss";
 import Head from "next/head";
@@ -40,6 +42,7 @@ export default function EditPage() {
   const [importedBackup, setImportedBackup] =
     useState<ArticleEditorBackup | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+  const allowLocalDraftNavigationRef = useRef(false);
 
   const dispatch = useDispatch();
 
@@ -73,6 +76,62 @@ export default function EditPage() {
       }, {})
     : {};
 
+  useEffect(() => {
+    if (!router.isReady || !world.id || article || !slug) {
+      return;
+    }
+
+    dispatch(
+      addNotification(
+        "This article is not available in the selected world. Returning to Full Create.",
+        "warning",
+      ),
+    );
+    void router.replace("/worldanvil/fullcreate");
+  }, [article, dispatch, router, router.isReady, slug, world.id]);
+
+  useEffect(() => {
+    if (!article?.isLocalDraft) {
+      return;
+    }
+
+    const warningMessage =
+      "This local draft has not been saved to World Anvil. Cancel to keep editing, or leave after exporting it or saving it to World Anvil.";
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (allowLocalDraftNavigationRef.current) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = warningMessage;
+    };
+    const handleRouteChangeStart = (url: string) => {
+      if (allowLocalDraftNavigationRef.current || url === router.asPath) {
+        return;
+      }
+
+      if (window.confirm(warningMessage)) {
+        return;
+      }
+
+      router.events.emit(
+        "routeChangeError",
+        new Error("Navigation cancelled"),
+        url,
+        { shallow: false },
+      );
+      throw new Error("Navigation cancelled");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+    };
+  }, [article?.id, article?.isLocalDraft, router]);
+
   const resetContent = (notify = true) => {
     if (!article) {
       return;
@@ -102,6 +161,70 @@ export default function EditPage() {
     }
 
     try {
+      if (article.isLocalDraft) {
+        const getStringField = (fieldIdentifier: string, fallback = "") => {
+          const value =
+            currentEditedFields[fieldIdentifier] ?? article[fieldIdentifier];
+          return typeof value === "string" ? value : fallback;
+        };
+        const articleToCreate: CreateArticle = {
+          title: getStringField("title", article.title),
+          content: getStringField("content"),
+          templateType:
+            article.templateType ??
+            article.entityClass.charAt(0).toLowerCase() +
+              article.entityClass.slice(1),
+          tags: getStringField("tags"),
+          fullfooter: getStringField("fullfooter"),
+          excerpt: getStringField("excerpt"),
+          state: article.state || "public",
+          isDraft: article.isDraft,
+          cssClasses: getStringField("cssClasses"),
+          world: { id: world.id },
+        };
+        const createdArticle = await worldAnvilAPI.createArticle(
+          articleToCreate,
+        );
+        const fieldsCreatedWithArticle = new Set([
+          "title",
+          "content",
+          "templateType",
+          "tags",
+          "fullfooter",
+          "excerpt",
+          "state",
+          "isDraft",
+          "cssClasses",
+        ]);
+        for (const [fieldIdentifier, editedContent] of Object.entries(
+          currentEditedFields,
+        )) {
+          if (
+            fieldsCreatedWithArticle.has(fieldIdentifier) ||
+            editedContent === undefined
+          ) {
+            continue;
+          }
+
+          await worldAnvilAPI.updateArticleByField(
+            createdArticle.id,
+            fieldIdentifier,
+            editedContent,
+          );
+        }
+        await worldAnvilAPI.getArticle(createdArticle.id, true);
+        dispatch(removeEditByID({ worldID: world.id, articleID: article.id }));
+        dispatch(
+          removeArticleById({ worldID: world.id, articleID: article.id }),
+        );
+        dispatch(
+          addNotification("Local article saved to WorldAnvil.", "success"),
+        );
+        allowLocalDraftNavigationRef.current = true;
+        await router.push(`/worldanvil/articles/${createdArticle.id}/edit`);
+        return;
+      }
+
       await worldAnvilAPI.updateEditedArticleByFields(article.id);
       console.info("Article updated successfully");
       dispatch(addNotification("Content saved to WorldAnvil.", "success"));
