@@ -1,4 +1,4 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
 import { Document } from "./document";
 import { Ethnicity } from "./ethnicity";
 import { Item } from "./item";
@@ -15,6 +15,7 @@ import { Report } from "./report";
 import { Ritual } from "./ritual";
 import { Species } from "./species";
 import { Vehicle } from "./vehicle";
+import { Image } from "../image";
 
 export type Location = Article & {
   alternativename: string | null;
@@ -79,9 +80,10 @@ export type Location = Article & {
   professions: Profession[] | null;
   ethnicities: Ethnicity[] | null;
   species: Species[] | null;
+  portrait: Image | null;
 };
 
-type LocationType = {
+export type LocationType = {
   id: string;
   title: string;
   slug: string | null;
@@ -117,6 +119,7 @@ export class LocationDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     alternativeNames: string | null;
     type: string | null;
@@ -148,40 +151,81 @@ export class LocationDisplay extends ArticleDisplay {
       content: location.content ? location.content : null,
       geography: location.geography ? location.geography : null,
       ecosystem: location.ecosystem ? location.ecosystem : null,
-      ecosystemCycles: location.ecosystemCycles ? location.ecosystemCycles : null,
-      localisedPhenomena: location.localizedPhenomena ? location.localizedPhenomena : null,
+      ecosystemCycles: location.ecosystemCycles
+        ? location.ecosystemCycles
+        : null,
+      localisedPhenomena: location.localizedPhenomena
+        ? location.localizedPhenomena
+        : null,
       climate: location.climate ? location.climate : null,
       faunaAndFlora: location.florafauna ? location.florafauna : null,
-      naturalResources: location.naturalresources ? location.naturalresources : null,
+      naturalResources: location.naturalresources
+        ? location.naturalresources
+        : null,
       history: location.history ? location.history : null,
       tourism: location.tourism ? location.tourism : null,
     };
 
     this.sidebar = {
       sidebarcontent: location.sidebarcontent ? location.sidebarcontent : null,
+      portrait: this.formatImage(location.portrait),
       sidepanelcontenttop: location.sidepanelcontenttop
         ? location.sidepanelcontenttop
         : null,
-      alternativeNames: location.alternativename ? location.alternativename : null,
+      alternativeNames: location.alternativename
+        ? location.alternativename
+        : null,
       type: location.type ? location.type.title : null,
-      vehiclesPresent: location.vehiclesPresent ? this.formatMentions(location.vehiclesPresent) : null,
-      locationUnder: location.parent ? this.formatMention(location.parent) : null,
-      includedLocations: location.children ? this.formatMentions(location.children) : null,
-      includedOrganisations: location.includedOrganizations ? this.formatMentions(location.includedOrganizations) : null,
-      ownerOrRuler: location.person ? this.formatMention(location.person) : null,
-      additionalOwnersOrRulers: location.additionalRulers ? this.formatMentions(location.additionalRulers) : null,
-      rulingOrOwningRank: location.rank ? this.formatMention(location.rank) : null,
-      owningOrganisation: location.organization ? this.formatMention(location.organization) : null,
-      relatedEthnicities: location.ethnicities ? this.formatMentions(location.ethnicities) : null,
-      contestedBy: location.contenders ? this.formatMentions(location.contenders) : null,
-      primaryRelatedTradition: location.rituals ? this.formatMentions(location.rituals) : null,
-      primaryRelatedReports: location.reportprimarylocations ? this.formatMentions(location.reportprimarylocations) : null,
-      inhabitingSpecies: location.species ? this.formatMentions(location.species) : null,
+      vehiclesPresent: location.vehiclesPresent
+        ? this.formatMentions(location.vehiclesPresent)
+        : null,
+      locationUnder: location.parent
+        ? this.formatMention(location.parent)
+        : null,
+      includedLocations: location.children
+        ? this.formatMentions(location.children)
+        : null,
+      includedOrganisations: location.includedOrganizations
+        ? this.formatMentions(location.includedOrganizations)
+        : null,
+      ownerOrRuler: location.person
+        ? this.formatMention(location.person)
+        : null,
+      additionalOwnersOrRulers: location.additionalRulers
+        ? this.formatMentions(location.additionalRulers)
+        : null,
+      rulingOrOwningRank: location.rank
+        ? this.formatMention(location.rank)
+        : null,
+      owningOrganisation: location.organization
+        ? this.formatMention(location.organization)
+        : null,
+      relatedEthnicities: location.ethnicities
+        ? this.formatMentions(location.ethnicities)
+        : null,
+      contestedBy: location.contenders
+        ? this.formatMentions(location.contenders)
+        : null,
+      primaryRelatedTradition: location.rituals
+        ? this.formatMentions(location.rituals)
+        : null,
+      primaryRelatedReports: location.reportprimarylocations
+        ? this.formatMentions(location.reportprimarylocations)
+        : null,
+      inhabitingSpecies: location.species
+        ? this.formatMentions(location.species)
+        : null,
       relatedMyths: location.myths ? this.formatMentions(location.myths) : null,
       relatedPlots: location.plots ? this.formatMentions(location.plots) : null,
-      relatedProfessions: location.professions ? this.formatMentions(location.professions) : null,
-      relatedMaterials: location.materials ? this.formatMentions(location.materials) : null,
-      sidepanelcontent: location.sidepanelcontent ? location.sidepanelcontent : null,
+      relatedProfessions: location.professions
+        ? this.formatMentions(location.professions)
+        : null,
+      relatedMaterials: location.materials
+        ? this.formatMentions(location.materials)
+        : null,
+      sidepanelcontent: location.sidepanelcontent
+        ? location.sidepanelcontent
+        : null,
       sidebarcontentbottom: location.sidebarcontentbottom
         ? location.sidebarcontentbottom
         : null,

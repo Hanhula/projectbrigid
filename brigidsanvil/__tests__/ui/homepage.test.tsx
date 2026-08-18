@@ -15,7 +15,7 @@ describe("Homepage Component", () => {
   test("should render the description", () => {
     render(<Homepage />);
     const descriptionElement = screen.getByText(
-      "Project Brigid is a community-led effort to develop extra tools for WorldAnvil. Here, you will find utilities to see your world in ways that the site itself does not yet offer."
+      "Project Brigid is a community-led effort to develop extra tools for WorldAnvil, largely developed by Hanhula using WorldAnvil's Boromir API. Here, you will find utilities to see your world in ways that the site itself does not yet offer.",
     );
     expect(descriptionElement).toBeInTheDocument();
   });
@@ -26,10 +26,10 @@ describe("Homepage Component", () => {
     expect(headingElement).toBeInTheDocument();
   });
 
-  test("should render API Tool card", () => {
+  test("should render Article Explorer card", () => {
     render(<Homepage />);
-    const apiToolCard = screen.getByText("API Tool");
-    expect(apiToolCard).toBeInTheDocument();
+    const articleExplorerCard = screen.getByText("Article Explorer");
+    expect(articleExplorerCard).toBeInTheDocument();
   });
 
   test("should render Statistics card", () => {
@@ -38,10 +38,12 @@ describe("Homepage Component", () => {
     expect(statisticsCard).toBeInTheDocument();
   });
 
-  test("should have a link to the API Tool page", () => {
+  test("should have a link to the Article Explorer page", () => {
     render(<Homepage />);
-    const apiToolLink = screen.getByRole("link", { name: "Go to API Tool" });
-    expect(apiToolLink).toHaveAttribute("href", "/worldanvil/apitool");
+    const articleExplorerLink = screen.getByRole("link", {
+      name: "Go to Article Explorer",
+    });
+    expect(articleExplorerLink).toHaveAttribute("href", "/worldanvil/apitool");
   });
 
   test("should have a link to the Statistics page", () => {

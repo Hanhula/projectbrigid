@@ -47,7 +47,7 @@ export function Filter({
       (tag) => ({
         label: tag,
         value: tag,
-      })
+      }),
     );
 
     return (
@@ -60,7 +60,7 @@ export function Filter({
               ? (filterValue as string)
                   .split(",")
                   .map((value) =>
-                    uniqueTagsArray.find((option) => option.value === value)
+                    uniqueTagsArray.find((option) => option.value === value),
                   )
               : []
           }
@@ -95,7 +95,7 @@ export function Filter({
             onChange={(selectedOption) => {
               const value = selectedOption ? selectedOption.value : undefined;
               column.setFilterValue(
-                value === "" ? undefined : value === "true"
+                value === "" ? undefined : value === "true",
               );
             }}
             styles={selectStyles}
@@ -193,7 +193,9 @@ export function Filter({
           }
           onChange={(selectedOption) =>
             column.setFilterValue(
-              selectedOption?.value === "All" ? "" : selectedOption?.value || ""
+              selectedOption?.value === "All"
+                ? ""
+                : selectedOption?.value || "",
             )
           }
           placeholder={`Type`}

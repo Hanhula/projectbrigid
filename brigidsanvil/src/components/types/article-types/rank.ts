@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Image } from "../image";
 import { Formation } from "./formation";
 import { Location } from "./location";
 import { Organisation } from "./organisation";
@@ -37,6 +38,7 @@ export type Rank = Article & {
   relatedlocations: Location[];
   rankformations: Formation[];
   professions: Profession[];
+  portrait: Image | null;
 };
 
 export class RankDisplay extends ArticleDisplay {
@@ -57,6 +59,7 @@ export class RankDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     type: string | null;
     status: string | null;
@@ -100,6 +103,7 @@ export class RankDisplay extends ArticleDisplay {
 
     this.sidebar = {
       sidebarcontent: rank.sidebarcontent ? rank.sidebarcontent : null,
+      portrait: this.formatImage(rank.portrait),
       sidepanelcontenttop: rank.sidepanelcontenttop
         ? rank.sidepanelcontenttop
         : null,

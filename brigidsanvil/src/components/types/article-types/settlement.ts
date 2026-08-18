@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Image } from "../image";
 import { Item } from "./item";
 import { Location } from "./location";
 import { Organisation } from "./organisation";
@@ -6,7 +7,7 @@ import { Person } from "./person";
 import { Rank } from "./rank";
 import { Vehicle } from "./vehicle";
 
-type SettlementType = {
+export type SettlementType = {
   id: string;
   title: string;
   slug: string | null;
@@ -71,6 +72,7 @@ export type Settlement = Article & {
   organization: Organisation;
   founders: Person[];
   additionalRulers: Person[];
+  portrait: Image | null;
 };
 
 export class SettlementDisplay extends ArticleDisplay {
@@ -84,6 +86,8 @@ export class SettlementDisplay extends ArticleDisplay {
     districts: string | null;
     assets: string | null;
     guildsAndFactions: string | null;
+    history: string | null;
+    pointsOfInterest: string | null;
     tourism: string | null;
     architecture: string | null;
     geography: string | null;
@@ -93,6 +97,7 @@ export class SettlementDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     ruinedSettlement: string | null;
     foundingDate: string | null;
@@ -119,36 +124,64 @@ export class SettlementDisplay extends ArticleDisplay {
       government: settlement.government ? settlement.government : null,
       defences: settlement.defences ? settlement.defences : null,
       industryAndTrade: settlement.industry ? settlement.industry : null,
-      infrastructure: settlement.infrastructure ? settlement.infrastructure : null,
+      infrastructure: settlement.infrastructure
+        ? settlement.infrastructure
+        : null,
       districts: settlement.district ? settlement.district : null,
       assets: settlement.assets ? settlement.assets : null,
       guildsAndFactions: settlement.guilds ? settlement.guilds : null,
+      history: settlement.history ? settlement.history : null,
+      pointsOfInterest: settlement.pointOfInterest
+        ? settlement.pointOfInterest
+        : null,
       tourism: settlement.tourism ? settlement.tourism : null,
       architecture: settlement.architecture ? settlement.architecture : null,
       geography: settlement.geography ? settlement.geography : null,
       climate: settlement.climate ? settlement.climate : null,
-      naturalResources: settlement.naturalresources ? settlement.naturalresources : null,    
+      naturalResources: settlement.naturalresources
+        ? settlement.naturalresources
+        : null,
     };
 
     this.sidebar = {
-      sidebarcontent: settlement.sidebarcontent ? settlement.sidebarcontent : null,
+      sidebarcontent: settlement.sidebarcontent
+        ? settlement.sidebarcontent
+        : null,
+      portrait: this.formatImage(settlement.portrait),
       sidepanelcontenttop: settlement.sidepanelcontenttop
         ? settlement.sidepanelcontenttop
         : null,
-        ruinedSettlement: settlement.ruined ? settlement.ruined : null,
-        foundingDate: settlement.constructed ? settlement.constructed : null,
-        founders: settlement.founders ? this.formatMentions(settlement.founders) : null,
-        alternativeNames: settlement.alternativename ? settlement.alternativename : null,
-        type: settlement.type && settlement.type.title ? settlement.type.title : null,
-        population: settlement.population ? settlement.population : null,
-        inhabitantDemonym: settlement.demonym ? settlement.demonym : null,
-        locationUnder: settlement.parent ? this.formatMention(settlement.parent) : null,
-        ownerOrRuler: settlement.person ? this.formatMention(settlement.person) : null,
-        additionalRulersOrOwners: settlement.additionalRulers ? this.formatMentions(settlement.additionalRulers) : null,
-        rulingOrOwningRank: settlement.rank ? this.formatMention(settlement.rank) : null,
-        owningOrganisation: settlement.organization ? this.formatMention(settlement.organization) : null,
-       
-      sidepanelcontent: settlement.sidepanelcontent ? settlement.sidepanelcontent : null,
+      ruinedSettlement: settlement.ruined ? settlement.ruined : null,
+      foundingDate: settlement.constructed ? settlement.constructed : null,
+      founders: settlement.founders
+        ? this.formatMentions(settlement.founders)
+        : null,
+      alternativeNames: settlement.alternativename
+        ? settlement.alternativename
+        : null,
+      type:
+        settlement.type && settlement.type.title ? settlement.type.title : null,
+      population: settlement.population ? settlement.population : null,
+      inhabitantDemonym: settlement.demonym ? settlement.demonym : null,
+      locationUnder: settlement.parent
+        ? this.formatMention(settlement.parent)
+        : null,
+      ownerOrRuler: settlement.person
+        ? this.formatMention(settlement.person)
+        : null,
+      additionalRulersOrOwners: settlement.additionalRulers
+        ? this.formatMentions(settlement.additionalRulers)
+        : null,
+      rulingOrOwningRank: settlement.rank
+        ? this.formatMention(settlement.rank)
+        : null,
+      owningOrganisation: settlement.organization
+        ? this.formatMention(settlement.organization)
+        : null,
+
+      sidepanelcontent: settlement.sidepanelcontent
+        ? settlement.sidepanelcontent
+        : null,
       sidebarcontentbottom: settlement.sidebarcontentbottom
         ? settlement.sidebarcontentbottom
         : null,

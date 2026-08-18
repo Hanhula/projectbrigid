@@ -46,6 +46,17 @@
   }
 
   .table-container {
+    .btn-link {
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s;
+
+      &:hover {
+        color: var(--secondary-light);
+      }
+    }
+
     .table-responsive .btn-primary {
       --bs-btn-bg: var(--secondary);
       --bs-btn-border-color: var(--secondary);
@@ -152,10 +163,11 @@
         max-width: 11em;
       }
 
-      .col-editURL ~ .col-filter .input-group,
-      .col-url ~ .col-filter .input-group,
+      .col-editURL,
+      .col-url,
       .col-copyblock ~ .col-filter .input-group {
-        max-width: 3em;
+        min-width: 3em;
+        max-width: 4em;
       }
 
       .col-wordcount ~ .col-filter .input-group {

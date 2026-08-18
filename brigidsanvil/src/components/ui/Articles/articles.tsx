@@ -120,7 +120,7 @@ const Articles = () => {
           />
         </Form>
       </div>
-      <Form.Text>{`Please note that this tool takes approximately 1 second per article to retrieve your world's articles at full detail. As you have ${articleCount} articles, please expect full detail mode to take ${minutes} minutes and ${seconds} seconds for its first-time load. Subsequent responses will be much faster, as they'll only update if you've changed something on WA! Timer functionality for this has not yet been implemented, sorry!`}</Form.Text>
+      <Form.Text>{`Please note that this tool takes approximately 1 second per article to retrieve your world's articles at full detail. As you have ${articleCount} articles, please expect full detail mode to take ${minutes} minutes and ${seconds} seconds for its first-time load. Subsequent responses will be much faster, as they'll only update if you've changed something on WA!`}</Form.Text>
       <div>
         <h3>Important Note on Editing</h3>
         <div>
@@ -139,7 +139,7 @@ const Articles = () => {
       >
         <ArticleTable data={articles} getRowCanExpand={() => true} />
       </div>
-      <div>
+      <div className="utility-bits m-2">
         <h4>{"Han's Utility Bits"}</h4>
         <p>
           This stuff's just for me to track how my progress is going with the

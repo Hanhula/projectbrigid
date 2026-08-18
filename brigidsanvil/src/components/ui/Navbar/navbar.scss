@@ -4,6 +4,35 @@
     padding: 0.5em 1em;
   }
 
+  .navbar-brand,
+  .navbar-utility,
+  .primary-nav .nav-link,
+  .dropdown-item,
+  .current-world {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .navbar-utility {
+    margin-left: auto;
+    gap: 0.5rem;
+  }
+
+  .navbar-utility .dropdown-item {
+    justify-content: flex-start;
+
+    svg:last-child {
+      margin-left: auto;
+    }
+  }
+
+  .navbar-utility .dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
   .world-selector-nav form {
     display: flex;
     flex-direction: row;
@@ -38,6 +67,14 @@
         margin-bottom: 0;
         padding-right: 0.3em;
       }
+
+      dt {
+        margin-bottom: 0;
+        max-width: 13rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
 
     &.nav-dev-updates {
@@ -51,6 +88,32 @@
     .navbar-expand-lg .navbar-collapse {
       display: block !important;
       flex-basis: auto;
+    }
+
+    .primary-nav {
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .world-selector-nav {
+      margin-left: 0.5rem;
+    }
+  }
+
+  @media (max-width: 991.98px) {
+    .navbar-utility {
+      margin-left: auto;
+    }
+
+    .navbar-collapse {
+      margin-top: 0.75rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .world-selector-nav form {
+      width: 100%;
+      margin-top: 0.5rem;
     }
   }
 }

@@ -1,0 +1,19 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "test editutils roundtrip app folder",
+			"type": "shell",
+			"command": ".\\node_modules\\.bin\\jest.cmd",
+			"args": [
+				"__tests__/ui/editutils.test.ts",
+				"--runInBand"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		}
+	]
+}

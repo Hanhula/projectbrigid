@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Image } from "../image";
 import { Item } from "./item";
 import { Location } from "./location";
 import { Profession } from "./profession";
@@ -45,6 +46,7 @@ export type Material = Article & {
   items: Item[] | null;
   technologies: Technology[] | null;
   professions: Profession[] | null;
+  portrait: Image | null;
 };
 
 export class MaterialDisplay extends ArticleDisplay {
@@ -74,6 +76,7 @@ export class MaterialDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     elementNumber: string | null;
     elementAbbreviation: string | null;
@@ -136,6 +139,7 @@ export class MaterialDisplay extends ArticleDisplay {
 
     this.sidebar = {
       sidebarcontent: material.sidebarcontent ? material.sidebarcontent : null,
+      portrait: this.formatImage(material.portrait),
       sidepanelcontenttop: material.sidepanelcontenttop
         ? material.sidepanelcontenttop
         : null,

@@ -8,6 +8,7 @@ import { createTransform, persistReducer, persistStore } from "redux-persist";
 import defaultStorage from "redux-persist/lib/storage";
 import { authSlice } from "./authSlice";
 import { articleSlice, migratePersistedArticleState } from "./articlesSlice";
+import { notificationSlice } from "./notificationsSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
 
@@ -32,18 +33,19 @@ const reducers = combineReducers({
   [apiSlice.name]: apiSlice.reducer,
   [authSlice.name]: authSlice.reducer,
   [articleSlice.name]: articleSlice.reducer,
+  [notificationSlice.name]: notificationSlice.reducer,
 });
 
 // this is a commit to reupdate the branch
 const persistConfig = {
   key: "root",
-  version: 2,
+  version: 4,
   storage: globalThis.indexedDB
     ? createIdbStorage({ name: "brigidsAnvil", storeName: "brigidStore" })
     : defaultStorage,
   serialize: false, // Data serialization is not required and disabling it allows you to inspect storage value in DevTools; Available since redux-persist@5.4.0
   deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
-  blacklist: ["authState"],
+  blacklist: ["authState", "notificationState"],
   transforms: [apiTransform],
   migrate: async (persistedState: any) => {
     if (!persistedState || typeof persistedState !== "object") {
@@ -53,6 +55,8 @@ const persistConfig = {
     return {
       ...persistedState,
       articleState: migratePersistedArticleState(persistedState.articleState),
+      notificationState:
+        persistedState.notificationState ?? notificationSlice.getInitialState(),
     };
   },
 };

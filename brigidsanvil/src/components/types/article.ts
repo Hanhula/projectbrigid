@@ -27,8 +27,10 @@ export type WorldArticle = {
 };
 
 export type Article = {
+  [fieldIdentifier: string]: any; // index signature
   id: string;
   title: string;
+  isLocalDraft?: boolean;
   slug: string;
   state: string;
   isWip: boolean;
@@ -121,6 +123,12 @@ export type Article = {
 
 export type ApiResponse = {
   [key: string]: any; // Define a dynamic key-value structure
+};
+
+// Tagged value so the viewer can render an <img> instead of running it through the bbcode parser
+export type ImageFieldValue = {
+  kind: "image";
+  url: string;
 };
 
 export type ArticleApiResponse = {
@@ -240,7 +248,7 @@ export class ArticleDisplay {
   formatMentions(
     entities:
       | Array<{ title: string; entityClass: string; id: string }>
-      | undefined
+      | undefined,
   ): string | null {
     if (entities && entities.length > 0) {
       return entities.map(this.formatMention).join(", ");
@@ -254,7 +262,7 @@ export class ArticleDisplay {
   }
 
   formatLinks(
-    entities: Array<{ title: string; url: string; id: string }> | undefined
+    entities: Array<{ title: string; url: string; id: string }> | undefined,
   ): string | null {
     if (entities && entities.length > 0) {
       return entities.map(this.formatLink).join(", ");
@@ -269,5 +277,9 @@ export class ArticleDisplay {
     } else {
       return null;
     }
+  }
+
+  formatImage(image: Image | null | undefined): ImageFieldValue | null {
+    return image?.url ? { kind: "image", url: image.url } : null;
   }
 }

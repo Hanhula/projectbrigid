@@ -8,6 +8,185 @@
 			"problemMatcher": [],
 			"label": "npm: dev - brigidsanvil",
 			"detail": "npm run dev --turbo=false"
+		},
+		{
+			"label": "test editutils roundtrip",
+			"type": "shell",
+			"command": "npx",
+			"args": [
+				"jest",
+				"__tests__/ui/editutils.test.ts",
+				"--runInBand"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils roundtrip local",
+			"type": "shell",
+			"command": ".\\node_modules\\.bin\\jest.cmd",
+			"args": [
+				"__tests__/ui/editutils.test.ts",
+				"--runInBand"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils roundtrip absolute",
+			"type": "shell",
+			"command": "f:\\Coding\\brigid\\brigidsanvil\\node_modules\\.bin\\jest.cmd",
+			"args": [
+				"f:\\Coding\\brigid\\brigidsanvil\\__tests__\\ui\\editutils.test.ts",
+				"--runInBand"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils roundtrip config",
+			"type": "shell",
+			"command": "f:\\Coding\\brigid\\brigidsanvil\\node_modules\\.bin\\jest.cmd",
+			"args": [
+				"f:\\Coding\\brigid\\brigidsanvil\\__tests__\\ui\\editutils.test.ts",
+				"--runInBand",
+				"--config",
+				"f:\\Coding\\brigid\\brigidsanvil\\jest.config.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils roundtrip cwd",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils roundtrip cwd rerun",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test editutils quote roundtrip",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test article quote fixtures",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test article quote fixtures rerun",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test quote author serializer fix",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/editutils.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test full article bbcode fixtures",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "test article bbcode suite final",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "verify bbcode fixtures after editor swap",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "verify bbcode fixtures after codemirror swap",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "verify opaque block highlights",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
+		},
+		{
+			"label": "verify bbcode fixes ctrlu quote img mentions",
+			"type": "shell",
+			"command": "Set-Location f:\\Coding\\brigid\\brigidsanvil; .\\node_modules\\.bin\\jest.cmd __tests__/ui/article-bbcode-fixtures.test.ts --runInBand",
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "test"
 		}
 	]
 }

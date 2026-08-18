@@ -1,4 +1,5 @@
-import { Article, ArticleDisplay } from "../article";
+import { Article, ArticleDisplay, ImageFieldValue } from "../article";
+import { Formation } from "./formation";
 import { Landmark } from "./landmark";
 import { Location } from "./location";
 import { Myth } from "./myth";
@@ -6,6 +7,7 @@ import { Organisation } from "./organisation";
 import { Person } from "./person";
 import { Profession } from "./profession";
 import { Technology } from "./technology";
+import { Image } from "../image";
 
 export type Vehicle = Article & {
   class: Vehicle | null;
@@ -42,6 +44,8 @@ export type Vehicle = Article & {
   technologiesUsed: Technology[];
   myths: Myth[];
   professions: Profession[];
+  militaryFormationsUsage: Formation[];
+  portrait: Image | null;
 };
 
 export class VehicleDisplay extends ArticleDisplay {
@@ -59,6 +63,7 @@ export class VehicleDisplay extends ArticleDisplay {
 
   sidebar: {
     sidebarcontent: string | null;
+    portrait: ImageFieldValue | null;
     sidepanelcontenttop: string | null;
     class: string | null;
     nickname: string | null;
@@ -107,6 +112,7 @@ export class VehicleDisplay extends ArticleDisplay {
 
     this.sidebar = {
       sidebarcontent: vehicle.sidebarcontent ? vehicle.sidebarcontent : null,
+      portrait: this.formatImage(vehicle.portrait),
       sidepanelcontenttop: vehicle.sidepanelcontenttop
         ? vehicle.sidepanelcontenttop
         : null,

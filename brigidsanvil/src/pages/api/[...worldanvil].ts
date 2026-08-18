@@ -7,7 +7,7 @@ let authToken: string;
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   if (!appKey) {
     return res.status(500).json({ error: "Application key not found" });
@@ -46,7 +46,7 @@ export default async function handler(
       headers: additionalHeaders,
     };
   } else {
-    console.log(req.body);
+    //console.log(req.body);
     options = {
       method: req.method,
       headers: additionalHeaders,
@@ -62,13 +62,28 @@ export default async function handler(
       const responseData = JSON.parse(responseText); // Try to parse the response as JSON
 
       if (!response.ok) {
-        throw new Error(responseData.error.summary); // Throw an error with the server's error message
+        const upstreamError = responseData?.error;
+        const message =
+          typeof upstreamError === "string"
+            ? upstreamError
+            : upstreamError?.summary ||
+              upstreamError?.message ||
+              "World Anvil request failed.";
+        return res.status(response.status).json({
+          ...responseData,
+          error: message,
+        });
       }
 
-      res.status(200).json(responseData);
+      return res.status(200).json(responseData);
     } catch (jsonError) {
       console.error("Failed to parse JSON response:", responseText);
-      throw new Error("Invalid JSON response");
+      return res.status(502).json({
+        error: `World Anvil returned an invalid response: ${responseText.slice(
+          0,
+          300,
+        )}`,
+      });
     }
   } catch (error: any) {
     res.status(500).json({ error: error.message });

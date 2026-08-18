@@ -36,28 +36,32 @@ export function elementToString(element: DOMNode): string {
   }
 }
 
+export const findIconByString = (iconName: string) => {
+  const iconDefinition = findIconDefinition({
+    prefix: "fas",
+    iconName: iconName as IconName,
+  });
+
+  if (iconDefinition) {
+    return <FontAwesomeIcon icon={iconDefinition} />;
+  } else {
+    return <FontAwesomeIcon icon={faSquare} />;
+  }
+};
+
 export const customTransform = (domNode: DOMNode) => {
   if (domNode.type === "tag" && "name" in domNode && domNode.name === "span") {
     const classes = domNode.attribs.class || "";
     const classList = classes.split(" ");
     const faIconClasses = classList.filter((className) =>
-      className.startsWith("fa-")
+      className.startsWith("fa-"),
     );
 
     const iconNameClass = faIconClasses.pop();
 
     if (iconNameClass) {
       const iconName = iconNameClass.replace("fa-", "");
-      const iconDefinition = findIconDefinition({
-        prefix: "fas",
-        iconName: iconName as IconName,
-      });
-
-      if (iconDefinition) {
-        return <FontAwesomeIcon icon={iconDefinition} />;
-      } else {
-        return <FontAwesomeIcon icon={faSquare} />;
-      }
+      findIconByString(iconName);
     }
   } else if (
     domNode.type === "tag" &&
@@ -72,11 +76,22 @@ export const customTransform = (domNode: DOMNode) => {
         } else {
           return null;
         }
-      }
+      },
     );
 
+    const isExternal = domNode.attribs.href?.startsWith("http");
+    if (isExternal) {
+      return (
+        <a href={domNode.attribs.href}>
+          {reactChildren.filter((child: any) => child !== null)}
+        </a>
+      );
+    }
+
+    const articleId = domNode.attribs.href;
+    const fullPath = `/worldanvil/articles/${articleId}/view`;
     return (
-      <Link href={domNode.attribs.href}>
+      <Link href={fullPath}>
         {reactChildren.filter((child: any) => child !== null)}
       </Link>
     );
@@ -88,10 +103,10 @@ export const customTransform = (domNode: DOMNode) => {
     domNode.name === "customspoiler"
   ) {
     const spoilerTitle = domNode.children.find(
-      (child) => "name" in child && child.name && child.name === "button"
+      (child) => "name" in child && child.name && child.name === "button",
     );
     const spoilerContent = domNode.children.find(
-      (child) => "name" in child && child.name && child.name === "collapse"
+      (child) => "name" in child && child.name && child.name === "collapse",
     );
 
     if (spoilerTitle && spoilerContent) {

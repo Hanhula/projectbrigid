@@ -6,6 +6,9 @@ import { Provider } from "react-redux";
 import persistStoreWrapper, { wrapper } from "@/components/store/store";
 import { PersistGate } from "redux-persist/integration/react";
 import Loading from "@/components/ui/Loading/loading";
+import GlobalNotifications from "@/components/ui/Notifications/global-notifications";
+import Footer from "@/components/ui/Footer/footer";
+import { useMemo } from "react";
 
 // The following import prevents a Font Awesome icon server-side rendering bug,
 // where the icons flash from a very large icon down to a properly sized one:
@@ -17,15 +20,15 @@ config.autoAddCss = false; /* eslint-disable import/first */
 function App({ Component, ...rest }: AppProps) {
   const { store, props } = wrapper.useWrappedStore(rest);
   const { pageProps } = props;
+  const persistor = useMemo(() => persistStoreWrapper(store), [store]);
   return (
     <Provider store={store}>
-      <PersistGate
-        loading={<Loading></Loading>}
-        persistor={persistStoreWrapper(store)}
-      >
-        <div>
+      <PersistGate loading={<Loading></Loading>} persistor={persistor}>
+        <div className="global-container">
           <NavBar />
           <Component {...pageProps} />
+          <Footer />
+          <GlobalNotifications />
         </div>
       </PersistGate>
     </Provider>

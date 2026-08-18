@@ -172,7 +172,7 @@ function WorldAnvilSearch() {
                           <Card.Body>
                             <Card.Title>
                               <Link
-                                href={`/worldanvil/articles/${matchingArticle.id}`}
+                                href={`/worldanvil/articles/${matchingArticle.id}/view`}
                               >
                                 {matchingArticle.title}
                               </Link>

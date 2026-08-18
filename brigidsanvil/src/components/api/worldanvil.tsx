@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Article,
@@ -19,9 +19,14 @@ import {
 } from "@/components/store/apiSlice";
 import { selectAuthToken } from "../store/authSlice";
 import {
+  ArticleEditState,
+  EditStateByWorld,
+  removeEditByID,
   selectCurrentDetailStateByWorld,
   selectWorldArticleMapByWorld,
+  selectEditedArticlesByWorld,
   selectWorldArticlesByWorld,
+  selectEditStateByWorldMap,
   setWorldArticles,
   updateArticleById,
 } from "../store/articlesSlice";
@@ -39,14 +44,34 @@ export function useWorldAnvilAPI() {
   const identity = useSelector(selectIdentity);
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
-  const worldArticles = useSelector(selectWorldArticlesByWorld(world.id));
-  const currentArticleMap = useSelector(selectWorldArticleMapByWorld(world.id));
-  const currentArticles = worldArticles!.articles;
-  const articleFetchProgress = useSelector(selectArticleFetchProgress);
-  const currentDetailState = useSelector(
-    selectCurrentDetailStateByWorld(world.id),
+  const worldArticlesSelector = useMemo(
+    () => selectWorldArticlesByWorld(world.id),
+    [world.id],
   );
+  const worldArticleMapSelector = useMemo(
+    () => selectWorldArticleMapByWorld(world.id),
+    [world.id],
+  );
+  const currentDetailStateSelector = useMemo(
+    () => selectCurrentDetailStateByWorld(world.id),
+    [world.id],
+  );
+  const editedArticlesSelector = useMemo(
+    () => selectEditedArticlesByWorld(world.id),
+    [world.id],
+  );
+
+  const worldArticles = useSelector(worldArticlesSelector);
+  const currentArticleMap = useSelector(worldArticleMapSelector);
+  const articleFetchProgress = useSelector(selectArticleFetchProgress);
+  const currentDetailState = useSelector(currentDetailStateSelector);
   const fetchRequestIdRef = useRef(0);
+  const editedArticles = useSelector(editedArticlesSelector);
+  const allEditStateByWorld = useSelector(selectEditStateByWorldMap);
+  const allWorldEditStates = useMemo(
+    () => Object.values(allEditStateByWorld),
+    [allEditStateByWorld],
+  );
 
   let articleFetch: Article[] = [];
 
@@ -424,7 +449,7 @@ export function useWorldAnvilAPI() {
 
     try {
       const data = await callWorldAnvil(endpoint, CallType.GET);
-      console.log("Article to update: ", data);
+      console.info("Article to update: ", data);
       if (shouldDispatch) {
         let worldArticle: WorldArticle = {
           world: world,
@@ -467,7 +492,7 @@ export function useWorldAnvilAPI() {
       dispatch(updateArticleById(worldArticle));
       return data;
     } catch (error) {
-      console.error("Error getting article:", error);
+      //console.error("Error getting article:", error);
       throw error;
     }
   }
@@ -484,6 +509,72 @@ export function useWorldAnvilAPI() {
       return data;
     } catch (error) {
       console.error("Error getting article:", error);
+      throw error;
+    }
+  }
+
+  async function updateEditedArticleByFields(articleID: string) {
+    const localArticleEditState = editedArticles.find(
+      (article) => article.articleID === articleID,
+    );
+
+    let sourceWorldID = world.id;
+    let articleEditState: ArticleEditState | undefined = localArticleEditState;
+
+    if (!articleEditState) {
+      for (const worldEdit of allWorldEditStates) {
+        const editedFields = worldEdit.editedFieldsByArticle?.[articleID];
+
+        if (!editedFields) {
+          continue;
+        }
+
+        const matchedArticleEditState: ArticleEditState = {
+          articleID,
+          fieldsChanged: Object.entries(editedFields).map(
+            ([fieldIdentifier, editedContent]) => ({
+              fieldIdentifier,
+              editedContent,
+            }),
+          ),
+        };
+
+        if (matchedArticleEditState) {
+          articleEditState = matchedArticleEditState;
+          sourceWorldID = worldEdit.world?.id ?? sourceWorldID;
+          break;
+        }
+      }
+    }
+
+    if (!articleEditState) {
+      console.warn(
+        `No local edits found for article with ID ${articleID}; skipping save request.`,
+      );
+      return null;
+    }
+
+    const updateBody: Record<string, any> = {};
+    for (let i = 0; i < articleEditState.fieldsChanged.length; i++) {
+      const fieldChange = articleEditState.fieldsChanged[i];
+      updateBody[fieldChange.fieldIdentifier] = fieldChange.editedContent;
+    }
+
+    const endpoint = `/article?id=${articleID}`;
+
+    try {
+      const data = await callWorldAnvil(
+        endpoint,
+        CallType.PATCH,
+        JSON.stringify(updateBody),
+      );
+      console.log("Article to update: ", data);
+
+      await getArticle(articleID, true);
+      dispatch(removeEditByID({ worldID: sourceWorldID, articleID }));
+      return data;
+    } catch (error) {
+      console.error("Error updating article:", error);
       throw error;
     }
   }
@@ -528,6 +619,9 @@ export function useWorldAnvilAPI() {
       dataToUpdate: any,
     ) => {
       return await updateArticleByField(articleID, fieldToUpdate, dataToUpdate);
+    },
+    updateEditedArticleByFields: async (articleId: string) => {
+      return await updateEditedArticleByFields(articleId);
     },
   };
 }

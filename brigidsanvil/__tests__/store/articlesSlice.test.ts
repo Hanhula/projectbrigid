@@ -13,6 +13,15 @@ describe("article selector memoization", () => {
             ],
           },
         ],
+        worldArticlesById: {
+          "world-1": {
+            world: { id: "world-1" },
+            articles: [
+              { id: "1", isDraft: false, tags: "stub" },
+              { id: "2", isDraft: true, tags: "" },
+            ],
+          },
+        },
         currentWorldArticles: {
           world: { id: "world-1" },
           articles: [],

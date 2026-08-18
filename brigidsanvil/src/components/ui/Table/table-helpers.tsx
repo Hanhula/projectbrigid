@@ -18,7 +18,7 @@ export type TableProps<TData> = {
 export function generateMention(
   articleID: string,
   type: string,
-  articleTitle: string
+  articleTitle: string,
 ) {
   const articleType = type
     ? type.toString().charAt(0).toLowerCase() + type.toString().slice(1)
@@ -28,7 +28,7 @@ export function generateMention(
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(mention);
-      console.log("Text copied to clipboard");
+      console.info("Text copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
@@ -47,7 +47,7 @@ export function generateArticleBlock(articleID: string) {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(block);
-      console.log("Text copied to clipboard");
+      console.info("Text copied to clipboard");
     } catch (err) {
       console.error("Failed to copy text: ", err);
     }
@@ -65,7 +65,7 @@ export function camelCaseToCapitalizedWords(str: string): string {
     .replace(/([a-z0-9])([A-Z])/g, "$1 $2") // insert a space before a capital letter that follows a lowercase letter or a digit
     .split(" ") // split the string into words
     .map((word) =>
-      word === "url" ? "URL" : word.charAt(0).toUpperCase() + word.slice(1)
+      word === "url" ? "URL" : word.charAt(0).toUpperCase() + word.slice(1),
     ) // capitalize the first letter of each word, but keep 'URL' as all-caps
     .join(" "); // join the words back together with spaces
 }
@@ -106,7 +106,7 @@ export const getFormattedDate = (dateString: string) => {
   const localDateTime = getDateTime(dateString);
   if (localDateTime) {
     const formattedDateTime = localDateTime.toFormat(
-      "yyyy-MM-dd 'at' HH:mm:ss"
+      "yyyy-MM-dd 'at' HH:mm:ss",
     );
     return formattedDateTime;
   } else {
@@ -120,8 +120,8 @@ export const getDateTime = (dateString: string) => {
   }
 
   if (dateString && dateString.length < 8) {
-    console.log(
-      `Congratulations, you found an error! Incorrect date string is: ${dateString}`
+    console.error(
+      `Congratulations, you found an error! Incorrect date string is: ${dateString}`,
     );
     return null;
   }
