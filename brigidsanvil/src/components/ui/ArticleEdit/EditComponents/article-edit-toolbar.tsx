@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { PanelRightClose, PanelRightOpen } from "lucide-react";
-import { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  PanelRightClose,
+  PanelRightOpen,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import {
   Button,
   Collapse,
@@ -8,13 +13,24 @@ import {
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
+import { WorldAnvilDate } from "@/components/types/date";
+import { getFormattedDate } from "../../Table/table-helpers";
+import { computeArticleWordCounts } from "./utils/word-count";
 
 export type ArticleEditToolbarProps = {
   article?: {
     id: string;
     title?: string;
     url?: string;
+    editURL?: string;
+    entityClass?: string;
+    wordcount?: number;
+    creationDate?: WorldAnvilDate | null;
+    updateDate?: WorldAnvilDate | null;
+    publicationDate?: WorldAnvilDate | null;
+    [fieldIdentifier: string]: unknown;
   } | null;
+  editedFields?: Record<string, unknown>;
   isRefreshing?: boolean;
   onReset: () => void;
   onRefresh: () => void;
@@ -24,6 +40,9 @@ export type ArticleEditToolbarProps = {
   importInputRef?: React.RefObject<HTMLInputElement>;
   onImportFile?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
+
+const formatWorldAnvilDate = (date?: WorldAnvilDate | null) =>
+  date?.date ? getFormattedDate(String(date.date)) || "Unknown" : "Unknown";
 
 type ToolbarButtonProps = {
   label: string;
@@ -86,6 +105,7 @@ function ToolbarButton({
 
 export default function ArticleEditToolbar({
   article,
+  editedFields = {},
   isRefreshing = false,
   onReset,
   onRefresh,
@@ -96,13 +116,27 @@ export default function ArticleEditToolbar({
   onImportFile,
 }: ArticleEditToolbarProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
+  const [isMetadataExpanded, setIsMetadataExpanded] = useState<boolean>(false);
 
   const viewWorldUrl = article?.url;
+  const editWorldUrl = article?.editURL;
   const viewBrigidUrl = article
     ? `/worldanvil/articles/${article.id}/view`
     : "#";
   const toggleLabel = isExpanded ? "Hide options" : "Show options";
   const ToggleIcon = isExpanded ? PanelRightClose : PanelRightOpen;
+  const metadataToggleLabel = isMetadataExpanded
+    ? "Hide article info"
+    : "Show article info";
+  const MetadataToggleIcon = isMetadataExpanded ? ChevronUp : ChevronDown;
+
+  const wordCounts = useMemo(
+    () =>
+      article
+        ? computeArticleWordCounts(article, editedFields)
+        : { accurate: 0, waApprox: 0 },
+    [article, editedFields],
+  );
 
   return (
     <div
@@ -125,6 +159,82 @@ export default function ArticleEditToolbar({
         <ToggleIcon size={16} aria-hidden="true" />
         <span className="editpage-toolbar-toggle-label">{toggleLabel}</span>
       </Button>
+
+      {article && (
+        <div className="editpage-toolbar-metadata">
+          <Button
+            type="button"
+            variant="options"
+            className="editpage-toolbar-metadata-toggle"
+            onClick={() => setIsMetadataExpanded((current) => !current)}
+            aria-label={metadataToggleLabel}
+            aria-expanded={isMetadataExpanded}
+            aria-controls="article-edit-toolbar-metadata-row"
+            title={metadataToggleLabel}
+          >
+            <MetadataToggleIcon size={16} aria-hidden="true" />
+            <span className="editpage-toolbar-metadata-toggle-label">
+              {metadataToggleLabel}
+            </span>
+          </Button>
+
+          <Collapse in={isMetadataExpanded}>
+            <div id="article-edit-toolbar-metadata-row">
+              <div className="editpage-toolbar-metadata-row d-flex flex-wrap gap-3">
+                <div className="editpage-toolbar-metadata-item">
+                  <span className="editpage-toolbar-metadata-label">
+                    Word Count
+                  </span>
+                  <span className="editpage-toolbar-metadata-value">
+                    {wordCounts.accurate}
+                  </span>
+                </div>
+                <div className="editpage-toolbar-metadata-item">
+                  <span className="editpage-toolbar-metadata-label">
+                    Est. WA Word Count
+                  </span>
+                  <OverlayTrigger
+                    overlay={
+                      <Tooltip id="tooltip-wa-wordcount">
+                        WorldAnvil&apos;s own wordcounter isn&apos;t precise
+                        around punctuation, so this is only an approximation.
+                      </Tooltip>
+                    }
+                  >
+                    <span className="editpage-toolbar-metadata-value">
+                      {wordCounts.waApprox}
+                    </span>
+                  </OverlayTrigger>
+                </div>
+                <div className="editpage-toolbar-metadata-item">
+                  <span className="editpage-toolbar-metadata-label">
+                    Created
+                  </span>
+                  <span className="editpage-toolbar-metadata-value">
+                    {formatWorldAnvilDate(article.creationDate)}
+                  </span>
+                </div>
+                <div className="editpage-toolbar-metadata-item">
+                  <span className="editpage-toolbar-metadata-label">
+                    Last Updated on WorldAnvil
+                  </span>
+                  <span className="editpage-toolbar-metadata-value">
+                    {formatWorldAnvilDate(article.updateDate)}
+                  </span>
+                </div>
+                <div className="editpage-toolbar-metadata-item">
+                  <span className="editpage-toolbar-metadata-label">
+                    Published
+                  </span>
+                  <span className="editpage-toolbar-metadata-value">
+                    {formatWorldAnvilDate(article.publicationDate)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </Collapse>
+        </div>
+      )}
 
       <Collapse in={isExpanded}>
         <div
@@ -204,6 +314,18 @@ export default function ArticleEditToolbar({
                 rel="noopener noreferrer"
               >
                 View on WorldAnvil
+              </Link>
+            ) : null}
+            {editWorldUrl ? (
+              <Link
+                href={editWorldUrl}
+                className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
+                title="Edit on WorldAnvil"
+                aria-label="Edit on WorldAnvil"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Edit on WorldAnvil
               </Link>
             ) : null}
             <Link
