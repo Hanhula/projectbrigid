@@ -9,6 +9,8 @@ import defaultStorage from "redux-persist/lib/storage";
 import { authSlice } from "./authSlice";
 import { articleSlice, migratePersistedArticleState } from "./articlesSlice";
 import { notificationSlice } from "./notificationsSlice";
+import { imageSlice } from "./imagesSlice";
+import { folderSlice } from "./foldersSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import Cookies from "universal-cookie";
 
@@ -34,6 +36,8 @@ const reducers = combineReducers({
   [authSlice.name]: authSlice.reducer,
   [articleSlice.name]: articleSlice.reducer,
   [notificationSlice.name]: notificationSlice.reducer,
+  [imageSlice.name]: imageSlice.reducer,
+  [folderSlice.name]: folderSlice.reducer,
 });
 
 // this is a commit to reupdate the branch

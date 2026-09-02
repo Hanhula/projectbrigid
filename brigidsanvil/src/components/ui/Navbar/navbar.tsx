@@ -22,6 +22,8 @@ import {
   resetArticleState,
   selectWorldArticlesByWorld,
 } from "@/components/store/articlesSlice";
+import { resetImageState } from "@/components/store/imagesSlice";
+import { resetFolderState } from "@/components/store/foldersSlice";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 import { Button, Dropdown, Modal, Navbar } from "react-bootstrap";
 
@@ -39,6 +41,7 @@ import {
   FileText,
   Github,
   Home,
+  Image as ImageIcon,
   Link2,
   LogOut,
   Menu,
@@ -83,6 +86,8 @@ const NavBar = () => {
       dispatch(resetApiState());
       dispatch(resetAuthState());
       dispatch(resetArticleState());
+      dispatch(resetImageState());
+      dispatch(resetFolderState());
 
       if (typeof window !== "undefined") {
         window.localStorage.clear();
@@ -152,6 +157,18 @@ const NavBar = () => {
                   >
                     <BarChart3 size={16} aria-hidden="true" />
                     World Statistics
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link
+                    as={Link}
+                    eventKey="1"
+                    href="/worldanvil/images"
+                    disabled={!world.success}
+                    title="Manage images and image folders"
+                  >
+                    <ImageIcon size={16} aria-hidden="true" />
+                    Image Manager
                   </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
