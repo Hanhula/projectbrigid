@@ -116,7 +116,6 @@ export default function ArticleEditToolbar({
   onImportFile,
 }: ArticleEditToolbarProps) {
   const [isExpanded, setIsExpanded] = useState<boolean>(true);
-  const [isMetadataExpanded, setIsMetadataExpanded] = useState<boolean>(false);
 
   const viewWorldUrl = article?.url;
   const editWorldUrl = article?.editURL;
@@ -125,10 +124,6 @@ export default function ArticleEditToolbar({
     : "#";
   const toggleLabel = isExpanded ? "Hide options" : "Show options";
   const ToggleIcon = isExpanded ? PanelRightClose : PanelRightOpen;
-  const metadataToggleLabel = isMetadataExpanded
-    ? "Hide article info"
-    : "Show article info";
-  const MetadataToggleIcon = isMetadataExpanded ? ChevronUp : ChevronDown;
 
   const wordCounts = useMemo(
     () =>
@@ -160,182 +155,159 @@ export default function ArticleEditToolbar({
         <span className="editpage-toolbar-toggle-label">{toggleLabel}</span>
       </Button>
 
-      {article && (
-        <div className="editpage-toolbar-metadata">
-          <Button
-            type="button"
-            variant="options"
-            className="editpage-toolbar-metadata-toggle"
-            onClick={() => setIsMetadataExpanded((current) => !current)}
-            aria-label={metadataToggleLabel}
-            aria-expanded={isMetadataExpanded}
-            aria-controls="article-edit-toolbar-metadata-row"
-            title={metadataToggleLabel}
+      <Collapse in={isExpanded}>
+        <div className="article-edit-toolbar-collapse-wrapper">
+          <div
+            id="article-edit-toolbar-actions"
+            className="editpage-toolbar-actions"
           >
-            <MetadataToggleIcon size={16} aria-hidden="true" />
-            <span className="editpage-toolbar-metadata-toggle-label">
-              {metadataToggleLabel}
-            </span>
-          </Button>
+            <div className="editpage-toolbar-actions-buttons d-flex flex-wrap gap-2">
+              <ToolbarButton
+                label="Reset content"
+                title="Reset content"
+                onClick={onReset}
+                variant="danger"
+                className="editpage-toolbar-button flex-grow-1"
+                isDanger
+                tooltipId="tooltip-reset-content"
+                tooltipText="Resets content to what's present in your loaded state"
+              />
+              <ToolbarButton
+                label="Refresh content"
+                title="Refresh content"
+                onClick={onRefresh}
+                variant="danger"
+                className="editpage-toolbar-button flex-grow-1"
+                isDanger
+                disabled={isRefreshing || !article}
+                loading={isRefreshing}
+                tooltipId="tooltip-refresh-content"
+                tooltipText="Resets content to what's present on WorldAnvil"
+              />
+              <ToolbarButton
+                label="Save to WorldAnvil"
+                title="Save to WorldAnvil"
+                onClick={onSave}
+                variant="primary"
+                className="editpage-toolbar-button flex-grow-1"
+                disabled={!article}
+                tooltipId="tooltip-save-content"
+                tooltipText="Saves content to WorldAnvil"
+              />
+              <ToolbarButton
+                label="Export backup"
+                title="Export backup"
+                onClick={onExportBackup}
+                variant="secondary"
+                className="editpage-toolbar-button flex-grow-1"
+                disabled={!article}
+                tooltipId="tooltip-export-content"
+                tooltipText="Exports your currently edited work to a JSON file"
+              />
+              <ToolbarButton
+                label="Import backup"
+                title="Import backup"
+                onClick={onImportBackup}
+                variant="secondary"
+                className="editpage-toolbar-button flex-grow-1"
+                disabled={!article}
+                tooltipId="tooltip-import-content"
+                tooltipText="Imports your currently edited work from a JSON file; import either your edited fields, or their originals."
+              />
+              {onImportFile && (
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={onImportFile}
+                  className="d-none"
+                  aria-label="Import article backup file"
+                />
+              )}
+              {viewWorldUrl ? (
+                <Link
+                  href={viewWorldUrl}
+                  className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
+                  title="View on WorldAnvil"
+                  aria-label="View on WorldAnvil"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View on WorldAnvil
+                </Link>
+              ) : null}
+              {editWorldUrl ? (
+                <Link
+                  href={editWorldUrl}
+                  className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
+                  title="Edit on WorldAnvil"
+                  aria-label="Edit on WorldAnvil"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Edit on WorldAnvil
+                </Link>
+              ) : null}
+              <Link
+                href={viewBrigidUrl}
+                className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
+                title="View on Brigid"
+                aria-label="View on Brigid"
+              >
+                View on Brigid
+              </Link>
+            </div>
 
-          <Collapse in={isMetadataExpanded}>
-            <div id="article-edit-toolbar-metadata-row">
-              <div className="editpage-toolbar-metadata-row d-flex flex-wrap gap-3">
-                <div className="editpage-toolbar-metadata-item">
-                  <span className="editpage-toolbar-metadata-label">
-                    Word Count
-                  </span>
-                  <span className="editpage-toolbar-metadata-value">
-                    {wordCounts.accurate}
-                  </span>
-                </div>
-                <div className="editpage-toolbar-metadata-item">
-                  <span className="editpage-toolbar-metadata-label">
-                    Est. WA Word Count
-                  </span>
-                  <OverlayTrigger
-                    overlay={
-                      <Tooltip id="tooltip-wa-wordcount">
-                        WorldAnvil&apos;s own wordcounter isn&apos;t precise
-                        around punctuation, so this is only an approximation.
-                      </Tooltip>
-                    }
-                  >
-                    <span className="editpage-toolbar-metadata-value">
-                      {wordCounts.waApprox}
+            {article && (
+              <div className="editpage-toolbar-metadata">
+                <div
+                  id="article-edit-toolbar-metadata-row"
+                  className="editpage-toolbar-metadata-row d-flex flex-wrap"
+                >
+                  <div className="editpage-toolbar-metadata-item metadata-item-wordcount">
+                    <span className="editpage-toolbar-metadata-label">
+                      Word Count:
                     </span>
-                  </OverlayTrigger>
-                </div>
-                <div className="editpage-toolbar-metadata-item">
-                  <span className="editpage-toolbar-metadata-label">
-                    Created
-                  </span>
-                  <span className="editpage-toolbar-metadata-value">
-                    {formatWorldAnvilDate(article.creationDate)}
-                  </span>
-                </div>
-                <div className="editpage-toolbar-metadata-item">
-                  <span className="editpage-toolbar-metadata-label">
-                    Last Updated on WorldAnvil
-                  </span>
-                  <span className="editpage-toolbar-metadata-value">
-                    {formatWorldAnvilDate(article.updateDate)}
-                  </span>
-                </div>
-                <div className="editpage-toolbar-metadata-item">
-                  <span className="editpage-toolbar-metadata-label">
-                    Published
-                  </span>
-                  <span className="editpage-toolbar-metadata-value">
-                    {formatWorldAnvilDate(article.publicationDate)}
-                  </span>
+                    <span className="editpage-toolbar-metadata-value">
+                      {wordCounts.accurate}
+                    </span>
+                  </div>
+                  <div className="editpage-toolbar-metadata-item metadata-item-estimated-wa-wordcount">
+                    <span className="editpage-toolbar-metadata-label">
+                      Estimated WA WordCount:
+                    </span>
+                    <OverlayTrigger
+                      overlay={
+                        <Tooltip id="tooltip-wa-wordcount">
+                          WorldAnvil&apos;s own wordcounter isn&apos;t precise
+                          around punctuation, so this is only an approximation.
+                        </Tooltip>
+                      }
+                    >
+                      <span className="editpage-toolbar-metadata-value">
+                        {wordCounts.waApprox}
+                      </span>
+                    </OverlayTrigger>
+                  </div>
+                  <div className="editpage-toolbar-metadata-item metadata-item-created">
+                    <span className="editpage-toolbar-metadata-label">
+                      Created:
+                    </span>
+                    <span className="editpage-toolbar-metadata-value">
+                      {formatWorldAnvilDate(article.creationDate)}
+                    </span>
+                  </div>
+                  <div className="editpage-toolbar-metadata-item metadata-item-last-updated">
+                    <span className="editpage-toolbar-metadata-label">
+                      Last Updated on WA:
+                    </span>
+                    <span className="editpage-toolbar-metadata-value">
+                      {formatWorldAnvilDate(article.updateDate)}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </Collapse>
-        </div>
-      )}
-
-      <Collapse in={isExpanded}>
-        <div
-          id="article-edit-toolbar-actions"
-          className="editpage-toolbar-actions"
-        >
-          <div className="editpage-toolbar-actions-buttons d-flex flex-wrap gap-2">
-            <ToolbarButton
-              label="Reset content"
-              title="Reset content"
-              onClick={onReset}
-              variant="danger"
-              className="editpage-toolbar-button flex-grow-1"
-              isDanger
-              tooltipId="tooltip-reset-content"
-              tooltipText="Resets content to what's present in your loaded state"
-            />
-            <ToolbarButton
-              label="Refresh content"
-              title="Refresh content"
-              onClick={onRefresh}
-              variant="danger"
-              className="editpage-toolbar-button flex-grow-1"
-              isDanger
-              disabled={isRefreshing || !article}
-              loading={isRefreshing}
-              tooltipId="tooltip-refresh-content"
-              tooltipText="Resets content to what's present on WorldAnvil"
-            />
-            <ToolbarButton
-              label="Save to WorldAnvil"
-              title="Save to WorldAnvil"
-              onClick={onSave}
-              variant="primary"
-              className="editpage-toolbar-button flex-grow-1"
-              disabled={!article}
-              tooltipId="tooltip-save-content"
-              tooltipText="Saves content to WorldAnvil"
-            />
-            <ToolbarButton
-              label="Export backup"
-              title="Export backup"
-              onClick={onExportBackup}
-              variant="secondary"
-              className="editpage-toolbar-button flex-grow-1"
-              disabled={!article}
-              tooltipId="tooltip-export-content"
-              tooltipText="Exports your currently edited work to a JSON file"
-            />
-            <ToolbarButton
-              label="Import backup"
-              title="Import backup"
-              onClick={onImportBackup}
-              variant="secondary"
-              className="editpage-toolbar-button flex-grow-1"
-              disabled={!article}
-              tooltipId="tooltip-import-content"
-              tooltipText="Imports your currently edited work from a JSON file; import either your edited fields, or their originals."
-            />
-            {onImportFile && (
-              <input
-                ref={importInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={onImportFile}
-                className="d-none"
-                aria-label="Import article backup file"
-              />
             )}
-            {viewWorldUrl ? (
-              <Link
-                href={viewWorldUrl}
-                className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
-                title="View on WorldAnvil"
-                aria-label="View on WorldAnvil"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on WorldAnvil
-              </Link>
-            ) : null}
-            {editWorldUrl ? (
-              <Link
-                href={editWorldUrl}
-                className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
-                title="Edit on WorldAnvil"
-                aria-label="Edit on WorldAnvil"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Edit on WorldAnvil
-              </Link>
-            ) : null}
-            <Link
-              href={viewBrigidUrl}
-              className="btn btn-tertiary editpage-toolbar-button flex-grow-1"
-              title="View on Brigid"
-              aria-label="View on Brigid"
-            >
-              View on Brigid
-            </Link>
           </div>
         </div>
       </Collapse>

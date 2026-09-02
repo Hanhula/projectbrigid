@@ -151,7 +151,7 @@ export default function FullCreate() {
       <Head>
         <title>Full Create | Brigid&apos;s Anvil</title>
       </Head>
-      <Container className="py-4">
+      <Container className="py-4 full-create-container">
         <Row>
           <Col md={8} lg={6}>
             <h1>Full Create</h1>

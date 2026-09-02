@@ -35,6 +35,24 @@
     }
   }
 
+  &-toolbar-metadata-row {
+    margin-left: 0.25rem;
+  }
+
+  &-toolbar-metadata-item {
+    color: var(--bs-gray-500);
+    font-size: 0.9em;
+    margin-right: 1.5rem;
+  }
+
+  .editpage-toolbar-metadata-label {
+    margin-right: 0.25rem;
+  }
+
+  .metadata-item-created {
+    margin-left: auto;
+  }
+
   .blockquote {
     background: var(--dark-terror);
     padding: 1em;

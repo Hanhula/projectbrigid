@@ -253,7 +253,7 @@ export function WorldStatistics() {
   }
 
   return (
-    <div className="world-statistics-container">
+    <Container fluid className="world-statistics-container">
       <div className="world-stats">
         <h2>World Statistics</h2>
         <Row>
@@ -308,59 +308,59 @@ export function WorldStatistics() {
                 </ol>
               </Col>
               <Col>
-                <div className="row">
-                  <div className="col">
+                <Row>
+                  <Col>
                     <dt>Total Wordcount</dt>
                     <dd>{totalWordCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Average Wordcount</dt>
                     <dd>{averageWordCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Total Likes</dt>
                     <dd>{totalLikes}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Average Likes</dt>
                     <dd>{averageLikes}</dd>
-                  </div>
-                </div>
-                <Row>
-                  <div className="col">
-                    <dt>Total Views</dt>
-                    <dd>{totalViews}</dd>
-                  </div>
-                  <div className="col">
-                    <dt>Average Views</dt>
-                    <dd>{averageViews}</dd>
-                  </div>
-                  <div className="col">
-                    <dt>Total Comments</dt>
-                    <dd>{totalComments}</dd>
-                  </div>
-                  <div className="col">
-                    <dt>Average Comments</dt>
-                    <dd>{averageComments}</dd>
-                  </div>
+                  </Col>
                 </Row>
                 <Row>
-                  <div className="col">
+                  <Col>
+                    <dt>Total Views</dt>
+                    <dd>{totalViews}</dd>
+                  </Col>
+                  <Col>
+                    <dt>Average Views</dt>
+                    <dd>{averageViews}</dd>
+                  </Col>
+                  <Col>
+                    <dt>Total Comments</dt>
+                    <dd>{totalComments}</dd>
+                  </Col>
+                  <Col>
+                    <dt>Average Comments</dt>
+                    <dd>{averageComments}</dd>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
                     <dt>Published Articles</dt>
                     <dd>{publishedCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Draft Articles</dt>
                     <dd>{draftCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Public Articles</dt>
                     <dd>{publicCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Private Articles</dt>
                     <dd>{privateCount}</dd>
-                  </div>
+                  </Col>
                 </Row>
                 <Row>
                   <center>
@@ -373,40 +373,40 @@ export function WorldStatistics() {
                   </center>
                 </Row>
                 <Row>
-                  <div className="col">
+                  <Col>
                     <dt>Avg Words / Month</dt>
                     <dd>{wordsPerMonth}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Avg Published Articles / Month</dt>
                     <dd>{publishedArticlesPerMonth}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>{`# Not Updated in > 6 Months`}</dt>
                     <dd>{staleArticles}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>{`# Not Updated in > 12 Months`}</dt>
                     <dd>{extraStaleArticles}</dd>
-                  </div>
+                  </Col>
                 </Row>
                 <Row>
-                  <div className="col">
+                  <Col>
                     <dt>Most Active Month (MAM)</dt>
                     <dd>{mostActiveMonth}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>Articles Changed in MAM</dt>
                     <dd>{mostActiveMonthArticleCount}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>{`# Updated Last Month`}</dt>
                     <dd>{activeArticles}</dd>
-                  </div>
-                  <div className="col">
+                  </Col>
+                  <Col>
                     <dt>{`# Updated This Month`}</dt>
                     <dd>{articlesUpdatedThisMonth}</dd>
-                  </div>
+                  </Col>
                 </Row>
               </Col>
             </Row>
@@ -542,8 +542,10 @@ export function WorldStatistics() {
         )}
         <hr />
         <h2>Tag Stats</h2>
-        {!displayArticleWarning && <TagCloud></TagCloud>}
+        <Container fluid>
+          {!displayArticleWarning && <TagCloud></TagCloud>}
+        </Container>
       </div>
-    </div>
+    </Container>
   );
 }
