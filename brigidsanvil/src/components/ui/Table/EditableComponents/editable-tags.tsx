@@ -6,7 +6,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Button } from "react-bootstrap";
-import TagsInput from "react-tagsinput";
+import TagsField from "@/components/ui/Common/tags-field";
 
 function EditableTags({
   value: initialValue,
@@ -15,9 +15,7 @@ function EditableTags({
   value: string;
   onSave: (newValues: string) => void;
 }) {
-  const [tags, setTags] = useState(
-    initialValue.split(",").filter((tag) => tag.trim() !== "")
-  );
+  const [tagsValue, setTagsValue] = useState(initialValue);
   const [editing, setEditing] = useState(false);
 
   const handleEdit = () => {
@@ -25,13 +23,12 @@ function EditableTags({
   };
 
   const handleSave = () => {
-    const newTagsString = tags.join(",");
-    onSave(newTagsString);
+    onSave(tagsValue);
     setEditing(false);
   };
 
   const handleCancel = () => {
-    setTags(initialValue.split(",").filter((tag) => tag.trim() !== ""));
+    setTagsValue(initialValue);
     setEditing(false);
   };
 
@@ -46,21 +43,10 @@ function EditableTags({
       {editing ? (
         <div className="cell-editing">
           <div className="input-group">
-            <TagsInput
-              className="react-tagsinput form-control"
-              value={tags}
-              onChange={setTags}
-              inputProps={{
-                name: "tags",
-                placeholder: "Enter tags",
-                onKeyUp: handleKeyUp,
-              }}
-              addOnBlur={true}
-              addKeys={["Tab", ","]}
-              addOnPaste={true}
-              pasteSplit={(data) => {
-                return data.split(",").map((d) => d.trim());
-              }}
+            <TagsField
+              value={tagsValue}
+              onChange={setTagsValue}
+              onKeyUp={handleKeyUp}
             />
           </div>
           <div className="cell-edit-buttons">
