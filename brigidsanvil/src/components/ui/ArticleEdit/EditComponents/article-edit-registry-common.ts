@@ -153,6 +153,12 @@ export const createCommonDesignFieldRegistry = <
       fieldIdentifier: "cssClasses",
       label: "CSS Classes",
     },
+    {
+      key: "design-displayCss",
+      kind: "css",
+      fieldIdentifier: "displayCss",
+      label: "Display CSS",
+    },
   ];
 };
 

@@ -386,6 +386,7 @@ export default function EditPage() {
           <Col className="editor-col">
             <ArticleEditToolbar
               article={article}
+              editedFields={currentEditedFields}
               isRefreshing={isRefreshing}
               importInputRef={importInputRef}
               onReset={handleResetContent}

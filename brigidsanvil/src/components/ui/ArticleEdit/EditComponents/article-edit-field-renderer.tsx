@@ -2,6 +2,7 @@ import { Article } from "@/components/types/article";
 import { World } from "@/components/types/world";
 import { Form } from "react-bootstrap";
 import BBCodeEditor from "./bbcode-editor";
+import CssEditor from "./css-editor";
 import DebouncedDropdown from "./debounced-dropdown";
 import DebouncedFieldDropdown, {
   FieldDropdownOption,
@@ -26,6 +27,14 @@ export type ArticleFieldConfig<TArticle extends Article = Article> =
       fieldIdentifier: string;
       label: string;
       mentions?: boolean;
+      helpText?: string;
+      showWhen?: (article: TArticle) => boolean;
+    }
+  | {
+      key: string;
+      kind: "css";
+      fieldIdentifier: string;
+      label?: string;
       helpText?: string;
       showWhen?: (article: TArticle) => boolean;
     }
@@ -134,6 +143,26 @@ export const renderArticleField = <TArticle extends Article>(
           lastFocusedEditor={lastFocusedEditor}
           resetSignal={resetSignal}
         />
+        <br />
+      </div>
+    );
+  }
+
+  if (field.kind === "css") {
+    return (
+      <div key={field.key}>
+        {field.label && <h3>{field.label}</h3>}
+        <CssEditor
+          fieldIdentifier={field.fieldIdentifier}
+          id={article.id}
+          existingContent={article[field.fieldIdentifier] ?? ""}
+          onFocus={setLastFocusedEditor}
+          lastFocusedEditor={lastFocusedEditor}
+          resetSignal={resetSignal}
+        />
+        {field.helpText && (
+          <Form.Text className="text-muted">{field.helpText}</Form.Text>
+        )}
         <br />
       </div>
     );

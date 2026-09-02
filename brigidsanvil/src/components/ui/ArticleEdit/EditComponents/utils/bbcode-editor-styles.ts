@@ -74,39 +74,51 @@ export const bbcodeTheme = EditorView.theme({
   },
 });
 
-export const compactBbcodeTheme = EditorView.theme({
-  ".cm-scroller": {
-    minHeight: "2.5rem",
+export const compactBbcodeTheme = EditorView.theme(
+  {
+    ".cm-scroller": {
+      minHeight: "2.5rem",
+    },
+    ".cm-content": {
+      padding: "0.4rem 0.6rem",
+    },
   },
-  ".cm-content": {
-    padding: "0.4rem 0.6rem",
-  },
-});
+  { dark: true },
+);
 
-export const collapsedBbcodeTheme = EditorView.theme({
-  ".cm-scroller": {
-    minHeight: "2.5em",
-    maxHeight: "2.5em",
-    overflow: "hidden",
+export const collapsedBbcodeTheme = EditorView.theme(
+  {
+    ".cm-scroller": {
+      minHeight: "2.5em",
+      maxHeight: "2.5em",
+      overflow: "hidden",
+    },
+    ".cm-content": {
+      minHeight: "1.7rem",
+      padding: "0.4rem 0.6rem",
+    },
   },
-  ".cm-content": {
-    minHeight: "1.7rem",
-    padding: "0.4rem 0.6rem",
-  },
-});
+  { dark: true },
+);
 
-export const contentBbcodeTheme = EditorView.theme({
-  ".cm-scroller": {
-    minHeight: "2.5em",
-    maxHeight: "17rem",
-    overflow: "auto",
+export const contentBbcodeTheme = EditorView.theme(
+  {
+    ".cm-scroller": {
+      minHeight: "2.5em",
+      maxHeight: "17rem",
+      overflow: "auto",
+    },
   },
-});
+  { dark: true },
+);
 
-export const focusedBbcodeTheme = EditorView.theme({
-  ".cm-scroller": {
-    minHeight: "17rem",
-    maxHeight: "17rem",
-    overflow: "auto",
+export const focusedBbcodeTheme = EditorView.theme(
+  {
+    ".cm-scroller": {
+      minHeight: "17rem",
+      maxHeight: "17rem",
+      overflow: "auto",
+    },
   },
-});
+  { dark: true },
+);
