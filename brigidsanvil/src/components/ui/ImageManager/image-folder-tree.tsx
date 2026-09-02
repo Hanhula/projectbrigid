@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button, Form, ListGroup } from "react-bootstrap";
 import {
   ChevronDown,
@@ -146,10 +146,9 @@ export default function ImageFolderTree({
   const childrenByParent = useAppSelector(selectFolderTreeByWorld(world.id));
   const worldAnvilImagesAPI = useWorldAnvilImagesAPI();
 
-  const [newFolderParentId, setNewFolderParentId] = useState<string | null>(
-    null,
-  );
+  const [newFolderParent, setNewFolderParent] = useState<Folder | null>(null);
   const [newFolderTitle, setNewFolderTitle] = useState("");
+  const newFolderInputRef = useRef<HTMLInputElement>(null);
   const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null);
   const [renameTitle, setRenameTitle] = useState("");
   const [folderPendingDelete, setFolderPendingDelete] = useState<Folder | null>(
@@ -168,10 +167,10 @@ export default function ImageFolderTree({
     try {
       await worldAnvilImagesAPI.createFolder(
         title,
-        newFolderParentId ?? undefined,
+        newFolderParent?.id ?? undefined,
       );
       setNewFolderTitle("");
-      setNewFolderParentId(null);
+      setNewFolderParent(null);
       dispatch(addNotification(`Folder "${title}" created.`, "success"));
     } catch (error) {
       console.error("Error creating folder:", error);
@@ -252,39 +251,54 @@ export default function ImageFolderTree({
               setRenameTitle(target.title);
             }}
             onRequestDelete={setFolderPendingDelete}
-            onRequestAddChild={(target) => setNewFolderParentId(target.id)}
+            onRequestAddChild={(target) => {
+              setNewFolderParent(target);
+              newFolderInputRef.current?.focus();
+              newFolderInputRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }}
           />
         ))}
       </ListGroup>
       <Form
-        className="d-flex gap-2"
+        className="d-flex flex-column gap-2"
         onSubmit={(event) => {
           event.preventDefault();
           void handleCreateFolder();
         }}
       >
-        <Form.Control
-          size="sm"
-          placeholder={
-            newFolderParentId ? "New subfolder name" : "New root folder name"
-          }
-          value={newFolderTitle}
-          onChange={(event) => setNewFolderTitle(event.target.value)}
-        />
-        <Button type="submit" size="sm" variant="primary">
-          Add
-        </Button>
-        {newFolderParentId && (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline-secondary"
-            onClick={() => setNewFolderParentId(null)}
-            title="Create at root instead"
-          >
-            Root
-          </Button>
+        {newFolderParent && (
+          <div className="text-muted small">
+            {`Creating subfolder in "${newFolderParent.title}"`}
+          </div>
         )}
+        <div className="d-flex gap-2">
+          <Form.Control
+            ref={newFolderInputRef}
+            size="sm"
+            placeholder={
+              newFolderParent ? "New subfolder name" : "New root folder name"
+            }
+            value={newFolderTitle}
+            onChange={(event) => setNewFolderTitle(event.target.value)}
+          />
+          <Button type="submit" size="sm" variant="primary">
+            Add
+          </Button>
+          {newFolderParent && (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline-secondary"
+              onClick={() => setNewFolderParent(null)}
+              title="Create at root instead"
+            >
+              Root
+            </Button>
+          )}
+        </div>
       </Form>
 
       <ConfirmModal

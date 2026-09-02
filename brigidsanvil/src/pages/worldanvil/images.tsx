@@ -4,6 +4,7 @@ import Head from "next/head";
 import { useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
 import ImageManager from "@/components/ui/ImageManager/image-manager";
+import "./images.scss";
 
 export default function Images() {
   const authToken = useSelector(selectAuthToken);
@@ -11,7 +12,7 @@ export default function Images() {
   const world = useSelector(selectWorld);
 
   return (
-    <Container className="py-4">
+    <Container id="image-manager-container" className="py-4">
       <Head>
         <title>Image Manager | Brigid&apos;s Anvil</title>
       </Head>

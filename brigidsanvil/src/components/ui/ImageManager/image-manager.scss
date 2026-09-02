@@ -11,8 +11,8 @@
 }
 
 .image-manager-sidebar {
-  flex: 0 0 260px;
-  max-width: 260px;
+  flex: 0 0 300px;
+  max-width: 300px;
 }
 
 .image-manager-content {
@@ -89,6 +89,65 @@
   cursor: zoom-in;
 }
 
+.image-grid-thumb-wrapper {
+  position: relative;
+}
+
+.image-grid-select-checkbox {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  margin: 0;
+  padding: 0.35rem;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 0.25rem;
+
+  .form-check-input {
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+.image-grid-card-checked {
+  outline: 2px solid var(--bs-warning, #ffc107);
+  outline-offset: -1px;
+}
+
+.image-bulk-toolbar {
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  background: var(--bs-tertiary-bg, #f8f9fa);
+}
+
+.image-bulk-toolbar-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.image-bulk-tag-mode {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.image-bulk-tags-input {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.image-bulk-folder-select {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
 .image-sync-spinning {
   animation: image-sync-spin 1s linear infinite;
 }
@@ -119,7 +178,7 @@
 .image-detail-preview {
   display: block;
   width: 100%;
-  max-height: 260px;
+  max-height: 310px;
   object-fit: contain;
   background: #000;
 }

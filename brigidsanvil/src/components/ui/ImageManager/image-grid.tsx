@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, Row } from "react-bootstrap";
 import { Copy, ExternalLink, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { Image } from "@/components/types/image";
@@ -8,18 +8,22 @@ type ImageGridProps = {
   images: Image[];
   selectedImageId?: string | null;
   syncingImageId?: string | null;
+  checkedImageIds: Set<string>;
   onSelect: (image: Image) => void;
   onRequestDelete: (image: Image) => void;
   onSync: (image: Image) => void;
+  onToggleChecked: (image: Image) => void;
 };
 
 export default function ImageGrid({
   images,
   selectedImageId,
   syncingImageId,
+  checkedImageIds,
   onSelect,
   onRequestDelete,
   onSync,
+  onToggleChecked,
 }: ImageGridProps) {
   const dispatch = useDispatch();
 
@@ -28,28 +32,42 @@ export default function ImageGrid({
   }
 
   return (
-    <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+    <Row xs={1} sm={2} md={2} lg={2} xl={3} xxl={4} className="g-3">
       {images.map((image) => (
         <Col key={image.id}>
           <Card
             className={
-              selectedImageId === image.id ? "border-primary" : undefined
+              [
+                selectedImageId === image.id ? "border-primary" : "",
+                checkedImageIds.has(image.id) ? "image-grid-card-checked" : "",
+              ]
+                .filter(Boolean)
+                .join(" ") || undefined
             }
           >
-            <button
-              type="button"
-              className="image-grid-thumb-button p-0 border-0 bg-transparent"
-              title={`View ${image.title}`}
-              aria-label={`View ${image.title}`}
-              onClick={() => onSelect(image)}
-            >
-              <Card.Img
-                variant="top"
-                src={image.url}
-                alt={image.alt || image.title}
-                style={{ height: 160, objectFit: "cover" }}
+            <div className="image-grid-thumb-wrapper">
+              <Form.Check
+                type="checkbox"
+                className="image-grid-select-checkbox"
+                checked={checkedImageIds.has(image.id)}
+                onChange={() => onToggleChecked(image)}
+                aria-label={`Select ${image.title} for bulk actions`}
               />
-            </button>
+              <button
+                type="button"
+                className="image-grid-thumb-button p-0 border-0 bg-transparent"
+                title={`View ${image.title}`}
+                aria-label={`View ${image.title}`}
+                onClick={() => onSelect(image)}
+              >
+                <Card.Img
+                  variant="top"
+                  src={image.url}
+                  alt={image.alt || image.title}
+                  style={{ height: 160, objectFit: "cover" }}
+                />
+              </button>
+            </div>
             <Card.Body>
               <Card.Title
                 className="text-truncate"

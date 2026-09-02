@@ -29,15 +29,18 @@ import {
 import { useWorldAnvilImagesAPI } from "@/components/api/worldanvil-images";
 import { addNotification } from "@/components/store/notificationsSlice";
 import { Image, ImageUpdate } from "@/components/types/image";
+import { tagsFromValue } from "@/components/ui/Common/tags-field";
 import ImageFolderTree from "./image-folder-tree";
 import ImageGrid from "./image-grid";
 import ImageDetailPanel from "./image-detail-panel";
+import ImageBulkToolbar, { BulkTagMode } from "./image-bulk-toolbar";
 import ConfirmModal from "@/components/ui/ConfirmModal/confirm-modal";
 
 import "./image-manager.scss";
 
-// Images are rendered client-side page-at-a-time since worlds can have thousands of images.
-const PAGE_SIZE = 60;
+const PAGE_SIZE = 50;
+const MAX_BULK_BATCH_SIZE = 50;
+const BULK_THROTTLE_DELAY_MS = 200;
 
 function imageMatchesQuery(image: Image, query: string) {
   const haystack = [
@@ -75,6 +78,14 @@ export default function ImageManager() {
     null,
   );
   const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [checkedImageIds, setCheckedImageIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{
+    completed: number;
+    total: number;
+  } | null>(null);
 
   const folderFilteredImages =
     selectedFolderId === null
@@ -100,16 +111,25 @@ export default function ImageManager() {
   useEffect(() => {
     setCurrentPage(0);
     setSelectedIndex(null);
+    setCheckedImageIds(new Set());
   }, [selectedFolderId, normalizedQuery]);
 
   useEffect(() => {
     setCurrentPage((page) => Math.min(page, totalPages - 1));
   }, [totalPages]);
 
+  useEffect(() => {
+    setCheckedImageIds(new Set());
+  }, [currentPage]);
+
   const pagedImages = visibleImages.slice(
     currentPage * PAGE_SIZE,
     (currentPage + 1) * PAGE_SIZE,
   );
+
+  const isAllOnPageChecked =
+    pagedImages.length > 0 &&
+    pagedImages.every((image) => checkedImageIds.has(image.id));
 
   const selectedImage =
     selectedIndex !== null ? visibleImages[selectedIndex] ?? null : null;
@@ -178,6 +198,131 @@ export default function ImageManager() {
     } finally {
       setSyncingImageId(null);
     }
+  };
+
+  const handleToggleChecked = (image: Image) => {
+    setCheckedImageIds((current) => {
+      const next = new Set(current);
+      if (next.has(image.id)) {
+        next.delete(image.id);
+      } else {
+        next.add(image.id);
+      }
+      return next;
+    });
+  };
+
+  const handleClearChecked = () => setCheckedImageIds(new Set());
+
+  const handleToggleSelectAllOnPage = () => {
+    setCheckedImageIds((current) => {
+      const next = new Set(current);
+      if (isAllOnPageChecked) {
+        pagedImages.forEach((image) => next.delete(image.id));
+      } else {
+        pagedImages.forEach((image) => next.add(image.id));
+      }
+      return next;
+    });
+  };
+
+  const runBulkUpdate = async (
+    buildUpdate: (image: Image) => ImageUpdate | null,
+  ) => {
+    const targetImages = images.filter((image) =>
+      checkedImageIds.has(image.id),
+    );
+    if (
+      targetImages.length === 0 ||
+      targetImages.length > MAX_BULK_BATCH_SIZE
+    ) {
+      return;
+    }
+
+    setIsBulkProcessing(true);
+    setBulkProgress({ completed: 0, total: targetImages.length });
+
+    let successCount = 0;
+    let skippedCount = 0;
+    let failureCount = 0;
+
+    for (let i = 0; i < targetImages.length; i += 1) {
+      const image = targetImages[i];
+      const updateBody = buildUpdate(image);
+
+      if (!updateBody || Object.keys(updateBody).length === 0) {
+        skippedCount += 1;
+      } else {
+        try {
+          await worldAnvilImagesAPI.updateImage(image.id, updateBody);
+          successCount += 1;
+        } catch (error) {
+          console.error(`Error bulk-updating image ${image.id}:`, error);
+          failureCount += 1;
+        }
+      }
+
+      setBulkProgress({ completed: i + 1, total: targetImages.length });
+
+      if (i < targetImages.length - 1) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, BULK_THROTTLE_DELAY_MS),
+        );
+      }
+    }
+
+    setIsBulkProcessing(false);
+    setBulkProgress(null);
+    setCheckedImageIds(new Set());
+
+    const summary = [
+      successCount > 0 ? `${successCount} updated` : null,
+      skippedCount > 0 ? `${skippedCount} unchanged` : null,
+      failureCount > 0 ? `${failureCount} failed` : null,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
+    dispatch(
+      addNotification(
+        `Bulk update complete: ${summary || "no images updated"}.`,
+        failureCount > 0 ? "danger" : "success",
+      ),
+    );
+  };
+
+  const handleBulkApplyTags = (mode: BulkTagMode, tagsValue: string) => {
+    const tagsToApply = tagsFromValue(tagsValue);
+
+    void runBulkUpdate((image) => {
+      const existingTags = tagsFromValue(image.tags ?? "");
+      let newTags: string[];
+
+      if (mode === "add") {
+        newTags = Array.from(new Set([...existingTags, ...tagsToApply]));
+      } else if (mode === "remove") {
+        newTags = existingTags.filter((tag) => !tagsToApply.includes(tag));
+      } else {
+        newTags = tagsToApply;
+      }
+
+      const newTagsValue = newTags.join(",");
+      if (newTagsValue === (image.tags ?? "")) {
+        return null;
+      }
+
+      return { tags: newTagsValue };
+    });
+  };
+
+  const handleBulkMoveToFolder = (folderId: string) => {
+    void runBulkUpdate((image) => {
+      const currentFolderId = image.folderId ?? IMAGE_FOLDER_ROOT_ID;
+      if (currentFolderId === folderId) {
+        return null;
+      }
+      return { folderId };
+    });
   };
 
   return (
@@ -268,14 +413,37 @@ export default function ImageManager() {
                     visibleImages.length,
                   )} of ${visibleImages.length} images`}
             </span>
+            <Form.Check
+              type="checkbox"
+              id="select-all-on-page"
+              className="ms-auto"
+              label={`Select all on page (${pagedImages.length})`}
+              checked={isAllOnPageChecked}
+              disabled={pagedImages.length === 0}
+              onChange={handleToggleSelectAllOnPage}
+            />
           </div>
+          {checkedImageIds.size > 0 && (
+            <ImageBulkToolbar
+              selectedCount={checkedImageIds.size}
+              maxBatchSize={MAX_BULK_BATCH_SIZE}
+              folders={folders}
+              isProcessing={isBulkProcessing}
+              progress={bulkProgress}
+              onClearSelection={handleClearChecked}
+              onApplyTags={handleBulkApplyTags}
+              onMoveToFolder={handleBulkMoveToFolder}
+            />
+          )}
           <ImageGrid
             images={pagedImages}
             selectedImageId={selectedImage?.id ?? null}
             syncingImageId={syncingImageId}
+            checkedImageIds={checkedImageIds}
             onSelect={handleSelectImage}
             onRequestDelete={setImagePendingDelete}
             onSync={(image) => void handleSyncImage(image)}
+            onToggleChecked={handleToggleChecked}
           />
           {totalPages > 1 && (
             <Pagination className="mt-3 flex-wrap">
