@@ -1,5 +1,5 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
-import { Copy, ExternalLink, Pencil, Trash2 } from "lucide-react";
+import { Copy, ExternalLink, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { Image } from "@/components/types/image";
 import { copyImageId, getImageWaUrl } from "./image-actions";
@@ -7,15 +7,19 @@ import { copyImageId, getImageWaUrl } from "./image-actions";
 type ImageGridProps = {
   images: Image[];
   selectedImageId?: string | null;
+  syncingImageId?: string | null;
   onSelect: (image: Image) => void;
   onRequestDelete: (image: Image) => void;
+  onSync: (image: Image) => void;
 };
 
 export default function ImageGrid({
   images,
   selectedImageId,
+  syncingImageId,
   onSelect,
   onRequestDelete,
+  onSync,
 }: ImageGridProps) {
   const dispatch = useDispatch();
 
@@ -89,6 +93,24 @@ export default function ImageGrid({
                   aria-label={`See ${image.title} on WorldAnvil`}
                 >
                   <ExternalLink size={14} aria-hidden="true" />
+                </Button>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  title="Sync from WorldAnvil"
+                  aria-label={`Sync ${image.title} from WorldAnvil`}
+                  disabled={syncingImageId === image.id}
+                  onClick={() => onSync(image)}
+                >
+                  <RefreshCw
+                    size={14}
+                    aria-hidden="true"
+                    className={
+                      syncingImageId === image.id
+                        ? "image-sync-spinning"
+                        : undefined
+                    }
+                  />
                 </Button>
                 <Button
                   variant="outline-danger"

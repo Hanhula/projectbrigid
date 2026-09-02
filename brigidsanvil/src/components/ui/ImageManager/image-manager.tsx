@@ -70,6 +70,7 @@ export default function ImageManager() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isSavingImage, setIsSavingImage] = useState(false);
+  const [syncingImageId, setSyncingImageId] = useState<string | null>(null);
   const [imagePendingDelete, setImagePendingDelete] = useState<Image | null>(
     null,
   );
@@ -160,6 +161,23 @@ export default function ImageManager() {
   const handleSelectFolder = (folderId: string | null) => {
     setSelectedFolderId(folderId);
     setIsFolderTreeExpanded(false);
+  };
+
+  const handleSyncImage = async (image: Image) => {
+    setSyncingImageId(image.id);
+    try {
+      await worldAnvilImagesAPI.syncImage(image.id);
+      dispatch(
+        addNotification(`Synced "${image.title}" from WorldAnvil.`, "success"),
+      );
+    } catch (error) {
+      console.error("Error syncing image:", error);
+      dispatch(
+        addNotification("Unable to sync image from WorldAnvil.", "danger"),
+      );
+    } finally {
+      setSyncingImageId(null);
+    }
   };
 
   return (
@@ -254,8 +272,10 @@ export default function ImageManager() {
           <ImageGrid
             images={pagedImages}
             selectedImageId={selectedImage?.id ?? null}
+            syncingImageId={syncingImageId}
             onSelect={handleSelectImage}
             onRequestDelete={setImagePendingDelete}
+            onSync={(image) => void handleSyncImage(image)}
           />
           {totalPages > 1 && (
             <Pagination className="mt-3 flex-wrap">
@@ -280,6 +300,9 @@ export default function ImageManager() {
             image={selectedImage}
             folders={folders}
             isSaving={isSavingImage}
+            isSyncing={
+              selectedImage !== null && syncingImageId === selectedImage.id
+            }
             position={
               selectedIndex !== null
                 ? { index: selectedIndex, count: visibleImages.length }
@@ -287,6 +310,7 @@ export default function ImageManager() {
             }
             onSave={handleSaveImage}
             onRequestDelete={setImagePendingDelete}
+            onSync={(image) => void handleSyncImage(image)}
             onPrev={() =>
               setSelectedIndex((current) => {
                 if (current === null || visibleImages.length === 0) {

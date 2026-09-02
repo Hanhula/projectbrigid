@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Image, ImageUpdate } from "../types/image";
 import { CreateFolder, Folder, FolderUpdate } from "../types/folder";
@@ -7,6 +7,7 @@ import { selectAuthToken } from "../store/authSlice";
 import {
   removeImageById,
   resetImageFetchProgress,
+  selectImageMapByWorld,
   setImageFetchProgress,
   setLoadingImages,
   setWorldImages,
@@ -26,11 +27,36 @@ import { CallType, callWorldAnvil as callWorldAnvilBase } from "./api-client";
 
 // WA caps list endpoints at this many entities per page regardless of the requested limit.
 const PAGE_SIZE = 50;
+// Throttle between granularity-2 detail fetches so large libraries don't hammer the API.
+const THROTTLE_DELAY_MS = 200;
+
+// POST /world/images only returns ImageRef-level data (no filename/size/description/credits/etc),
+// so a fetched image needs a follow-up GET ?granularity=2 unless we already have full detail for it.
+function shouldHydrateImage(refImage: Image, existingImage?: Image) {
+  if (!existingImage) {
+    return true;
+  }
+
+  const hasFullDetail =
+    existingImage.filename !== undefined && existingImage.size !== undefined;
+  if (!hasFullDetail) {
+    return true;
+  }
+
+  const newDate = refImage.updateDate?.date ?? "";
+  const existingDate = existingImage.updateDate?.date ?? "";
+  return newDate > existingDate;
+}
 
 export function useWorldAnvilImagesAPI() {
   const dispatch = useDispatch();
   const authToken = useSelector(selectAuthToken);
   const world = useSelector(selectWorld);
+  const imageMapSelector = useMemo(
+    () => selectImageMapByWorld(world.id),
+    [world.id],
+  );
+  const currentImageMap = useSelector(imageMapSelector);
   const imageFetchRequestIdRef = useRef(0);
   const folderFetchRequestIdRef = useRef(0);
 
@@ -48,11 +74,12 @@ export function useWorldAnvilImagesAPI() {
     dispatch(setLoadingImages(true));
 
     let offset = 0;
-    let loadedCount = 0;
-    let isComplete = false;
+    let imageFetch: Image[] = [];
+    let isListComplete = false;
 
     try {
-      while (!isComplete) {
+      // Phase 1: page through the ref-level list so we know every image id in the world.
+      while (!isListComplete) {
         if (imageFetchRequestIdRef.current !== activeRequestId) {
           return;
         }
@@ -66,24 +93,95 @@ export function useWorldAnvilImagesAPI() {
           return;
         }
 
-        if (entities.length > 0) {
-          dispatch(setWorldImages({ worldId: world.id, images: entities }));
-        }
-
-        loadedCount += entities.length;
+        imageFetch = [...imageFetch, ...entities];
         offset += entities.length;
-        isComplete = entities.length < PAGE_SIZE;
+        isListComplete = entities.length < PAGE_SIZE;
 
         dispatch(
           setImageFetchProgress({
             worldId: world.id,
-            totalCount: loadedCount,
-            loadedCount,
+            totalCount: imageFetch.length,
+            loadedCount: imageFetch.length,
             offset,
-            isComplete,
+            isComplete: false,
           }),
         );
       }
+
+      // Phase 2: hydrate to granularity 2 (full detail) only for images that are new or stale.
+      const upToDate: Image[] = [];
+      const toHydrate: Image[] = [];
+      for (const refImage of imageFetch) {
+        const existing = currentImageMap[refImage.id];
+        if (shouldHydrateImage(refImage, existing)) {
+          toHydrate.push(refImage);
+        } else {
+          upToDate.push(existing);
+        }
+      }
+
+      const totalSteps = imageFetch.length + toHydrate.length;
+      let completedSteps = upToDate.length;
+
+      dispatch(
+        setImageFetchProgress({
+          worldId: world.id,
+          totalCount: totalSteps,
+          loadedCount: completedSteps,
+          offset,
+          isComplete: false,
+        }),
+      );
+
+      const hydratedImages: Image[] = [];
+      for (const refImage of toHydrate) {
+        if (imageFetchRequestIdRef.current !== activeRequestId) {
+          return;
+        }
+
+        try {
+          const fullImage = await getImage(refImage.id, "2");
+          hydratedImages.push(fullImage);
+        } catch (error) {
+          console.error("Error hydrating image detail:", error);
+          hydratedImages.push(refImage);
+        }
+
+        completedSteps += 1;
+        if (imageFetchRequestIdRef.current === activeRequestId) {
+          dispatch(
+            setImageFetchProgress({
+              worldId: world.id,
+              totalCount: totalSteps,
+              loadedCount: completedSteps,
+              offset,
+              isComplete: false,
+            }),
+          );
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, THROTTLE_DELAY_MS));
+      }
+
+      if (imageFetchRequestIdRef.current !== activeRequestId) {
+        return;
+      }
+
+      dispatch(
+        setWorldImages({
+          worldId: world.id,
+          images: [...upToDate, ...hydratedImages],
+        }),
+      );
+      dispatch(
+        setImageFetchProgress({
+          worldId: world.id,
+          totalCount: totalSteps,
+          loadedCount: totalSteps,
+          offset,
+          isComplete: true,
+        }),
+      );
     } finally {
       if (imageFetchRequestIdRef.current === activeRequestId) {
         dispatch(setLoadingImages(false));
@@ -91,9 +189,20 @@ export function useWorldAnvilImagesAPI() {
     }
   }
 
-  async function getImage(id: string, granularity: string = "2") {
+  async function getImage(
+    id: string,
+    granularity: string = "2",
+  ): Promise<Image> {
     const endpoint = `/image?id=${id}&granularity=${granularity}`;
     return await callWorldAnvil(endpoint, CallType.GET);
+  }
+
+  // Force a fresh granularity-2 fetch for a single image, bypassing the updateDate check
+  // used during bulk fetches, so a card/panel can pull the latest WA state on demand.
+  async function syncImage(id: string): Promise<Image> {
+    const fullImage = await getImage(id, "2");
+    dispatch(updateImageById({ worldId: world.id, image: fullImage }));
+    return fullImage;
   }
 
   async function updateImage(id: string, updateBody: ImageUpdate) {
@@ -103,7 +212,15 @@ export function useWorldAnvilImagesAPI() {
       CallType.PATCH,
       JSON.stringify(updateBody),
     );
-    dispatch(updateImageById({ worldId: world.id, image: data }));
+    // PATCH only echoes ImageRef-level fields, so merge onto the existing full-detail
+    // image (and the diff we just sent) rather than replacing it outright.
+    const existingImage = currentImageMap[id];
+    const mergedImage: Image = {
+      ...(existingImage ?? ({} as Image)),
+      ...updateBody,
+      ...data,
+    };
+    dispatch(updateImageById({ worldId: world.id, image: mergedImage }));
     return data;
   }
 
@@ -205,6 +322,7 @@ export function useWorldAnvilImagesAPI() {
   return {
     getImages,
     getImage,
+    syncImage,
     updateImage,
     deleteImage,
     getFolders,

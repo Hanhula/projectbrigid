@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import {
@@ -7,11 +7,13 @@ import {
   ChevronRight,
   Copy,
   ExternalLink,
+  RefreshCw,
   Trash2,
 } from "lucide-react";
 import { Image, ImageUpdate } from "@/components/types/image";
 import { Folder } from "@/components/types/folder";
 import { IMAGE_FOLDER_ROOT_ID } from "@/components/store/foldersSlice";
+import TagsField from "@/components/ui/Common/tags-field";
 import {
   copyImageId,
   copyImageURL,
@@ -24,9 +26,11 @@ type ImageDetailPanelProps = {
   image: Image | null;
   folders: Folder[];
   isSaving: boolean;
+  isSyncing: boolean;
   position: { index: number; count: number } | null;
   onSave: (id: string, updateBody: ImageUpdate) => void | Promise<void>;
   onRequestDelete: (image: Image) => void;
+  onSync: (image: Image) => void;
   onPrev: () => void;
   onNext: () => void;
   onBack: () => void;
@@ -57,22 +61,25 @@ export default function ImageDetailPanel({
   image,
   folders,
   isSaving,
+  isSyncing,
   position,
   onSave,
   onRequestDelete,
+  onSync,
   onPrev,
   onNext,
   onBack,
 }: ImageDetailPanelProps) {
   const dispatch = useDispatch();
   const [form, setForm] = useState<ImageUpdate>(emptyForm);
+  const initialFormRef = useRef<ImageUpdate>(emptyForm);
 
   useEffect(() => {
     if (!image) {
       return;
     }
 
-    setForm({
+    const initialForm: ImageUpdate = {
       title: image.title ?? "",
       tags: image.tags ?? "",
       description: image.description ?? "",
@@ -84,7 +91,10 @@ export default function ImageDetailPanel({
       isFeatured: image.isFeatured ?? false,
       linkUrl: image.linkUrl ?? "",
       folderId: image.folderId ?? IMAGE_FOLDER_ROOT_ID,
-    });
+    };
+
+    setForm(initialForm);
+    initialFormRef.current = initialForm;
   }, [image]);
 
   if (!image) {
@@ -106,7 +116,22 @@ export default function ImageDetailPanel({
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    void onSave(image.id, form);
+
+    const initialForm = initialFormRef.current;
+    const changedFields = (
+      Object.keys(form) as (keyof ImageUpdate)[]
+    ).reduce<ImageUpdate>((diff, field) => {
+      if (form[field] !== initialForm[field]) {
+        (diff as Record<string, unknown>)[field] = form[field];
+      }
+      return diff;
+    }, {});
+
+    if (Object.keys(changedFields).length === 0) {
+      return;
+    }
+
+    void onSave(image.id, changedFields);
   };
 
   return (
@@ -190,6 +215,19 @@ export default function ImageDetailPanel({
           Edit on WA
         </Button>
         <Button
+          variant="outline-secondary"
+          size="sm"
+          disabled={isSyncing}
+          onClick={() => onSync(image)}
+        >
+          <RefreshCw
+            size={14}
+            aria-hidden="true"
+            className={isSyncing ? "image-sync-spinning me-1" : "me-1"}
+          />
+          {isSyncing ? "Syncing..." : "Sync to WA"}
+        </Button>
+        <Button
           variant="outline-danger"
           size="sm"
           onClick={() => onRequestDelete(image)}
@@ -233,10 +271,10 @@ export default function ImageDetailPanel({
           />
         </Form.Group>
         <Form.Group className="mb-3">
-          <Form.Label>Tags (comma separated)</Form.Label>
-          <Form.Control
-            value={form.tags}
-            onChange={(event) => updateField("tags", event.target.value)}
+          <Form.Label>Tags</Form.Label>
+          <TagsField
+            value={form.tags ?? ""}
+            onChange={(value) => updateField("tags", value)}
           />
         </Form.Group>
         <Form.Group className="mb-3">

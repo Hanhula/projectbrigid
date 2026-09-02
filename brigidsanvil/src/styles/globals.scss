@@ -215,3 +215,43 @@ body,
 #__next {
   height: 100%;
 }
+
+.tags-field.react-tagsinput {
+  background: var(--bs-body-bg);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+
+  .react-tagsinput-input {
+    color: var(--bs-body-color);
+    font-size: 16px;
+    width: 6em;
+    margin-bottom: 0;
+  }
+
+  &.react-tagsinput--focused {
+    color: var(--bs-body-color);
+    background-color: var(--bs-body-bg);
+    border-color: var(--primary);
+  }
+
+  .react-tagsinput-tag {
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
+    color: white;
+    border-radius: 0.375rem;
+    font-size: 16px;
+    margin-bottom: 0;
+
+    &:hover {
+      .react-tagsinput-remove {
+        color: var(--primary-light);
+      }
+    }
+  }
+
+  .react-tagsinput-remove {
+    color: white;
+    text-decoration: none;
+    transition: 0.2s;
+  }
+}

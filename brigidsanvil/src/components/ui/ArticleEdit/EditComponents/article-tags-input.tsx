@@ -4,16 +4,9 @@ import {
   setEditedContentByID,
 } from "@/components/store/articlesSlice";
 import { World } from "@/components/types/world";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TagsInput from "react-tagsinput";
-import "react-tagsinput/react-tagsinput.css";
-
-const tagsFromValue = (value: string) =>
-  value
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
+import TagsField from "@/components/ui/Common/tags-field";
 
 type ArticleTagsInputProps = {
   world: World;
@@ -26,7 +19,6 @@ const ArticleTagsInput = ({
   world,
   article,
   fieldIdentifier,
-  resetSignal = 0,
 }: ArticleTagsInputProps) => {
   const dispatch = useDispatch();
   const selectEditedContentValueByID = useMemo(
@@ -37,42 +29,25 @@ const ArticleTagsInput = ({
   const editedContentValue = useSelector(selectEditedContentValueByID);
   const editedContent =
     typeof editedContentValue === "string" ? editedContentValue : undefined;
-  const [tags, setTags] = useState(() =>
-    tagsFromValue(String(editedContent ?? article[fieldIdentifier] ?? "")),
-  );
+  const currentValue = String(editedContent ?? article[fieldIdentifier] ?? "");
 
-  useEffect(() => {
-    setTags(
-      tagsFromValue(String(editedContent ?? article[fieldIdentifier] ?? "")),
-    );
-  }, [article, editedContent, fieldIdentifier, resetSignal]);
-
-  const handleChange = (newTags: string[]) => {
-    const normalizedTags = newTags.map((tag) => tag.trim()).filter(Boolean);
-    setTags(normalizedTags);
+  const handleChange = (newValue: string) => {
     dispatch(
       setEditedContentByID({
         world: { id: world.id },
         articleID: article.id,
         fieldIdentifier,
-        editedFields: normalizedTags.join(","),
+        editedFields: newValue,
       }),
     );
   };
 
   return (
-    <TagsInput
+    <TagsField
       className="article-tags-input react-tagsinput form-control"
-      value={tags}
+      value={currentValue}
       onChange={handleChange}
-      inputProps={{
-        name: fieldIdentifier,
-        placeholder: "Enter tags",
-      }}
-      addOnBlur
-      addKeys={["Tab", ","]}
-      addOnPaste
-      pasteSplit={(data) => data.split(",").map((tag) => tag.trim())}
+      name={fieldIdentifier}
     />
   );
 };

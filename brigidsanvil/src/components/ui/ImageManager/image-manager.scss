@@ -89,6 +89,19 @@
   cursor: zoom-in;
 }
 
+.image-sync-spinning {
+  animation: image-sync-spin 1s linear infinite;
+}
+
+@keyframes image-sync-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .image-detail-panel {
   border: 1px solid var(--bs-border-color, #dee2e6);
   border-radius: 0.375rem;
